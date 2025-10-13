@@ -1,12 +1,13 @@
-# 📄 ComfyUI Script-to-Video Suite
+#  ComfyUI Script-to-Video Suite
 
 > Transform PDF scripts into AI-ready video generation prompts through an intelligent three-stage pipeline
 
 A powerful ComfyUI custom node suite that converts long-form PDF scripts into structured storyboards and detailed video generation prompts using AI-powered parsing and scene breakdown.
 
+
 ---
 
-## 🏷️ Badges
+## Badges
 
 ![ComfyUI](https://img.shields.io/badge/ComfyUI-Compatible-brightgreen)
 ![Python](https://img.shields.io/badge/Python-3.10+-blue)
@@ -15,7 +16,7 @@ A powerful ComfyUI custom node suite that converts long-form PDF scripts into st
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Features](#-features)
 - [Installation & Setup](#-installation--setup)
@@ -30,14 +31,14 @@ A powerful ComfyUI custom node suite that converts long-form PDF scripts into st
 
 ---
 
-##  Features
+## Features
 
-- ** PDF Script Processing**: Extract and chunk text from PDF screenplay/script files with configurable overlap
-- ** AI-Powered Storyboarding**: Generate detailed storyboard panels using Gemini AI via relay server
-- ** Prompt Engineering**: Convert storyboard scenes into optimized video generation prompts
-- ** Modular Pipeline**: Three independent, chainable nodes for maximum flexibility
-- ** ComfyUI Integration**: Seamless workflow integration with custom output types
-- ** Relay Server Architecture**: Secure API access through dedicated relay endpoint
+-  **PDF Script Processing**: Extract and chunk text from PDF screenplay/script files with configurable overlap
+- **AI-Powered Storyboarding**: Generate detailed storyboard panels using Gemini AI via relay server
+- **Prompt Engineering**: Convert storyboard scenes into optimized video generation prompts
+- **Modular Pipeline**: Three independent, chainable nodes for maximum flexibility
+- **ComfyUI Integration**: Seamless workflow integration with custom output types
+- **Zero API Key Configuration**: All AI processing is handled by a secure relay server, so you never have to manage or expose your own API keys.
 
 ---
 
@@ -48,7 +49,7 @@ A powerful ComfyUI custom node suite that converts long-form PDF scripts into st
 - **ComfyUI** (latest version recommended)
 - **Python 3.10+**
 - **PyMuPDF** for PDF processing
-- **requests** library for API communication
+- **Git** 
 
 ### Installation Steps
 
@@ -72,9 +73,19 @@ pip install PyMuPDF requests
 
 ### Relay Server Configuration
 
-The suite uses a Gemini AI relay server for processing. The default endpoint is pre-configured: [1](#0-0) 
+The suite uses a Gemini AI relay server for processing. The default endpoint is pre-configured. 
 
 To use your own relay server, update the `RELAY_SERVER_URL` in the gemini_relay_client.py file.
+
+### Troubleshooting
+
+- **Nodes not appearing in ComfyUI:**  
+  Ensure the repository is cloned into `ComfyUI/custom_nodes/` and restart ComfyUI.
+- **Relay server connection errors:**  
+  Check your internet connection and verify `RELAY_SERVER_URL` in `gemini_relay_client.py`.
+- **PDF parsing issues:**  
+  Confirm that the PDF is not encrypted or image-based (use OCR first if needed).
+
 
 ---
 
@@ -119,7 +130,7 @@ To use your own relay server, update the `RELAY_SERVER_URL` in the gemini_relay_
 └─────────────────┘
 ```
 
-### Core Components [2](#0-1) 
+### Core Components  
 
 The suite registers three primary nodes with ComfyUI's node system, each designed for a specific stage of the script-to-video conversion pipeline.
 
@@ -134,7 +145,7 @@ The **PDF Chunker** node extracts text from PDF files and splits it into managea
 **Key Parameters:**
 - `pdf_path`: File path to the source PDF script
 - `chunk_size`: Characters per chunk (100-16000)
-- `overlap_size`: Overlap between chunks (0-8000) [3](#0-2) 
+- `overlap_size`: Overlap between chunks (0-8000) 
 
 ### Stage 2: Storyboard Generation
 
@@ -144,13 +155,13 @@ The **Storyboard Generator** processes each chunk through the Gemini relay serve
 1. Iterates through text chunks
 2. Sends each chunk with prompt template to relay server
 3. Collects AI-generated storyboard panels
-4. De-duplicates based on action descriptions [4](#0-3) 
+4. De-duplicates based on action descriptions 
 
 ### Stage 3: Prompt Generation
 
 The **Prompt Generator** converts storyboard scenes into detailed, AI-ready video generation prompts optimized for models like Stable Diffusion Video or RunwayML.
 
-**Scene Processing:** [5](#0-4) 
+**Scene Processing:**
 
 ---
 
@@ -165,7 +176,7 @@ The **Prompt Generator** converts storyboard scenes into detailed, AI-ready vide
 | **Output Type** | `CHUNKS` (custom type) |
 | **Function** | `process_pdf` |
 
-**Purpose**: Extracts and chunks PDF script text for processing [6](#0-5) 
+**Purpose**: Extracts and chunks PDF script text for processing 
 
 ---
 
@@ -178,7 +189,7 @@ The **Prompt Generator** converts storyboard scenes into detailed, AI-ready vide
 | **Output Type** | `STRING` (storyboard_text) |
 | **Function** | `generate_storyboard` |
 
-**Purpose**: Converts script chunks into structured storyboard panels using AI [7](#0-6) 
+**Purpose**: Converts script chunks into structured storyboard panels using AI 
 
 ---
 
@@ -191,7 +202,7 @@ The **Prompt Generator** converts storyboard scenes into detailed, AI-ready vide
 | **Output Type** | `STRING` (final_prompts) |
 | **Function** | `generate_prompts` |
 
-**Purpose**: Generates AI video generation prompts from storyboard scenes [8](#0-7) 
+**Purpose**: Generates AI video generation prompts from storyboard scenes 
 
 ---
 
@@ -255,7 +266,7 @@ script-parser-custom-node/
     ├── __init__.py                    # Node registration
     └── s2v_nodes/
         ├── gemini_relay_client.py     # API relay client
-        ├── pdf_parser_node.py         # Legacy parser (deprecated)
+        ├── pdf_parser_node.py         # Legacy parser 
         ├── s2v_chunker_node.py        # PDF Chunker node
         ├── s2v_storyboard_node.py     # Storyboard Generator
         └── s2v_prompt_gen_node.py     # Prompt Generator
@@ -282,7 +293,6 @@ pip install -e .
     - Add nodes to test workflow
     - Monitor console output for debugging
 
-### Relay Server Communication [9](#0-8) 
 
 ---
 
@@ -325,26 +335,27 @@ This project is licensed under the **MIT License** - see the LICENSE file for de
 ### Maintainers
 
 **Long-form AI Video Generation Team**
-- Repository: [script-parser-custom-node](https://github.com/Long-form-AI-video-generation/script-parser-custom-node)
+- Repository: [Long-form-AI-video-generation](https://github.com/Long-form-AI-video-generation)
 
 ### Acknowledgements
 
 - **ComfyUI Team** - For the extensible workflow framework
 - **Google Gemini** - For AI-powered text generation capabilities
-- **PyMuPDF Contributors** - For reliable PDF processing
 - **Open Source Community** - For continuous support and feedback
 
 ### Related Projects
 
-- [ComfyUI](https://github.com/comfyanonymous/ComfyUI) - The AI workflow framework
-- [ComfyUI-Manager](https://github.com/ltdrdata/ComfyUI-Manager) - Node package manager
+- [Script Parser to Storyboard](https://github.com/Long-form-AI-video-generation/script-parser-to-storyboard) - Complimentary repository.
 
 ---
 
+
+---
+<p align="center">
+ <i>Contributions, feedback, and ideas are always welcome!  let’s build the future of AI video together!</i>
+</p>
 <div align="center">
 
 **⭐ If this project helps your workflow, consider giving it a star! ⭐**
 
 </div>
-
----
