@@ -24,8 +24,6 @@ A powerful ComfyUI custom node suite that converts long-form PDF scripts into st
 - [Node Reference](#-node-reference)
 - [Example Usage](#-example-usage)
 - [Development Guide](#-development-guide)
-- [Contributing](#-contributing)
-- [License](#-license)
 - [Maintainers & Acknowledgements](#-maintainers--acknowledgements)
 
 ---
