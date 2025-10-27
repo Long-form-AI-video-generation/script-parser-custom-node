@@ -1,8 +1,8 @@
 #  ComfyUI Script-to-Video Suite
 
-> Transform PDF scripts into AI-ready video generation prompts through an intelligent three-stage pipeline
+> Transform PDF scripts into AI-ready video generation prompts through an intelligent  pipeline.
 
-A powerful ComfyUI custom node suite that converts long-form PDF scripts into structured storyboards and detailed video generation prompts using AI-powered parsing and scene breakdown.
+A  ComfyUI custom node suite that converts long-form PDF scripts into structured storyboards and detailed video generation prompts using AI-powered parsing and scene breakdown.
 
 
 ---
@@ -35,7 +35,7 @@ A powerful ComfyUI custom node suite that converts long-form PDF scripts into st
 - **Prompt Engineering**: Convert storyboard scenes into optimized video generation prompts
 - **Modular Pipeline**: Three independent, chainable nodes for maximum flexibility
 - **ComfyUI Integration**: Seamless workflow integration with custom output types
-- **Zero API Key Configuration**: All AI processing is handled by a secure relay server, so you never have to manage or expose your own API keys.
+
 
 ---
 
@@ -292,13 +292,7 @@ pip install -e .
 
 ---
 
-### Development Guidelines
 
-- Follow PEP 8 style guidelines
-- Add docstrings to all functions
-- Test with various PDF formats
-- Ensure ComfyUI compatibility
-- Update documentation for new features
 
 ### Reporting Issues
 
@@ -315,11 +309,7 @@ pip install -e .
 **Long-form AI Video Generation Team**
 - Repository: [Long-form-AI-video-generation](https://github.com/Long-form-AI-video-generation)
 
-### Acknowledgements
 
-- **ComfyUI Team** - For the extensible workflow framework
-- **Google Gemini** - For AI-powered text generation capabilities
-- **Open Source Community** - For continuous support and feedback
 
 ### Related Projects
 
