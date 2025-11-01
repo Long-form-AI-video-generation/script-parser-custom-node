@@ -19,7 +19,7 @@ class ScriptSummarizer:
                 "summary_prompt": ("STRING", {
                     "default": (
                         "You are an expert film analyst.\n"
-                        "Summarize the following movie script in **10 concise bullet points**.\n"
+                        "Summarize the following movie script in **concise bullet points**.\n"
                         "Focus on key events, main characters, tone, and story flow."
                     ),
                     "multiline": True,
