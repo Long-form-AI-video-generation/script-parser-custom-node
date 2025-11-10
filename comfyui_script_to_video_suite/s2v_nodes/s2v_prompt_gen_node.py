@@ -1,6 +1,21 @@
 import re
 import os 
 from .gemini_relay_client import ask_gemini_via_relay
+from pathlib import Path
+import sys 
+
+RAG_DIR = Path(__file__).parent / "scene-consistent-rag-systems"
+if RAG_DIR.exists():
+    sys.path.insert(0, str(RAG_DIR))
+
+try:
+    from main import rag_enrich_panel
+    RAG_AVAILABLE = True
+    print("RAG system loaded: scene-consistent-rag-systems/main.py")
+except Exception as e:
+    RAG_AVAILABLE = False
+    print(f"RAG not available (will skip enrichment): {e}")
+  
 
 def load_master_prompt_from_file(filename: str) -> str:
     current_dir = os.path.dirname(__file__)
@@ -95,24 +110,34 @@ class PromptGenerator:
         for i in range(0, len(all_panels), batch_size):
             batch_num = (i // batch_size) + 1
             print(f"\n--- Processing Batch {batch_num}/{total_batches} ---")
-            
+
             batch_of_panels = all_panels[i:i + batch_size]
-            batch_storyboard_text = "\n\n--- PANEL BREAK ---\n\n".join(batch_of_panels)
+            enriched_panels = []
 
-            print(f"Sending batch of {len(batch_of_panels)} panels ({len(batch_storyboard_text)} chars) to relay...")
-            
-            full_prompt = f"{master_prompt}\n\n--- STORYBOARD TO PROCESS ---\n\n{batch_storyboard_text}"
-            
+            for idx, panel in enumerate(batch_of_panels):
+                panel_no = i + idx + 1
+                print(f"   Panel {panel_no}/{len(all_panels)} → ", end="")
+
+                if RAG_AVAILABLE:
+                    try:
+                        enriched = rag_enrich_panel(panel)
+                        enriched_panels.append(enriched)
+                        print("RAG enriched")
+                    except Exception as e:
+                        print(f"RAG failed → using raw panel ({e})")
+                        enriched_panels.append(panel)
+                else:
+                    print("RAG not available → using raw panel")
+                    enriched_panels.append(panel)
+
+            batch_text = "\n\n--- PANEL BREAK ---\n\n".join(enriched_panels)
+            full_prompt = f"{master_prompt}\n\n--- STORYBOARD TO PROCESS ---\n\n{batch_text}"
+
             response_text = ask_gemini_via_relay(full_prompt)
-            
             if response_text.startswith("Error:"):
-                error_message = f"❌ FATAL ERROR on Batch {batch_num}: The relay failed.\n--> Reason: {response_text}"
-                print(error_message)
-                raise Exception(error_message)
-            
-            final_responses.append(response_text)
-            print(f"✅ Batch {batch_num} processed successfully.")
+                raise Exception(f"Relay error: {response_text}")
 
-        final_output = "\n\n--- BATCH SEPARATOR ---\n\n".join(final_responses)
-        print("✅ All batches for final prompt generation complete.")
-        return (final_output,)
+            final_responses.append(response_text)
+            print(f"Batch {batch_num} done.")
+
+        return ("\n\n--- BATCH SEPARATOR ---\n\n".join(final_responses),)
