@@ -83,6 +83,79 @@ To use your own relay server, update the `RELAY_SERVER_URL` in the gemini_relay_
 - **PDF parsing issues:**  
   Confirm that the PDF is not encrypted or image-based (use OCR first if needed).
 
+---
+
+## Scene-Consistency RAG Systems  integration
+
+This repository  integrates the `scene-consistency-rag-systems` repository branch  `rag/integrable-with-script-parser` (RAG systems used to ensure scene-level consistency across long-form AI video generation). The package is distributed as a separate Python project (see `pyproject.toml`) and requires Python >= 3.12. The steps below show strict, reproducible commands to clone and integrate it into this project.
+
+Follow one of the two recommended integration methods depending on whether you want a local copy inside this repo, an editable install, or a Git submodule.
+
+1) Clone into the s2v_nodes folder (recommended local copy)
+
+```bash
+# from the root of this repository
+cd /path/to/script-parser-custom-node
+git clone -b rag/integrable-with-script-parser https://github.com/Long-form-AI-video-generation/scene-consistency-rag-systems.git comfyui_script_to_video_suite/s2v_nodes/scene-consistency-rag-systems
+```
+
+2) OR add it as a Git submodule (keeps history separate)
+
+```bash
+cd /path/to/script-parser-custom-node/comfyui_script_to_video_suite/s2v_nodes
+git submodule add https://github.com/Long-form-AI-video-generation/scene-consistency-rag-systems.git scene-consistency-rag-systems
+git submodule update --init --recursive
+```
+
+3) Install dependencies and make importable (recommended: use Python 3.12 in a venv)
+
+```bash
+cd comfyui_script_to_video_suite/s2v_nodes/scene-consistency-rag-systems
+# create a dedicated venv using Python 3.12
+python3.12 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+# editable install will read pyproject.toml and install dependencies
+pip install -e .
+```
+
+If `pip install -e .` fails in your environment, you can install the runtime deps listed in `pyproject.toml` directly:
+
+```bash
+pip install faiss-cpu nltk numpy rank-bm25 scikit-learn sentence-transformers torch transformers
+```
+
+4) Make the package available to ComfyUI / this project
+
+- Option A — editable install (preferred): `pip install -e .` above makes the package importable system-wide (within the venv).
+- Option B — PYTHONPATH: if you don't want to install, add the package folder to `PYTHONPATH` before launching ComfyUI:
+
+```bash
+export PYTHONPATH="$PWD/comfyui_script_to_video_suite/s2v_nodes:$PYTHONPATH"
+# then start ComfyUI from the same shell/venv
+```
+
+- Option C — symlink into ComfyUI custom nodes (if ComfyUI only looks there):
+
+```bash
+ln -s "$PWD/comfyui_script_to_video_suite/s2v_nodes/scene-consistency-rag-systems" /path/to/ComfyUI/custom_nodes/scene-consistency-rag-systems
+```
+
+5) Verification
+
+Run a small import check inside the same Python environment you will use for ComfyUI:
+
+```bash
+python -c "import importlib, sys; importlib.import_module('scene_consistency_rag_systems'); print('scene_consistency_rag_systems import OK')"
+```
+
+Notes & troubleshooting
+- pyproject.toml for this package declares `requires-python = ">=3.12\"`. Use a 3.12 interpreter for full compatibility.
+- If you see errors installing `faiss-cpu` or `torch`, check the project platform compatibility and follow the upstream install instructions for those packages (they may require platform-specific wheels or CUDA variants).
+- If ComfyUI doesn't pick up nodes after integration, ensure you restarted ComfyUI and that the Python environment used by ComfyUI is the same venv where the package is installed or that `PYTHONPATH`/symlink was applied before start.
+
+---
+
 
 ---
 
