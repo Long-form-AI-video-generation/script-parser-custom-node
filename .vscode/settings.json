@@ -1,5 +1,8 @@
 {
     "python-envs.defaultEnvManager": "ms-python.python:conda",
     "python-envs.defaultPackageManager": "ms-python.python:conda",
-    "python-envs.pythonProjects": []
+    "python-envs.pythonProjects": [],
+    "python.analysis.extraPaths": [
+        "./comfyui_script_to_video_suite/s2v_nodes/scene-consistency-rag-systems"
+    ]
 }

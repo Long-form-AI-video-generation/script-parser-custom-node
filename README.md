@@ -149,6 +149,9 @@ Run a small import check inside the same Python environment you will use for Com
 python -c "import importlib, sys; importlib.import_module('scene_consistency_rag_systems'); print('scene_consistency_rag_systems import OK')"
 ```
 
+6) Git-ignore
+##### scene-consistency-rag-systems isn't tracked by git, in short is gitingored.
+
 Notes & troubleshooting
 - pyproject.toml for this package declares `requires-python = ">=3.12\"`. Use a 3.12 interpreter for full compatibility.
 - If you see errors installing `faiss-cpu` or `torch`, check the project platform compatibility and follow the upstream install instructions for those packages (they may require platform-specific wheels or CUDA variants).
