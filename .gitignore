@@ -205,5 +205,4 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
-s2v_nodes/scene-consistency-rag-systems/
-
+comfyui_script_to_video_suite/s2v_nodes/scene-consistency-rag-systems
