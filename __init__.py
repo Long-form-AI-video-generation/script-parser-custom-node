@@ -10,6 +10,8 @@ from .comfyui_script_to_video_suite.s2v_nodes.s2v_fighting_detector_node import 
 from .comfyui_script_to_video_suite.s2v_nodes.s2v_video_merger_node import VideoMergerNode
 
 from .comfyui_script_to_video_suite.s2v_nodes.s2v_rag_node import RagConsistencyNode_S2V
+from .comfyui_script_to_video_suite.s2v_nodes.s2v_scene_router_node import SceneRouter_S2V
+
 NODE_CLASS_MAPPINGS = {
     "PDFChunker_S2V": PDFChunker,
     "StoryboardGenerator_S2V": StoryboardGenerator,
@@ -22,7 +24,8 @@ NODE_CLASS_MAPPINGS = {
     "MultiLoraLoader_S2V": MultiLoraLoader_S2V,
     "FightingSceneDetector_S2V": FightingSceneDetector_S2V,
     "DragonBallLoRAConditional_S2V": DragonBallLoRAConditional_S2V,
-    "VideoMerger_S2V": VideoMergerNode
+    "VideoMerger_S2V": VideoMergerNode,
+    "SceneRouter_S2V": SceneRouter_S2V,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -37,7 +40,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "MultiLoraLoader_S2V": "7. Multi LoRA Loader (S2V)",
     "FightingSceneDetector_S2V": "Fighting Scene Detector (S2V)",
     "DragonBallLoRAConditional_S2V": "Dragon Ball LoRA Conditional (S2V)",
-    "VideoMerger_S2V": "Video Merger (S2V)"
+    "VideoMerger_S2V": "Video Merger (S2V)",
+    "SceneRouter_S2V": "Scene Router (S2V)",
 }
 
 # --- A confirmation message that your package was loaded ---
