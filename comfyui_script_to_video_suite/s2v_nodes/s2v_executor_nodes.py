@@ -76,6 +76,7 @@ class SmartSequencer_S2V:
     - Unique counters per node instance (prevents cross-talk).
     - Auto-resets if the input prompt list changes (fingerprinting).
     - Manual reset toggle.
+    - Returns individual prompts AND the full list for downstream processing.
     """
     
     # Store states globally for this class: { "node_id": {"index": 0, "last_hash": "..."} }
@@ -83,7 +84,6 @@ class SmartSequencer_S2V:
 
     @classmethod
     def IS_CHANGED(cls, **kwargs):
-        # Always re-run to allow internal state updates
         return float("NaN")
 
     @classmethod
@@ -95,12 +95,13 @@ class SmartSequencer_S2V:
                 "reset_counter": ("BOOLEAN", {"default": False, "label_on": "Reset NOW", "label_off": "Continue counting"}),
             },
             "hidden": {
-                "unique_id": "UNIQUE_ID", # ComfyUI automatically injects the node's unique ID
+                "unique_id": "UNIQUE_ID", 
             }
         }
 
-    RETURN_TYPES = ("STRING", "STRING", "INT", "INT",)
-    RETURN_NAMES = ("image_prompt", "video_prompt", "current_index", "total_panels",)
+    # Added "PROMPTS_LIST" to RETURN_TYPES to output the whole video prompt list
+    RETURN_TYPES = ("STRING", "STRING", "PROMPTS_LIST", "INT", "INT",)
+    RETURN_NAMES = ("image_prompt", "video_prompt", "all_video_prompts", "current_index", "total_panels",)
     FUNCTION = "execute_sequence"
     CATEGORY = "Script To Video Suite/Execution"
 
@@ -124,8 +125,7 @@ class SmartSequencer_S2V:
         
         state = SmartSequencer_S2V._node_states[unique_id]
 
-        # 3. AUTO-RESET Logic: Check if the content of the script changed
-        # We create a hash of the first 5 prompts as a "fingerprint"
+        # 3. AUTO-RESET Logic
         current_data_fingerprint = str(image_prompts[:5])
         current_hash = hashlib.md5(current_data_fingerprint.encode()).hexdigest()
 
@@ -140,9 +140,10 @@ class SmartSequencer_S2V:
             print(f"🔄 Smart Sequencer [{unique_id}]: Manual Reset Triggered.")
             state["index"] = 0
 
-        # 5. Get current index and wrap around if necessary
+        # 5. Get current index and wrap around
         idx = state["index"] % total_panels
         
+        # Retrieve the individual prompts
         i_prompt = image_prompts[idx]
         v_prompt = video_prompts[idx]
 
@@ -151,4 +152,5 @@ class SmartSequencer_S2V:
         # 6. Update index for the NEXT run
         state["index"] += 1
 
-        return (i_prompt, v_prompt, idx, total_panels)
+        
+        return (i_prompt, v_prompt, video_prompts, idx, total_panels)
