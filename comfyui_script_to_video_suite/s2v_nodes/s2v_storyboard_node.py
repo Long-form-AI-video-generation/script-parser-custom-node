@@ -95,39 +95,40 @@ class StoryboardGenerator:
         print("Executing 'Storyboard Generator' node...")
         
         if not chunks:
-            error_message = "❌ FATAL ERROR: 'chunks' input is empty. Check your PDF Chunker."
-            print(error_message)
-            raise ValueError(error_message)
+            raise ValueError("FATAL ERROR: 'chunks' input is empty.")
 
         all_responses = []
         chunk_count = len(chunks)
+        
+        # Track the panel offset globally for this run
+        total_panels_so_far = 0 
 
         for i, chunk_content in enumerate(chunks):
-            print(f"Processing chunk {i+1}/{chunk_count} via relay...")
-            full_prompt = f"{master_prompt}\n\n{chunk_content}"
+            # 1. Inject the counter hint into the prompt
+            offset_instruction = f"\n\nCONTINUITY RULE: You are currently processing from chunk {i+1} of {chunk_count}. " \
+                                 f"Start your panel numbering at 'PANEL {total_panels_so_far + 1:03}'."
+            
+            full_prompt = f"{master_prompt}\n{offset_instruction}\n\n{chunk_content}"
+            
             response_text = ""
             max_retries = 3
             for attempt in range(max_retries):
                 response_text = ask_gemini_via_relay(full_prompt)
-                
                 if not response_text.startswith("Error:"):
-                    break # Success! Exit the retry loop
-                
-                print(f"⚠️ Warning: Attempt {attempt+1} failed for chunk {i+1}. Retrying...")
+                    break
                 import time
-                time.sleep(2) # Wait 2 seconds before trying again
+                time.sleep(2)
 
             if response_text.startswith("Error:"):
-                error_message = (
-                    f"❌ FATAL ERROR on chunk {i+1}/{chunk_count}: The relay server failed "
-                    f"after {max_retries} attempts.\n--> Final Reason: {response_text}"
-                )
-                print(error_message)
-                raise RuntimeError(error_message) 
+                raise RuntimeError(f" FATAL ERROR on chunk {i+1}: {response_text}")
             
             all_responses.append(response_text)
+            
+            new_panels = re.findall(r'PANEL\s+\d+', response_text, re.IGNORECASE)
+            total_panels_so_far += len(new_panels)
+        
         raw_storyboard_output = "\n".join(all_responses)
         final_storyboard = self._post_process_storyboard(raw_storyboard_output)
         
-        print("✅ Storyboard generation complete.")
+        print(f"✅ Storyboard generation complete. Total panels: {total_panels_so_far}")
         return (final_storyboard,)
