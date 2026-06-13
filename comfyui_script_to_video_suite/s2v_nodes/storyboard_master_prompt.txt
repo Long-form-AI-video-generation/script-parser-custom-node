@@ -11,5 +11,6 @@ For each key moment or line of dialogue, create a new panel. You must infer came
     - **DIALOGUE:** The line of dialogue spoken during this panel, if any.
 3. Separate each complete panel block with "--- PANEL BREAK ---" on its own line.
 4. Do not add any conversational text, introductions, or summaries. Your output should ONLY be the formatted storyboard panels.
+5. If context is provided regarding previous panel numbers, you MUST start your numbering for this chunk immediately following the last panel number provided in the context.
 
 Here is the script chunk to process:
