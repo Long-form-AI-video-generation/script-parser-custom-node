@@ -30,10 +30,10 @@ A  ComfyUI custom node suite that converts long-form PDF scripts into structured
 
 ## Features
 
--  **PDF Script Processing**: Extract and chunk text from PDF screenplay/script files with configurable overlap
+-  **PDF Script Processing**: Extract and chunk text from PDF screenplay/script files with path-based or upload-based input
 - **AI-Powered Storyboarding**: Generate detailed storyboard panels using Gemini AI via relay server
 - **Prompt Engineering**: Convert storyboard scenes into optimized video generation prompts
-- **Modular Pipeline**: Three independent, chainable nodes for maximum flexibility
+- **Modular Pipeline**: Independent, chainable nodes for maximum flexibility
 - **ComfyUI Integration**: Seamless workflow integration with custom output types
 
 
@@ -142,10 +142,11 @@ Steps
 
 ### Stage 1: PDF Chunking
 
-The **PDF Chunker** node extracts text from PDF files and splits it into manageable chunks with configurable overlap to maintain context between segments.
+The **PDF Chunker** nodes extract text from PDF files and split it into manageable chunks with configurable overlap to maintain context between segments.
 
 **Key Parameters:**
 - `pdf_path`: File path to the source PDF script
+- `pdf_file`: Uploaded PDF from the ComfyUI input folder, used by the upload variant
 - `chunk_size`: Characters per chunk (4000)
 - `overlap_size`: Overlap between chunks (400) 
 
@@ -182,6 +183,19 @@ The **Prompt Generator** converts storyboard scenes into detailed, AI-ready vide
 
 ---
 
+### 1a. PDF Upload Chunker (S2V)
+
+| Property | Description |
+|----------|-------------|
+| **Category** | Script To Video Suite |
+| **Input Types** | `pdf_file` (PDF upload/select), `chunk_size` (INT), `overlap_size` (INT) |
+| **Output Type** | `CHUNKS`, `STRING`, `INT` |
+| **Function** | `process_uploaded_pdf` |
+
+**Purpose**: Uploads or selects a PDF from ComfyUI's input folder, then returns the same chunk outputs as the path-based PDF Chunker.
+
+---
+
 ### 2. Storyboard Generator (S2V)
 
 | Property | Description |
@@ -213,17 +227,18 @@ The **Prompt Generator** converts storyboard scenes into detailed, AI-ready vide
 ### Basic Workflow
 
 ```
-[PDF Chunker] → [Storyboard Generator] → [Prompt Generator] → [Save Text]
+[PDF Chunker or PDF Upload Chunker] → [Storyboard Generator] → [Prompt Generator] → [Save Text]
 ```
 
 ### Workflow Configuration
 
-1. **Add PDF Chunker Node**
+1. **Add a PDF input node**
    ```
    pdf_path: "C:/Scripts/my_screenplay.pdf"
    chunk_size: 4000
    overlap_size: 400
    ```
+   Or use **PDF Upload Chunker (S2V)** and choose a PDF from the upload button.
 
 2. **Connect to Storyboard Generator**
 
