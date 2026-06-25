@@ -73,7 +73,10 @@ class PromptGenerator:
 
     def _split_storyboard_into_panels(self, text: str) -> list[str]:
         segments = re.split(r'(?i)(?=\bPANEL\s+\d+)', text)
-        return [s.strip() for s in segments if "SHOT_TYPE" in s.upper()]
+        valid_panel_pattern = re.compile(
+            r"(?i)\b(SHOT[_\s-]*TYPE|SUBJECT|ACTION[_\s-]*DESCRIPTION)\b"
+        )
+        return [s.strip() for s in segments if valid_panel_pattern.search(s)]
 
     def generate_prompts_in_batches(self, storyboard_text: str, master_prompt: str, batch_size: int):
         if not storyboard_text or not storyboard_text.strip():

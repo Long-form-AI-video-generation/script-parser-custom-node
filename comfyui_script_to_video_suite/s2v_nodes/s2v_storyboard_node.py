@@ -16,7 +16,8 @@ DEFAULT_STORYBOARD_PROMPT = (
     "You must infer camera shots if they are not explicitly mentioned.\n\n"
     "**Follow these rules for EACH panel you generate:**\n"
     "1. Start each panel with a unique panel number (e.g., 'PANEL 001', 'PANEL 002').\n"
-    "2. Separate panels with the delimiter: '--- PANEL BREAK ---'\n"
+    "2. Include SHOT_TYPE, SUBJECT, ACTION_DESCRIPTION, and DIALOGUE labels.\n"
+    "3. Separate panels with the delimiter: '--- PANEL BREAK ---'\n"
 )
 
 def load_prompt_from_file() -> str:
