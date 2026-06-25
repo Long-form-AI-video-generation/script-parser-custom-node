@@ -1,8 +1,33 @@
 # Final Context-Aware Script Parser Workflow
 
-API workflow file:
+Visual ComfyUI workflow file:
 
 `workflows/final_context_aware_script_parser_workflow.json`
+
+API-prompt companion:
+
+`workflows/final_context_aware_script_parser_workflow_api.json`
+
+Load the visual workflow in ComfyUI when you want the grouped, readable graph.
+Use the API-prompt companion only when a tool expects prompt-API format.
+
+## Visual Structure
+
+The visual workflow is split into colored groups:
+
+1. **Script Parser: PDF to Prompt Lists**
+2. **Shared Models and Constants**
+3. **First Section Generator**
+4. **Context-Aware Loop: Remaining Prompts**
+5. **Final Output and Previews**
+
+Set/Get nodes bridge the major outputs between groups:
+
+- prompt values: `FirstImagePrompt`, `FirstVideoPrompt`, `AllVideoPrompts`, `TotalPanels`
+- shared model resources: `WanT5`, `WanVAE`, `CLIPVision`, `T2VModel`, `I2VModel`
+- constants: `NumFrames`, `MotionFrames`, `ContextFrames`
+
+This keeps the graph readable without changing the logical pipeline.
 
 ## Main Path
 
