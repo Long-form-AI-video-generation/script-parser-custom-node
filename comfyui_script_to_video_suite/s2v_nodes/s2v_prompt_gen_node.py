@@ -2,6 +2,7 @@ import re
 import os
 import json
 import json.decoder
+import ast
 from .gemini_relay_client import ask_gemini_via_relay
 from . import llm_cache
 from .s2v_progress_node import announce_to_ui
@@ -18,12 +19,45 @@ def load_master_prompt_from_file() -> str:
 class PromptGenerator:
    
     MAX_ATTEMPTS = 3
+    OPENAI_PROMPT_RESPONSE_FORMAT = {
+        "type": "json_schema",
+        "json_schema": {
+            "name": "script_to_video_prompt_batch",
+            "strict": True,
+            "schema": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["meta_summary", "panels"],
+                "properties": {
+                    "meta_summary": {"type": "string"},
+                    "panels": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": False,
+                            "required": ["panel_number", "image_prompt", "video_prompt"],
+                            "properties": {
+                                "panel_number": {"type": "string"},
+                                "image_prompt": {"type": "string"},
+                                "video_prompt": {"type": "string"},
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    }
+
+    OPENAI_PROMPT_SYSTEM_MESSAGE = (
+        "Return only valid JSON that matches the provided JSON schema. "
+        "Do not include markdown fences, commentary, or text outside the JSON object."
+    )
 
     SCHEMA_CORRECTION = (
         "\n\nCRITICAL CORRECTION: Your previous response used the WRONG schema. "
         "Do NOT return 'storyboard', 'shot_type', 'subject' or 'action_description' keys. "
         "Return EXACTLY this structure:\n"
-        '{"meta_summary": "...", "panels": [{"panel_number": 1, '
+        '{"meta_summary": "...", "panels": [{"panel_number": "1", '
         '"image_prompt": "masterpiece, best quality, anime style, ...", '
         '"video_prompt": "..."}]}\n'
         "Every panel MUST contain a non-empty image_prompt and video_prompt."
@@ -47,38 +81,98 @@ class PromptGenerator:
     FUNCTION = "generate_prompts_in_batches" 
     CATEGORY = "Script To Video Suite"
 
+    @staticmethod
+    def _looks_like_prompt_response(obj):
+        return isinstance(obj, dict) and (
+            "panels" in obj or "meta_summary" in obj or "storyboard" in obj
+        )
+
+    @staticmethod
+    def _strip_markdown_json(text: str) -> str:
+        cleaned = text.strip()
+        if cleaned.startswith("```"):
+            cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned, flags=re.IGNORECASE)
+            cleaned = re.sub(r"\s*```$", "", cleaned)
+        return cleaned.replace("“", "\"").replace("”", "\"")
+
+    @staticmethod
+    def _iter_object_candidates(text: str):
+        """Yield balanced object substrings while respecting quoted strings."""
+        for start_idx, char in enumerate(text):
+            if char != "{":
+                continue
+
+            depth = 0
+            in_string = False
+            quote_char = ""
+            escaped = False
+
+            for idx in range(start_idx, len(text)):
+                current = text[idx]
+
+                if in_string:
+                    if escaped:
+                        escaped = False
+                    elif current == "\\":
+                        escaped = True
+                    elif current == quote_char:
+                        in_string = False
+                    continue
+
+                if current in ("\"", "'"):
+                    in_string = True
+                    quote_char = current
+                elif current == "{":
+                    depth += 1
+                elif current == "}":
+                    depth -= 1
+                    if depth == 0:
+                        yield text[start_idx:idx + 1]
+                        break
+
+    def _decode_json_candidate(self, candidate: str):
+        try:
+            return json.loads(candidate)
+        except json.JSONDecodeError:
+            pass
+
+        try:
+            value = ast.literal_eval(candidate)
+        except (SyntaxError, ValueError):
+            return None
+        return value if isinstance(value, dict) else None
+
     def _extract_json_robustly(self, text):
         """
-        The 'Repairman' logic:
-        1. Finds all { } blocks.
-        2. Specifically repairs the '"key": 'value'' pattern seen in logs.
-        3. Decodes using raw_decode.
+        Parse model JSON without corrupting valid strings.
+        OpenAI structured output should be valid JSON already, so plain JSON
+        parsing must happen before any compatibility fallback.
         """
-        # 1. Clean markdown and common noise
-        cleaned = text.replace("```json", "").replace("```", "").strip()
-        cleaned = cleaned.replace("“", "\"").replace("”", "\"")
+        if not isinstance(text, str):
+            return None
 
-        # 2. REPAIR DELIMITERS: The AI is using ' instead of " for values.
-        # This regex looks for: : followed by optional space and a single quote
-        # It replaces it with : "
-        cleaned = re.sub(r'(:\s*)\'', r'\1"', cleaned)
-        
-        # This regex looks for: a single quote followed by a comma, bracket, or brace
-        # It replaces it with " and the separator
-        cleaned = re.sub(r'\'\s*([,\]\}])', r'"\1', cleaned)
+        cleaned = self._strip_markdown_json(text)
 
-        # 3. Find every '{' and try to decode from there
-        start_indices = [m.start() for m in re.finditer(r'\{', cleaned)]
+        obj = self._decode_json_candidate(cleaned)
+        if self._looks_like_prompt_response(obj):
+            return obj
+
         decoder = json.JSONDecoder()
-        
-        for start_idx in reversed(start_indices):
-            json_snippet = cleaned[start_idx:]
-            try:
-                obj, _ = decoder.raw_decode(json_snippet)
-                if isinstance(obj, dict) and ("panels" in obj or "meta_summary" in obj or "storyboard" in obj):
-                    return obj
-            except:
+        for start_idx, char in enumerate(cleaned):
+            if char != "{":
                 continue
+            try:
+                obj, _ = decoder.raw_decode(cleaned[start_idx:])
+                if self._looks_like_prompt_response(obj):
+                    return obj
+            except json.JSONDecodeError:
+                continue
+
+        for candidate in self._iter_object_candidates(cleaned):
+            obj = self._decode_json_candidate(candidate)
+            if self._looks_like_prompt_response(obj):
+                return obj
+
         return None
 
     def _panels_are_valid(self, panels):
@@ -145,9 +239,9 @@ class PromptGenerator:
             syntax_enforcement = (
                 "\n\nIMPORTANT OUTPUT RULES:"
                 "\n- Return ONE JSON object with EXACTLY these top-level keys: \"meta_summary\" (string) and \"panels\" (array)."
-                "\n- Each panel MUST be: {\"panel_number\": 1, \"image_prompt\": \"masterpiece, best quality, anime style, ...\", \"video_prompt\": \"...\"}."
+                "\n- Each panel MUST be: {\"panel_number\": \"1\", \"image_prompt\": \"masterpiece, best quality, anime style, ...\", \"video_prompt\": \"...\"}."
                 "\n- Do NOT output 'storyboard', 'shot_type', 'subject' or 'action_description' keys; translate their content INTO the prompts."
-                "\n- Use ONLY double-quotes (\") for JSON keys and values. A single quote (') as a delimiter will crash the system."
+                "\n- Use double-quotes (\") as JSON delimiters. Apostrophes inside string values are allowed."
             )
 
             print(f"--- 🤖 Processing Batch {batch_num}/{total_batches} ---")
@@ -161,7 +255,11 @@ class PromptGenerator:
 
             for attempt in range(1, self.MAX_ATTEMPTS + 1):
                 full_prompt = f"{master_prompt}{continuity}{syntax_enforcement}{correction}\n\n### STORYBOARD DATA:\n{batch_text}\n\nRESULT JSON:"
-                response_text = ask_gemini_via_relay(full_prompt)
+                response_text = ask_gemini_via_relay(
+                    full_prompt,
+                    response_format=self.OPENAI_PROMPT_RESPONSE_FORMAT,
+                    system_message=self.OPENAI_PROMPT_SYSTEM_MESSAGE,
+                )
 
                 if response_text.startswith("Error:"):
                     raise Exception(f"❌ RELAY FAILURE: {response_text}")
