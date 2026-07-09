@@ -1,0 +1,5645 @@
+{
+  "id": "69a2e765-14cd-494d-b3be-9293472575c4",
+  "revision": 0,
+  "last_node_id": 148,
+  "last_link_id": 101,
+  "nodes": [
+    {
+      "id": 117,
+      "type": "PromptGenerator_S2V",
+      "pos": [
+        815.3795504141393,
+        238.37906366349452
+      ],
+      "size": [
+        393.79998779296875,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 43,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "storyboard_text",
+          "type": "STRING",
+          "widget": {
+            "name": "storyboard_text"
+          },
+          "link": 89
+        }
+      ],
+      "outputs": [
+        {
+          "name": "final_prompts",
+          "type": "STRING",
+          "links": [
+            87
+          ]
+        }
+      ],
+      "title": "3. Prompt Generator (storyboard to JSON prompts)",
+      "properties": {
+        "aux_id": "Long-form-AI-video-generation/script-parser-custom-node",
+        "ver": "5a0a4af2f8d73c399cf8f65cd0014576b368d6a4",
+        "Node name for S&R": "PromptGenerator_S2V",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "### ROLE\nYou are a JSON Translation Engine. Your task is to take a storyboard written in Markdown text and convert it into a valid JSON object.\n\n### TASK\n1. Write a \"meta_summary\" paragraph for the whole batch.\n2. For each panel, create a \"panels\" entry.\n3. image_prompt: Combine SUBJECT, SHOT_TYPE, and ACTION_DESCRIPTION. Start with \"masterpiece, best quality, anime style\".\n4. video_prompt: Extract the core motion into 1 short sentence.\n\n### OUTPUT JSON STRUCTURE\n{\n  \"meta_summary\": \"...\",\n  \"panels\": [\n    {\n      \"panel_number\": 1,\n      \"image_prompt\": \"masterpiece, best quality, anime style, [Subject], [Shot], [Action]\",\n      \"video_prompt\": \"[Motion]\"\n    }\n  ]\n}\n\n### CONSTRAINTS & SYNTAX RULES\n- Output ONLY the JSON object. No conversational text or explanations.\n- EVERY JSON key and EVERY string value MUST be enclosed in DOUBLE QUOTES (\").\n- DO NOT use single quotes (') for JSON keys or to wrap string values.\n- If you need a quote INSIDE the text (e.g., character's name), use a single quote (').\n- NEVER use double quotes (\") inside your prompt strings.\n- The input storyboard numbers may reset; ignore them and follow the provided order.\n\nYOU MUST START YOUR RESPONSE WITH THE CHARACTER: {",
+        10,
+        10
+      ],
+      "color": "#1f3d4d",
+      "bgcolor": "#2d5a70"
+    },
+    {
+      "id": 39,
+      "type": "PromptUnpacker_S2V",
+      "pos": [
+        1357.1540264263276,
+        253.12063672675913
+      ],
+      "size": [
+        323.8999938964844,
+        119.60000610351562
+      ],
+      "flags": {},
+      "order": 50,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "prompt_text",
+          "type": "STRING",
+          "link": 17
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image_prompts",
+          "type": "PROMPTS_LIST",
+          "links": [
+            18
+          ]
+        },
+        {
+          "name": "video_prompts",
+          "type": "PROMPTS_LIST",
+          "links": [
+            19
+          ]
+        },
+        {
+          "name": "meta_summary",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "title": "4. Prompt Unpacker (JSON to prompt lists)",
+      "properties": {
+        "aux_id": "Long-form-AI-video-generation/script-parser-custom-node",
+        "ver": "5a0a4af2f8d73c399cf8f65cd0014576b368d6a4",
+        "Node name for S&R": "PromptUnpacker_S2V",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [],
+      "color": "#1f3d4d",
+      "bgcolor": "#2d5a70"
+    },
+    {
+      "id": 41,
+      "type": "PromptLoopBuilder_S2V",
+      "pos": [
+        1810,
+        260
+      ],
+      "size": [
+        343.6499938964844,
+        199.60000610351562
+      ],
+      "flags": {},
+      "order": 54,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image_prompts",
+          "type": "PROMPTS_LIST",
+          "link": 18
+        },
+        {
+          "name": "video_prompts",
+          "type": "PROMPTS_LIST",
+          "link": 19
+        }
+      ],
+      "outputs": [
+        {
+          "name": "first_image_prompt",
+          "type": "STRING",
+          "links": [
+            90
+          ]
+        },
+        {
+          "name": "first_video_prompt",
+          "type": "STRING",
+          "links": [
+            91
+          ]
+        },
+        {
+          "name": "all_video_prompts",
+          "type": "PROMPTS_LIST",
+          "links": [
+            92
+          ]
+        },
+        {
+          "name": "first_index",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "total_panels",
+          "type": "INT",
+          "links": [
+            93
+          ]
+        }
+      ],
+      "title": "5. Prompt Loop Builder (first prompt + full list)",
+      "properties": {
+        "aux_id": "Long-form-AI-video-generation/script-parser-custom-node",
+        "ver": "5a0a4af2f8d73c399cf8f65cd0014576b368d6a4",
+        "Node name for S&R": "PromptLoopBuilder_S2V",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        0
+      ],
+      "color": "#1f3d4d",
+      "bgcolor": "#2d5a70"
+    },
+    {
+      "id": 119,
+      "type": "SetNode",
+      "pos": [
+        1810,
+        520
+      ],
+      "size": [
+        225,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 58,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "link": 90
+        }
+      ],
+      "outputs": [
+        {
+          "name": "*",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "title": "Set_FirstImagePrompt",
+      "properties": {
+        "previousName": "",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "FirstImagePrompt"
+      ]
+    },
+    {
+      "id": 120,
+      "type": "SetNode",
+      "pos": [
+        1810,
+        568
+      ],
+      "size": [
+        225,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 59,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "link": 91
+        }
+      ],
+      "outputs": [
+        {
+          "name": "*",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "title": "Set_FirstVideoPrompt",
+      "properties": {
+        "previousName": "",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "FirstVideoPrompt"
+      ]
+    },
+    {
+      "id": 121,
+      "type": "SetNode",
+      "pos": [
+        1810,
+        616
+      ],
+      "size": [
+        225,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 60,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "PROMPTS_LIST",
+          "type": "PROMPTS_LIST",
+          "link": 92
+        }
+      ],
+      "outputs": [
+        {
+          "name": "*",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "title": "Set_AllVideoPrompts",
+      "properties": {
+        "previousName": "",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "AllVideoPrompts"
+      ]
+    },
+    {
+      "id": 122,
+      "type": "SetNode",
+      "pos": [
+        1810,
+        664
+      ],
+      "size": [
+        225,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 61,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "INT",
+          "type": "INT",
+          "link": 93
+        }
+      ],
+      "outputs": [
+        {
+          "name": "*",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "title": "Set_TotalPanels",
+      "properties": {
+        "previousName": "",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "TotalPanels"
+      ],
+      "color": "#1b4669",
+      "bgcolor": "#29699c"
+    },
+    {
+      "id": 144,
+      "type": "Note",
+      "pos": [
+        -464.52061544278445,
+        1812.784547560299
+      ],
+      "size": [
+        320,
+        150
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "Model hub note",
+      "properties": {
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "All model loaders, LoRA setup, compile settings, and model Set nodes live here. Matching Get nodes in generation sections use the same model color."
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 63,
+      "type": "WanVideoTorchCompileSettings",
+      "pos": [
+        -388.30356293578546,
+        1701.4315530954732
+      ],
+      "size": [
+        280.1000061035156,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "torch_compile_args",
+          "type": "WANCOMPILEARGS",
+          "links": [
+            46
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-wanvideowrapper",
+        "ver": "1.4.7",
+        "Node name for S&R": "WanVideoTorchCompileSettings",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "inductor",
+        false,
+        "default",
+        false,
+        0,
+        true,
+        128,
+        false,
+        false
+      ],
+      "color": "#1f2f46",
+      "bgcolor": "#314a6b"
+    },
+    {
+      "id": 99,
+      "type": "WanVideoLoraSelect",
+      "pos": [
+        26.559111111113396,
+        1723.0524444444395
+      ],
+      "size": [
+        300,
+        218.26666259765625
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "prev_lora",
+          "shape": 7,
+          "type": "WANVIDLORA",
+          "link": null
+        },
+        {
+          "name": "blocks",
+          "shape": 7,
+          "type": "SELECTEDBLOCKS",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "lora",
+          "type": "WANVIDLORA",
+          "links": [
+            27
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-wanvideowrapper",
+        "ver": "1.4.7",
+        "Node name for S&R": "WanVideoLoraSelect",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "lightx2v_t2v_14b_cfg_step_distillation.safetensors",
+        1.0011,
+        false,
+        true
+      ],
+      "color": "#1f2f46",
+      "bgcolor": "#314a6b"
+    },
+    {
+      "id": 61,
+      "type": "WanVideoLoraSelect",
+      "pos": [
+        356.5591111111131,
+        1723.0524444444395
+      ],
+      "size": [
+        300,
+        218.26666259765625
+      ],
+      "flags": {},
+      "order": 29,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "prev_lora",
+          "shape": 7,
+          "type": "WANVIDLORA",
+          "link": 27
+        },
+        {
+          "name": "blocks",
+          "shape": 7,
+          "type": "SELECTEDBLOCKS",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "lora",
+          "type": "WANVIDLORA",
+          "links": [
+            47
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-wanvideowrapper",
+        "ver": "1.4.7",
+        "Node name for S&R": "WanVideoLoraSelect",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "SVI_Wan2.1-I2V-14B_lora_v2.0.safetensors",
+        1,
+        false,
+        true
+      ],
+      "color": "#1f2f46",
+      "bgcolor": "#314a6b"
+    },
+    {
+      "id": 62,
+      "type": "WanVideoBlockSwap",
+      "pos": [
+        686.559111111113,
+        1723.0524444444395
+      ],
+      "size": [
+        300,
+        279.6000061035156
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "block_swap_args",
+          "type": "BLOCKSWAPARGS",
+          "links": [
+            3
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-wanvideowrapper",
+        "ver": "1.4.7",
+        "Node name for S&R": "WanVideoBlockSwap",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        20,
+        false,
+        false,
+        true,
+        0,
+        1,
+        false
+      ],
+      "color": "#1f2f46",
+      "bgcolor": "#314a6b"
+    },
+    {
+      "id": 78,
+      "type": "WanVideoModelLoader",
+      "pos": [
+        1016.5591111111133,
+        1723.0524444444395
+      ],
+      "size": [
+        330,
+        447.6000061035156
+      ],
+      "flags": {},
+      "order": 41,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "compile_args",
+          "shape": 7,
+          "type": "WANCOMPILEARGS",
+          "link": 46
+        },
+        {
+          "name": "block_swap_args",
+          "shape": 7,
+          "type": "BLOCKSWAPARGS",
+          "link": null
+        },
+        {
+          "name": "lora",
+          "shape": 7,
+          "type": "WANVIDLORA",
+          "link": 47
+        },
+        {
+          "name": "vram_management_args",
+          "shape": 7,
+          "type": "VRAM_MANAGEMENTARGS",
+          "link": null
+        },
+        {
+          "name": "extra_model",
+          "shape": 7,
+          "type": "VACEPATH",
+          "link": null
+        },
+        {
+          "name": "fantasytalking_model",
+          "shape": 7,
+          "type": "FANTASYTALKINGMODEL",
+          "link": null
+        },
+        {
+          "name": "multitalk_model",
+          "shape": 7,
+          "type": "MULTITALKMODEL",
+          "link": null
+        },
+        {
+          "name": "fantasyportrait_model",
+          "shape": 7,
+          "type": "FANTASYPORTRAITMODEL",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "WANVIDEOMODEL",
+          "links": [
+            2
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-wanvideowrapper",
+        "ver": "1.4.7",
+        "Node name for S&R": "WanVideoModelLoader",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "wan2.1_i2v_480p_14B_fp8_e4m3fn.safetensors",
+        "fp16_fast",
+        "fp8_e5m2",
+        "offload_device",
+        "sageattn_compiled",
+        "default"
+      ],
+      "color": "#1f2f46",
+      "bgcolor": "#314a6b"
+    },
+    {
+      "id": 8,
+      "type": "WanVideoSetBlockSwap",
+      "pos": [
+        1376.5591111111135,
+        1723.0524444444395
+      ],
+      "size": [
+        300,
+        95.5999984741211
+      ],
+      "flags": {},
+      "order": 44,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "WANVIDEOMODEL",
+          "link": 2
+        },
+        {
+          "name": "block_swap_args",
+          "shape": 7,
+          "type": "BLOCKSWAPARGS",
+          "link": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "WANVIDEOMODEL",
+          "links": [
+            98
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-wanvideowrapper",
+        "ver": "1.4.7",
+        "Node name for S&R": "WanVideoSetBlockSwap",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [],
+      "color": "#1f2f46",
+      "bgcolor": "#314a6b"
+    },
+    {
+      "id": 34,
+      "type": "WanVideoModelLoader",
+      "pos": [
+        -323.4408888888865,
+        2003.0524444444395
+      ],
+      "size": [
+        330,
+        447.6000061035156
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "compile_args",
+          "shape": 7,
+          "type": "WANCOMPILEARGS",
+          "link": null
+        },
+        {
+          "name": "block_swap_args",
+          "shape": 7,
+          "type": "BLOCKSWAPARGS",
+          "link": null
+        },
+        {
+          "name": "lora",
+          "shape": 7,
+          "type": "WANVIDLORA",
+          "link": null
+        },
+        {
+          "name": "vram_management_args",
+          "shape": 7,
+          "type": "VRAM_MANAGEMENTARGS",
+          "link": null
+        },
+        {
+          "name": "extra_model",
+          "shape": 7,
+          "type": "VACEPATH",
+          "link": null
+        },
+        {
+          "name": "fantasytalking_model",
+          "shape": 7,
+          "type": "FANTASYTALKINGMODEL",
+          "link": null
+        },
+        {
+          "name": "multitalk_model",
+          "shape": 7,
+          "type": "MULTITALKMODEL",
+          "link": null
+        },
+        {
+          "name": "fantasyportrait_model",
+          "shape": 7,
+          "type": "FANTASYPORTRAITMODEL",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "WANVIDEOMODEL",
+          "links": [
+            97
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-wanvideowrapper",
+        "ver": "1.4.7",
+        "Node name for S&R": "WanVideoModelLoader",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "wan2.1_t2v_14B_fp8_e4m3fn.safetensors",
+        "bf16",
+        "disabled",
+        "offload_device",
+        "sdpa",
+        "default"
+      ],
+      "color": "#1f2f46",
+      "bgcolor": "#314a6b"
+    },
+    {
+      "id": 130,
+      "type": "SetNode",
+      "pos": [
+        26.559111111113396,
+        2003.0524444444395
+      ],
+      "size": [
+        225,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 30,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "WANVIDEOMODEL",
+          "type": "WANVIDEOMODEL",
+          "link": 97
+        }
+      ],
+      "outputs": [
+        {
+          "name": "*",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "title": "Set_Model_T2V",
+      "properties": {
+        "previousName": "",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "T2VModel"
+      ]
+    },
+    {
+      "id": 64,
+      "type": "LoadWanVideoT5TextEncoder",
+      "pos": [
+        356.5591111111131,
+        2003.0524444444395
+      ],
+      "size": [
+        300,
+        210.26666259765625
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "wan_t5_model",
+          "type": "WANTEXTENCODER",
+          "links": [
+            94
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-wanvideowrapper",
+        "ver": "1.4.7",
+        "Node name for S&R": "LoadWanVideoT5TextEncoder",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "umt5_xxl_fp16.safetensors",
+        "bf16",
+        "offload_device",
+        "disabled"
+      ],
+      "color": "#1f2f46",
+      "bgcolor": "#314a6b"
+    },
+    {
+      "id": 127,
+      "type": "SetNode",
+      "pos": [
+        686.559111111113,
+        2003.0524444444395
+      ],
+      "size": [
+        225,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 31,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "WANTEXTENCODER",
+          "type": "WANTEXTENCODER",
+          "link": 94
+        }
+      ],
+      "outputs": [
+        {
+          "name": "*",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "title": "Set_Model_WanT5",
+      "properties": {
+        "previousName": "",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "WanT5"
+      ]
+    },
+    {
+      "id": 65,
+      "type": "WanVideoVAELoader",
+      "pos": [
+        1016.5591111111133,
+        2003.0524444444395
+      ],
+      "size": [
+        300,
+        196.93333435058594
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "compile_args",
+          "shape": 7,
+          "type": "WANCOMPILEARGS",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "vae",
+          "type": "WANVAE",
+          "links": [
+            95
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-wanvideowrapper",
+        "ver": "1.4.7",
+        "Node name for S&R": "WanVideoVAELoader",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "wan_2.1_vae.safetensors",
+        "bf16",
+        false,
+        false
+      ],
+      "color": "#1f2f46",
+      "bgcolor": "#314a6b"
+    },
+    {
+      "id": 128,
+      "type": "SetNode",
+      "pos": [
+        1346.5591111111135,
+        2003.0524444444395
+      ],
+      "size": [
+        225,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 32,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "WANVAE",
+          "type": "WANVAE",
+          "link": 95
+        }
+      ],
+      "outputs": [
+        {
+          "name": "*",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "title": "Set_Model_WanVAE",
+      "properties": {
+        "previousName": "",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "WanVAE"
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 67,
+      "type": "CLIPVisionLoader",
+      "pos": [
+        1676.559111111114,
+        2003.0524444444395
+      ],
+      "size": [
+        300,
+        120
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP_VISION",
+          "type": "CLIP_VISION",
+          "links": [
+            96
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.24.0",
+        "Node name for S&R": "CLIPVisionLoader",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "clip_vision_h.safetensors"
+      ],
+      "color": "#1f2f46",
+      "bgcolor": "#314a6b"
+    },
+    {
+      "id": 129,
+      "type": "SetNode",
+      "pos": [
+        2006.559111111114,
+        2003.0524444444395
+      ],
+      "size": [
+        225,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 33,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "CLIP_VISION",
+          "type": "CLIP_VISION",
+          "link": 96
+        }
+      ],
+      "outputs": [
+        {
+          "name": "*",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "title": "Set_Model_CLIPVision",
+      "properties": {
+        "previousName": "",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "CLIPVision"
+      ]
+    },
+    {
+      "id": 145,
+      "type": "Note",
+      "pos": [
+        -40.03506135737526,
+        1168.2435878591587
+      ],
+      "size": [
+        320,
+        150
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "Frame constants note",
+      "properties": {
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "Frame-count constants are separated from model loading. Matching Get nodes use the same blue constant color."
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 70,
+      "type": "INTConstant",
+      "pos": [
+        48.75647296556535,
+        1045.024389267736
+      ],
+      "size": [
+        225,
+        103.60000610351562
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "value",
+          "type": "INT",
+          "links": [
+            99
+          ]
+        }
+      ],
+      "title": "num_frames",
+      "properties": {
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "06a60ac3fec854909f35aba20aa5be39ff59a6e3",
+        "Node name for S&R": "INTConstant",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        81
+      ],
+      "color": "#1b4669",
+      "bgcolor": "#29699c"
+    },
+    {
+      "id": 132,
+      "type": "SetNode",
+      "pos": [
+        389.9649386426247,
+        1078.2435878591587
+      ],
+      "size": [
+        229.56666564941406,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 34,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "INT",
+          "type": "INT",
+          "link": 99
+        }
+      ],
+      "outputs": [
+        {
+          "name": "*",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "title": "Set_Constant_NumFrames",
+      "properties": {
+        "previousName": "",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "NumFrames"
+      ],
+      "color": "#1b4669",
+      "bgcolor": "#29699c"
+    },
+    {
+      "id": 21,
+      "type": "INTConstant",
+      "pos": [
+        719.9649386426246,
+        1078.2435878591587
+      ],
+      "size": [
+        225,
+        103.60000610351562
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "value",
+          "type": "INT",
+          "links": [
+            100
+          ]
+        }
+      ],
+      "title": "motion_frames",
+      "properties": {
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "06a60ac3fec854909f35aba20aa5be39ff59a6e3",
+        "Node name for S&R": "INTConstant",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        1
+      ],
+      "color": "#1b4669",
+      "bgcolor": "#29699c"
+    },
+    {
+      "id": 133,
+      "type": "SetNode",
+      "pos": [
+        1049.9649386426252,
+        1078.2435878591587
+      ],
+      "size": [
+        244.14999389648438,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 35,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "INT",
+          "type": "INT",
+          "link": 100
+        }
+      ],
+      "outputs": [
+        {
+          "name": "*",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "title": "Set_Constant_MotionFrames",
+      "properties": {
+        "previousName": "",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "MotionFrames"
+      ],
+      "color": "#1b4669",
+      "bgcolor": "#29699c"
+    },
+    {
+      "id": 118,
+      "type": "INTConstant",
+      "pos": [
+        1379.9649386426252,
+        1078.2435878591587
+      ],
+      "size": [
+        225,
+        103.60000610351562
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "value",
+          "type": "INT",
+          "links": [
+            101
+          ]
+        }
+      ],
+      "title": "context_frames",
+      "properties": {
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "06a60ac3fec854909f35aba20aa5be39ff59a6e3",
+        "Node name for S&R": "INTConstant",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        4
+      ],
+      "color": "#1b4669",
+      "bgcolor": "#29699c"
+    },
+    {
+      "id": 134,
+      "type": "SetNode",
+      "pos": [
+        1709.9649386426252,
+        1078.2435878591587
+      ],
+      "size": [
+        249.14999389648438,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 36,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "INT",
+          "type": "INT",
+          "link": 101
+        }
+      ],
+      "outputs": [
+        {
+          "name": "*",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "title": "Set_Constant_ContextFrames",
+      "properties": {
+        "previousName": "",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "ContextFrames"
+      ],
+      "color": "#1b4669",
+      "bgcolor": "#29699c"
+    },
+    {
+      "id": 123,
+      "type": "GetNode",
+      "pos": [
+        3350.865300359593,
+        206.10319646395456
+      ],
+      "size": [
+        225,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 12,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            22
+          ]
+        }
+      ],
+      "title": "Get_FirstImagePrompt",
+      "properties": {
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "FirstImagePrompt"
+      ],
+      "color": "#243447",
+      "bgcolor": "#36516b"
+    },
+    {
+      "id": 124,
+      "type": "GetNode",
+      "pos": [
+        3350.865300359593,
+        266.1031964639546
+      ],
+      "size": [
+        225,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 13,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            28
+          ]
+        }
+      ],
+      "title": "Get_FirstVideoPrompt",
+      "properties": {
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "FirstVideoPrompt"
+      ],
+      "color": "#243447",
+      "bgcolor": "#36516b"
+    },
+    {
+      "id": 135,
+      "type": "GetNode",
+      "pos": [
+        3350.865300359593,
+        336.1031964639547
+      ],
+      "size": [
+        225,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 14,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "WANTEXTENCODER",
+          "type": "WANTEXTENCODER",
+          "links": [
+            23,
+            29,
+            54,
+            63
+          ]
+        }
+      ],
+      "title": "Get_Model_WanT5",
+      "properties": {
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "WanT5"
+      ],
+      "color": "#1f2f46",
+      "bgcolor": "#314a6b"
+    },
+    {
+      "id": 136,
+      "type": "GetNode",
+      "pos": [
+        3350.865300359593,
+        396.1031964639548
+      ],
+      "size": [
+        225,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 15,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "WANVAE",
+          "type": "WANVAE",
+          "links": [
+            20,
+            32,
+            39,
+            60,
+            78
+          ]
+        }
+      ],
+      "title": "Get_Model_WanVAE",
+      "properties": {
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "WanVAE"
+      ],
+      "color": "#1f2f46",
+      "bgcolor": "#314a6b"
+    },
+    {
+      "id": 137,
+      "type": "GetNode",
+      "pos": [
+        3350.865300359593,
+        456.1031964639548
+      ],
+      "size": [
+        225,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 16,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP_VISION",
+          "type": "CLIP_VISION",
+          "links": [
+            30,
+            53,
+            67
+          ]
+        }
+      ],
+      "title": "Get_Model_CLIPVision",
+      "properties": {
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "CLIPVision"
+      ],
+      "color": "#1f2f46",
+      "bgcolor": "#314a6b"
+    },
+    {
+      "id": 138,
+      "type": "GetNode",
+      "pos": [
+        3350.865300359593,
+        516.1031964639546
+      ],
+      "size": [
+        225,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 17,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "WANVIDEOMODEL",
+          "type": "WANVIDEOMODEL",
+          "links": [
+            84
+          ]
+        }
+      ],
+      "title": "Get_Model_T2V",
+      "properties": {
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "T2VModel"
+      ],
+      "color": "#1f2f46",
+      "bgcolor": "#314a6b"
+    },
+    {
+      "id": 139,
+      "type": "GetNode",
+      "pos": [
+        3350.865300359593,
+        576.1031964639544
+      ],
+      "size": [
+        225,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 18,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "WANVIDEOMODEL",
+          "type": "WANVIDEOMODEL",
+          "links": [
+            42,
+            57
+          ]
+        }
+      ],
+      "title": "Get_Model_I2V",
+      "properties": {
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "I2VModel"
+      ],
+      "color": "#1f2f46",
+      "bgcolor": "#314a6b"
+    },
+    {
+      "id": 140,
+      "type": "GetNode",
+      "pos": [
+        3350.865300359593,
+        636.1031964639544
+      ],
+      "size": [
+        231.03334045410156,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 19,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "INT",
+          "type": "INT",
+          "links": [
+            13,
+            38,
+            77,
+            83
+          ]
+        }
+      ],
+      "title": "Get_Constant_NumFrames",
+      "properties": {
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "NumFrames"
+      ],
+      "color": "#1b4669",
+      "bgcolor": "#29699c"
+    },
+    {
+      "id": 55,
+      "type": "WanVideoTextEncode",
+      "pos": [
+        3690.865300359593,
+        186.10319646395462
+      ],
+      "size": [
+        330,
+        326.26666259765625
+      ],
+      "flags": {},
+      "order": 37,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "t5",
+          "shape": 7,
+          "type": "WANTEXTENCODER",
+          "link": 23
+        },
+        {
+          "name": "model_to_offload",
+          "shape": 7,
+          "type": "WANVIDEOMODEL",
+          "link": null
+        },
+        {
+          "name": "positive_prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "positive_prompt"
+          },
+          "link": 22
+        }
+      ],
+      "outputs": [
+        {
+          "name": "text_embeds",
+          "type": "WANVIDEOTEXTEMBEDS",
+          "links": [
+            86
+          ]
+        }
+      ],
+      "title": "Encode First Image Prompt",
+      "properties": {
+        "cnr_id": "comfyui-wanvideowrapper",
+        "ver": "1.4.7",
+        "Node name for S&R": "WanVideoTextEncode",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "bright tones, overexposed, static, blurred details, subtitles, style, works, paintings, images, static, overall gray, worst quality, low quality, JPEG compression residue, ugly, incomplete, extra fingers, poorly drawn hands, poorly drawn faces, deformed, disfigured, misshapen limbs, fused fingers, still picture, messy background, three legs, many people in the background, walking backwards",
+        true,
+        true,
+        "gpu",
+        "gpu"
+      ],
+      "color": "#26324d",
+      "bgcolor": "#3a4c73"
+    },
+    {
+      "id": 51,
+      "type": "WanVideoEmptyEmbeds",
+      "pos": [
+        3690.865300359593,
+        466.1031964639547
+      ],
+      "size": [
+        300,
+        191.60000610351562
+      ],
+      "flags": {},
+      "order": 20,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "control_embeds",
+          "shape": 7,
+          "type": "WANVIDIMAGE_EMBEDS",
+          "link": null
+        },
+        {
+          "name": "extra_latents",
+          "shape": 7,
+          "type": "LATENT",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image_embeds",
+          "type": "WANVIDIMAGE_EMBEDS",
+          "links": [
+            85
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-wanvideowrapper",
+        "ver": "1.4.7",
+        "Node name for S&R": "WanVideoEmptyEmbeds",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        720,
+        480,
+        1
+      ],
+      "color": "#26324d",
+      "bgcolor": "#3a4c73"
+    },
+    {
+      "id": 102,
+      "type": "WanVideoSampler",
+      "pos": [
+        4050.8653003595937,
+        286.1031964639547
+      ],
+      "size": [
+        330,
+        864.933349609375
+      ],
+      "flags": {},
+      "order": 42,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "WANVIDEOMODEL",
+          "link": 84
+        },
+        {
+          "name": "image_embeds",
+          "type": "WANVIDIMAGE_EMBEDS",
+          "link": 85
+        },
+        {
+          "name": "text_embeds",
+          "shape": 7,
+          "type": "WANVIDEOTEXTEMBEDS",
+          "link": 86
+        },
+        {
+          "name": "samples",
+          "shape": 7,
+          "type": "LATENT",
+          "link": null
+        },
+        {
+          "name": "feta_args",
+          "shape": 7,
+          "type": "FETAARGS",
+          "link": null
+        },
+        {
+          "name": "context_options",
+          "shape": 7,
+          "type": "WANVIDCONTEXT",
+          "link": null
+        },
+        {
+          "name": "cache_args",
+          "shape": 7,
+          "type": "CACHEARGS",
+          "link": null
+        },
+        {
+          "name": "flowedit_args",
+          "shape": 7,
+          "type": "FLOWEDITARGS",
+          "link": null
+        },
+        {
+          "name": "slg_args",
+          "shape": 7,
+          "type": "SLGARGS",
+          "link": null
+        },
+        {
+          "name": "loop_args",
+          "shape": 7,
+          "type": "LOOPARGS",
+          "link": null
+        },
+        {
+          "name": "experimental_args",
+          "shape": 7,
+          "type": "EXPERIMENTALARGS",
+          "link": null
+        },
+        {
+          "name": "sigmas",
+          "shape": 7,
+          "type": "SIGMAS",
+          "link": null
+        },
+        {
+          "name": "unianimate_poses",
+          "shape": 7,
+          "type": "UNIANIMATE_POSE",
+          "link": null
+        },
+        {
+          "name": "fantasytalking_embeds",
+          "shape": 7,
+          "type": "FANTASYTALKING_EMBEDS",
+          "link": null
+        },
+        {
+          "name": "uni3c_embeds",
+          "shape": 7,
+          "type": "UNI3C_EMBEDS",
+          "link": null
+        },
+        {
+          "name": "multitalk_embeds",
+          "shape": 7,
+          "type": "MULTITALK_EMBEDS",
+          "link": null
+        },
+        {
+          "name": "freeinit_args",
+          "shape": 7,
+          "type": "FREEINITARGS",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "links": [
+            21
+          ]
+        },
+        {
+          "name": "denoised_samples",
+          "type": "LATENT",
+          "links": null
+        }
+      ],
+      "title": "Initial T2V Sampler",
+      "properties": {
+        "cnr_id": "comfyui-wanvideowrapper",
+        "ver": "1.4.7",
+        "Node name for S&R": "WanVideoSampler",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        8,
+        1,
+        5,
+        0,
+        "fixed",
+        true,
+        "euler",
+        0,
+        1,
+        false,
+        "comfy",
+        0,
+        -1,
+        false
+      ],
+      "color": "#26324d",
+      "bgcolor": "#3a4c73"
+    },
+    {
+      "id": 52,
+      "type": "WanVideoDecode",
+      "pos": [
+        4410.865300359594,
+        286.1031964639547
+      ],
+      "size": [
+        300,
+        279.6000061035156
+      ],
+      "flags": {},
+      "order": 45,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "vae",
+          "type": "WANVAE",
+          "link": 20
+        },
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            24,
+            26
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-wanvideowrapper",
+        "ver": "1.4.7",
+        "Node name for S&R": "WanVideoDecode",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        false,
+        272,
+        272,
+        144,
+        32,
+        "default"
+      ],
+      "color": "#26324d",
+      "bgcolor": "#3a4c73"
+    },
+    {
+      "id": 59,
+      "type": "GetImagesFromBatchIndexed",
+      "pos": [
+        4770.865300359592,
+        286.1031964639547
+      ],
+      "size": [
+        300,
+        141.60000610351562
+      ],
+      "flags": {},
+      "order": 49,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 26
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            25,
+            31,
+            34
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "06a60ac3fec854909f35aba20aa5be39ff59a6e3",
+        "Node name for S&R": "GetImagesFromBatchIndexed",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "-1\n"
+      ],
+      "color": "#26324d",
+      "bgcolor": "#3a4c73"
+    },
+    {
+      "id": 58,
+      "type": "PreviewImage",
+      "pos": [
+        5130.865300359592,
+        106.10319646395462
+      ],
+      "size": [
+        300,
+        120
+      ],
+      "flags": {},
+      "order": 51,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 25
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.24.0",
+        "Node name for S&R": "PreviewImage",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [],
+      "color": "#26324d",
+      "bgcolor": "#3a4c73"
+    },
+    {
+      "id": 73,
+      "type": "ImageResizeKJv2",
+      "pos": [
+        5130.865300359592,
+        446.1031964639548
+      ],
+      "size": [
+        300,
+        414.26666259765625
+      ],
+      "flags": {},
+      "order": 53,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 34
+        },
+        {
+          "name": "mask",
+          "shape": 7,
+          "type": "MASK",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            1,
+            35,
+            41
+          ]
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "links": [
+            36
+          ]
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": [
+            37
+          ]
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "06a60ac3fec854909f35aba20aa5be39ff59a6e3",
+        "Node name for S&R": "ImageResizeKJv2",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        720,
+        480,
+        "lanczos",
+        "crop",
+        "0, 0, 0",
+        "center",
+        16,
+        "cpu"
+      ],
+      "color": "#26324d",
+      "bgcolor": "#3a4c73"
+    },
+    {
+      "id": 74,
+      "type": "PreviewImage",
+      "pos": [
+        5490.865300359592,
+        446.1031964639548
+      ],
+      "size": [
+        300,
+        120
+      ],
+      "flags": {},
+      "order": 56,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 35
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.24.0",
+        "Node name for S&R": "PreviewImage",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [],
+      "color": "#26324d",
+      "bgcolor": "#3a4c73"
+    },
+    {
+      "id": 147,
+      "type": "Note",
+      "pos": [
+        3007.146683078341,
+        1426.2133497450072
+      ],
+      "size": [
+        320,
+        150
+      ],
+      "flags": {},
+      "order": 21,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "Context loop note",
+      "properties": {
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "This section loops over remaining prompts. The WanVideo Context Selector receives accumulated frames and current prompt, then feeds selected context frames into ClipVision for the next section."
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 126,
+      "type": "GetNode",
+      "pos": [
+        3007.146683078341,
+        1576.2133497450072
+      ],
+      "size": [
+        225,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 22,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "INT",
+          "type": "INT",
+          "links": [
+            82
+          ]
+        }
+      ],
+      "title": "Get_TotalPanels",
+      "properties": {
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "TotalPanels"
+      ],
+      "color": "#243447",
+      "bgcolor": "#36516b"
+    },
+    {
+      "id": 125,
+      "type": "GetNode",
+      "pos": [
+        3007.146683078341,
+        1636.2133497450072
+      ],
+      "size": [
+        225,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 23,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "PROMPTS_LIST",
+          "type": "PROMPTS_LIST",
+          "links": [
+            70
+          ]
+        }
+      ],
+      "title": "Get_AllVideoPrompts",
+      "properties": {
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "AllVideoPrompts"
+      ],
+      "color": "#243447",
+      "bgcolor": "#36516b"
+    },
+    {
+      "id": 141,
+      "type": "GetNode",
+      "pos": [
+        3007.146683078341,
+        1696.2133497450072
+      ],
+      "size": [
+        245.61666870117188,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 24,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "INT",
+          "type": "INT",
+          "links": [
+            8,
+            48
+          ]
+        }
+      ],
+      "title": "Get_Constant_MotionFrames",
+      "properties": {
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "MotionFrames"
+      ],
+      "color": "#1b4669",
+      "bgcolor": "#29699c"
+    },
+    {
+      "id": 142,
+      "type": "GetNode",
+      "pos": [
+        3007.146683078341,
+        1756.2133497450072
+      ],
+      "size": [
+        250.61666870117188,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 25,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "INT",
+          "type": "INT",
+          "links": [
+            50
+          ]
+        }
+      ],
+      "title": "Get_Constant_ContextFrames",
+      "properties": {
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "ContextFrames"
+      ],
+      "color": "#1b4669",
+      "bgcolor": "#29699c"
+    },
+    {
+      "id": 33,
+      "type": "VHS_GetImageCount",
+      "pos": [
+        3347.146683078341,
+        1576.2133497450072
+      ],
+      "size": [
+        300,
+        120
+      ],
+      "flags": {},
+      "order": 64,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 15
+        }
+      ],
+      "outputs": [
+        {
+          "name": "count",
+          "type": "INT",
+          "links": [
+            14
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-videohelpersuite",
+        "ver": "537f3a02269e14ab4b0350d4189a52034e9a3b12",
+        "Node name for S&R": "VHS_GetImageCount",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": {},
+      "color": "#4a3424",
+      "bgcolor": "#6b4b33"
+    },
+    {
+      "id": 96,
+      "type": "MathExpression|pysssss",
+      "pos": [
+        3347.146683078341,
+        1736.2133497450072
+      ],
+      "size": [
+        412.01666259765625,
+        609.3499755859375
+      ],
+      "flags": {},
+      "order": 39,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "a",
+          "shape": 7,
+          "type": "INT,FLOAT,IMAGE,LATENT",
+          "link": 82
+        },
+        {
+          "name": "b",
+          "shape": 7,
+          "type": "INT,FLOAT,IMAGE,LATENT",
+          "link": 83
+        },
+        {
+          "name": "c",
+          "shape": 7,
+          "type": "INT,FLOAT,IMAGE,LATENT",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "INT",
+          "type": "INT",
+          "links": [
+            12
+          ]
+        },
+        {
+          "name": "FLOAT",
+          "type": "FLOAT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-custom-scripts",
+        "ver": "f2838ed5e59de4d73cde5c98354b87a8d3200190",
+        "Node name for S&R": "MathExpression|pysssss",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "a*b"
+      ],
+      "color": "#4a3424",
+      "bgcolor": "#6b4b33"
+    },
+    {
+      "id": 32,
+      "type": "MathExpression|pysssss",
+      "pos": [
+        3707.146683078341,
+        1656.2133497450072
+      ],
+      "size": [
+        300,
+        189.60000610351562
+      ],
+      "flags": {},
+      "order": 66,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "a",
+          "shape": 7,
+          "type": "INT,FLOAT,IMAGE,LATENT",
+          "link": 12
+        },
+        {
+          "name": "b",
+          "shape": 7,
+          "type": "INT,FLOAT,IMAGE,LATENT",
+          "link": 13
+        },
+        {
+          "name": "c",
+          "shape": 7,
+          "type": "INT,FLOAT,IMAGE,LATENT",
+          "link": 14
+        }
+      ],
+      "outputs": [
+        {
+          "name": "INT",
+          "type": "INT",
+          "links": [
+            65
+          ]
+        },
+        {
+          "name": "FLOAT",
+          "type": "FLOAT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-custom-scripts",
+        "ver": "f2838ed5e59de4d73cde5c98354b87a8d3200190",
+        "Node name for S&R": "MathExpression|pysssss",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "ceil((a-c)/b)"
+      ],
+      "color": "#4a3424",
+      "bgcolor": "#6b4b33"
+    },
+    {
+      "id": 88,
+      "type": "easy forLoopStart",
+      "pos": [
+        4067.146683078342,
+        1656.2133497450072
+      ],
+      "size": [
+        313.5333251953125,
+        199.60000610351562
+      ],
+      "flags": {},
+      "order": 67,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "initial_value1",
+          "shape": 7,
+          "type": "*",
+          "link": 66
+        },
+        {
+          "name": "total",
+          "type": "INT",
+          "widget": {
+            "name": "total"
+          },
+          "link": 65
+        },
+        {
+          "name": "initial_value2",
+          "type": "*",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "flow",
+          "shape": 5,
+          "type": "FLOW_CONTROL",
+          "links": [
+            4
+          ]
+        },
+        {
+          "name": "index",
+          "type": "INT",
+          "links": [
+            10
+          ]
+        },
+        {
+          "name": "value1",
+          "type": "*",
+          "links": [
+            9
+          ]
+        },
+        {
+          "name": "value2",
+          "type": "*",
+          "links": null
+        },
+        {
+          "name": "value2",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "title": "For Loop Start (remaining video prompts)",
+      "properties": {
+        "cnr_id": "comfyui-easy-use",
+        "ver": "1.3.6",
+        "Node name for S&R": "easy forLoopStart",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        1
+      ],
+      "color": "#4a3424",
+      "bgcolor": "#6b4b33"
+    },
+    {
+      "id": 20,
+      "type": "GetImageSizeAndCount",
+      "pos": [
+        4427.14668307834,
+        1656.2133497450072
+      ],
+      "size": [
+        300,
+        143.60000610351562
+      ],
+      "flags": {},
+      "order": 69,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            49,
+            52,
+            56
+          ]
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "links": [
+            75
+          ]
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": [
+            76
+          ]
+        },
+        {
+          "name": "count",
+          "type": "INT",
+          "links": [
+            7
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "06a60ac3fec854909f35aba20aa5be39ff59a6e3",
+        "Node name for S&R": "GetImageSizeAndCount",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [],
+      "color": "#4a3424",
+      "bgcolor": "#6b4b33"
+    },
+    {
+      "id": 79,
+      "type": "GetImageRangeFromBatch",
+      "pos": [
+        4787.14668307834,
+        1476.2133497450072
+      ],
+      "size": [
+        300,
+        159.60000610351562
+      ],
+      "flags": {},
+      "order": 71,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 49
+        },
+        {
+          "name": "masks",
+          "shape": 7,
+          "type": "MASK",
+          "link": null
+        },
+        {
+          "name": "num_frames",
+          "type": "INT",
+          "widget": {
+            "name": "num_frames"
+          },
+          "link": 48
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            71
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "06a60ac3fec854909f35aba20aa5be39ff59a6e3",
+        "Node name for S&R": "GetImageRangeFromBatch",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        -1,
+        1
+      ],
+      "color": "#4a3424",
+      "bgcolor": "#6b4b33"
+    },
+    {
+      "id": 80,
+      "type": "WanVideoContextSelector",
+      "pos": [
+        5147.14668307834,
+        1476.2133497450072
+      ],
+      "size": [
+        330,
+        384.26666259765625
+      ],
+      "flags": {},
+      "order": 73,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 52
+        },
+        {
+          "name": "clip_vision",
+          "shape": 7,
+          "type": "CLIP_VISION",
+          "link": 53
+        },
+        {
+          "name": "text_encoder",
+          "shape": 7,
+          "type": "WANTEXTENCODER",
+          "link": 54
+        },
+        {
+          "name": "context_size",
+          "type": "INT",
+          "widget": {
+            "name": "context_size"
+          },
+          "link": 50
+        },
+        {
+          "name": "current_prompt",
+          "shape": 7,
+          "type": "STRING",
+          "widget": {
+            "name": "current_prompt"
+          },
+          "link": 51
+        }
+      ],
+      "outputs": [
+        {
+          "name": "context_images",
+          "type": "IMAGE",
+          "links": [
+            68
+          ]
+        }
+      ],
+      "title": "Context Selector: choose memory frames",
+      "properties": {
+        "aux_id": "jajos12/Comfyui-WanVideo-Context",
+        "ver": "89bffe768c7cd98b9fb9099a3fe073727c957741",
+        "Node name for S&R": "WanVideoContextSelector",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "contiguous",
+        4,
+        0,
+        16,
+        0,
+        16,
+        0
+      ],
+      "color": "#5a3d18",
+      "bgcolor": "#806028"
+    },
+    {
+      "id": 89,
+      "type": "WanVideoClipVisionEncode",
+      "pos": [
+        5507.14668307834,
+        1476.2133497450072
+      ],
+      "size": [
+        300,
+        368.9333190917969
+      ],
+      "flags": {},
+      "order": 77,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip_vision",
+          "type": "CLIP_VISION",
+          "link": 67
+        },
+        {
+          "name": "image_1",
+          "type": "IMAGE",
+          "link": 68
+        },
+        {
+          "name": "image_2",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "negative_image",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image_embeds",
+          "type": "WANVIDIMAGE_CLIPEMBEDS",
+          "links": [
+            79
+          ]
+        }
+      ],
+      "title": "ClipVision Encode Context Frames",
+      "properties": {
+        "cnr_id": "comfyui-wanvideowrapper",
+        "ver": "1.4.7",
+        "Node name for S&R": "WanVideoClipVisionEncode",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        1,
+        1,
+        "center",
+        "average",
+        true,
+        0,
+        0.20000000000000004
+      ],
+      "color": "#4a3424",
+      "bgcolor": "#6b4b33"
+    },
+    {
+      "id": 27,
+      "type": "MathExpression|pysssss",
+      "pos": [
+        4427.14668307834,
+        1856.2133497450072
+      ],
+      "size": [
+        300,
+        189.60000610351562
+      ],
+      "flags": {},
+      "order": 68,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "a",
+          "shape": 7,
+          "type": "INT,FLOAT,IMAGE,LATENT",
+          "link": 10
+        },
+        {
+          "name": "b",
+          "shape": 7,
+          "type": "INT,FLOAT,IMAGE,LATENT",
+          "link": null
+        },
+        {
+          "name": "c",
+          "shape": 7,
+          "type": "INT,FLOAT,IMAGE,LATENT",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "INT",
+          "type": "INT",
+          "links": [
+            69
+          ]
+        },
+        {
+          "name": "FLOAT",
+          "type": "FLOAT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-custom-scripts",
+        "ver": "f2838ed5e59de4d73cde5c98354b87a8d3200190",
+        "Node name for S&R": "MathExpression|pysssss",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "a+1"
+      ],
+      "color": "#4a3424",
+      "bgcolor": "#6b4b33"
+    },
+    {
+      "id": 90,
+      "type": "easy indexAnything",
+      "pos": [
+        4787.14668307834,
+        1856.2133497450072
+      ],
+      "size": [
+        300,
+        120
+      ],
+      "flags": {},
+      "order": 70,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "any",
+          "type": "*",
+          "link": 70
+        },
+        {
+          "name": "index",
+          "type": "INT",
+          "widget": {
+            "name": "index"
+          },
+          "link": 69
+        }
+      ],
+      "outputs": [
+        {
+          "name": "out",
+          "type": "*",
+          "links": [
+            51,
+            62
+          ]
+        }
+      ],
+      "title": "Loop Prompt Indexer (loop index + 1)",
+      "properties": {
+        "cnr_id": "comfyui-easy-use",
+        "ver": "1.3.6",
+        "Node name for S&R": "easy indexAnything",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        0
+      ],
+      "color": "#4a3424",
+      "bgcolor": "#6b4b33"
+    },
+    {
+      "id": 85,
+      "type": "WanVideoTextEncode",
+      "pos": [
+        5147.14668307834,
+        1856.2133497450072
+      ],
+      "size": [
+        330,
+        326.26666259765625
+      ],
+      "flags": {},
+      "order": 74,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "t5",
+          "shape": 7,
+          "type": "WANTEXTENCODER",
+          "link": 63
+        },
+        {
+          "name": "model_to_offload",
+          "shape": 7,
+          "type": "WANVIDEOMODEL",
+          "link": null
+        },
+        {
+          "name": "positive_prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "positive_prompt"
+          },
+          "link": 62
+        }
+      ],
+      "outputs": [
+        {
+          "name": "text_embeds",
+          "type": "WANVIDEOTEXTEMBEDS",
+          "links": [
+            59
+          ]
+        }
+      ],
+      "title": "Encode Loop Video Prompt",
+      "properties": {
+        "cnr_id": "comfyui-wanvideowrapper",
+        "ver": "1.4.7",
+        "Node name for S&R": "WanVideoTextEncode",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "bright tones, overexposed, static, blurred details, subtitles, style, works, paintings, images, static, overall gray, worst quality, low quality, JPEG compression residue, ugly, incomplete, extra fingers, poorly drawn hands, poorly drawn faces, deformed, disfigured, misshapen limbs, fused fingers, still picture, messy background, three legs, many people in the background, walking backwards",
+        true,
+        true,
+        "gpu",
+        "gpu"
+      ],
+      "color": "#4a3424",
+      "bgcolor": "#6b4b33"
+    },
+    {
+      "id": 17,
+      "type": "SimpleMath+",
+      "pos": [
+        4787.14668307834,
+        2076.2133497450077
+      ],
+      "size": [
+        300,
+        131.60000610351562
+      ],
+      "flags": {},
+      "order": 72,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "a",
+          "shape": 7,
+          "type": "INT,FLOAT",
+          "link": 7
+        },
+        {
+          "name": "b",
+          "shape": 7,
+          "type": "INT,FLOAT",
+          "link": 8
+        }
+      ],
+      "outputs": [
+        {
+          "name": "INT",
+          "type": "INT",
+          "links": [
+            55
+          ]
+        },
+        {
+          "name": "FLOAT",
+          "type": "FLOAT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui_essentials",
+        "ver": "1.1.0",
+        "Node name for S&R": "SimpleMath+",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "a - b"
+      ],
+      "color": "#4a3424",
+      "bgcolor": "#6b4b33"
+    },
+    {
+      "id": 81,
+      "type": "GetImageRangeFromBatch",
+      "pos": [
+        5147.14668307834,
+        2076.2133497450077
+      ],
+      "size": [
+        300,
+        159.60000610351562
+      ],
+      "flags": {},
+      "order": 76,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 56
+        },
+        {
+          "name": "masks",
+          "shape": 7,
+          "type": "MASK",
+          "link": null
+        },
+        {
+          "name": "num_frames",
+          "type": "INT",
+          "widget": {
+            "name": "num_frames"
+          },
+          "link": 55
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            73
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "06a60ac3fec854909f35aba20aa5be39ff59a6e3",
+        "Node name for S&R": "GetImageRangeFromBatch",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        0,
+        1
+      ],
+      "color": "#4a3424",
+      "bgcolor": "#6b4b33"
+    },
+    {
+      "id": 6,
+      "type": "RepeatImageBatch",
+      "pos": [
+        5507.14668307834,
+        2076.2133497450077
+      ],
+      "size": [
+        300,
+        120
+      ],
+      "flags": {},
+      "order": 55,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            72
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.24.0",
+        "Node name for S&R": "RepeatImageBatch",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        81
+      ],
+      "color": "#4a3424",
+      "bgcolor": "#6b4b33"
+    },
+    {
+      "id": 93,
+      "type": "WanVideoVACEStartToEndFrame",
+      "pos": [
+        5867.14668307834,
+        1856.2133497450072
+      ],
+      "size": [
+        330,
+        271.6000061035156
+      ],
+      "flags": {},
+      "order": 75,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "start_image",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 71
+        },
+        {
+          "name": "end_image",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "control_images",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 72
+        },
+        {
+          "name": "inpaint_mask",
+          "shape": 7,
+          "type": "MASK",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            80
+          ]
+        },
+        {
+          "name": "masks",
+          "type": "MASK",
+          "links": [
+            6
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-wanvideowrapper",
+        "ver": "1.4.7",
+        "Node name for S&R": "WanVideoVACEStartToEndFrame",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        81,
+        0,
+        0,
+        -1
+      ],
+      "color": "#4a3424",
+      "bgcolor": "#6b4b33"
+    },
+    {
+      "id": 16,
+      "type": "InvertMask",
+      "pos": [
+        6227.14668307834,
+        1856.2133497450072
+      ],
+      "size": [
+        300,
+        120
+      ],
+      "flags": {},
+      "order": 78,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 6
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            81
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.24.0",
+        "Node name for S&R": "InvertMask",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [],
+      "color": "#4a3424",
+      "bgcolor": "#6b4b33"
+    },
+    {
+      "id": 95,
+      "type": "WanVideoImageToVideoEncode",
+      "pos": [
+        6587.14668307834,
+        1756.2133497450072
+      ],
+      "size": [
+        330,
+        571.5999755859375
+      ],
+      "flags": {},
+      "order": 79,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "vae",
+          "shape": 7,
+          "type": "WANVAE",
+          "link": 78
+        },
+        {
+          "name": "clip_embeds",
+          "shape": 7,
+          "type": "WANVIDIMAGE_CLIPEMBEDS",
+          "link": 79
+        },
+        {
+          "name": "start_image",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 80
+        },
+        {
+          "name": "end_image",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "control_embeds",
+          "shape": 7,
+          "type": "WANVIDIMAGE_EMBEDS",
+          "link": null
+        },
+        {
+          "name": "temporal_mask",
+          "shape": 7,
+          "type": "MASK",
+          "link": 81
+        },
+        {
+          "name": "extra_latents",
+          "shape": 7,
+          "type": "LATENT",
+          "link": null
+        },
+        {
+          "name": "add_cond_latents",
+          "shape": 7,
+          "type": "ADD_COND_LATENTS",
+          "link": null
+        },
+        {
+          "name": "empty_frame_pad_image",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": 75
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": 76
+        },
+        {
+          "name": "num_frames",
+          "type": "INT",
+          "widget": {
+            "name": "num_frames"
+          },
+          "link": 77
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image_embeds",
+          "type": "WANVIDIMAGE_EMBEDS",
+          "links": [
+            58
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-wanvideowrapper",
+        "ver": "1.4.7",
+        "Node name for S&R": "WanVideoImageToVideoEncode",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        0,
+        1,
+        1,
+        true,
+        false,
+        true,
+        0,
+        true,
+        false,
+        0
+      ],
+      "color": "#4a3424",
+      "bgcolor": "#6b4b33"
+    },
+    {
+      "id": 83,
+      "type": "WanVideoSampler",
+      "pos": [
+        6947.14668307834,
+        1756.2133497450072
+      ],
+      "size": [
+        330,
+        864.933349609375
+      ],
+      "flags": {},
+      "order": 80,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "WANVIDEOMODEL",
+          "link": 57
+        },
+        {
+          "name": "image_embeds",
+          "type": "WANVIDIMAGE_EMBEDS",
+          "link": 58
+        },
+        {
+          "name": "text_embeds",
+          "shape": 7,
+          "type": "WANVIDEOTEXTEMBEDS",
+          "link": 59
+        },
+        {
+          "name": "samples",
+          "shape": 7,
+          "type": "LATENT",
+          "link": null
+        },
+        {
+          "name": "feta_args",
+          "shape": 7,
+          "type": "FETAARGS",
+          "link": null
+        },
+        {
+          "name": "context_options",
+          "shape": 7,
+          "type": "WANVIDCONTEXT",
+          "link": null
+        },
+        {
+          "name": "cache_args",
+          "shape": 7,
+          "type": "CACHEARGS",
+          "link": null
+        },
+        {
+          "name": "flowedit_args",
+          "shape": 7,
+          "type": "FLOWEDITARGS",
+          "link": null
+        },
+        {
+          "name": "slg_args",
+          "shape": 7,
+          "type": "SLGARGS",
+          "link": null
+        },
+        {
+          "name": "loop_args",
+          "shape": 7,
+          "type": "LOOPARGS",
+          "link": null
+        },
+        {
+          "name": "experimental_args",
+          "shape": 7,
+          "type": "EXPERIMENTALARGS",
+          "link": null
+        },
+        {
+          "name": "sigmas",
+          "shape": 7,
+          "type": "SIGMAS",
+          "link": null
+        },
+        {
+          "name": "unianimate_poses",
+          "shape": 7,
+          "type": "UNIANIMATE_POSE",
+          "link": null
+        },
+        {
+          "name": "fantasytalking_embeds",
+          "shape": 7,
+          "type": "FANTASYTALKING_EMBEDS",
+          "link": null
+        },
+        {
+          "name": "uni3c_embeds",
+          "shape": 7,
+          "type": "UNI3C_EMBEDS",
+          "link": null
+        },
+        {
+          "name": "multitalk_embeds",
+          "shape": 7,
+          "type": "MULTITALK_EMBEDS",
+          "link": null
+        },
+        {
+          "name": "freeinit_args",
+          "shape": 7,
+          "type": "FREEINITARGS",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "links": [
+            61
+          ]
+        },
+        {
+          "name": "denoised_samples",
+          "type": "LATENT",
+          "links": null
+        }
+      ],
+      "title": "Loop I2V Sampler",
+      "properties": {
+        "cnr_id": "comfyui-wanvideowrapper",
+        "ver": "1.4.7",
+        "Node name for S&R": "WanVideoSampler",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        10,
+        1,
+        5,
+        1,
+        "fixed",
+        true,
+        "euler",
+        0,
+        1,
+        false,
+        "comfy",
+        0,
+        -1,
+        false
+      ],
+      "color": "#4a3424",
+      "bgcolor": "#6b4b33"
+    },
+    {
+      "id": 84,
+      "type": "WanVideoDecode",
+      "pos": [
+        7307.14668307834,
+        1756.2133497450072
+      ],
+      "size": [
+        300,
+        279.6000061035156
+      ],
+      "flags": {},
+      "order": 81,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "vae",
+          "type": "WANVAE",
+          "link": 60
+        },
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 61
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            74
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-wanvideowrapper",
+        "ver": "1.4.7",
+        "Node name for S&R": "WanVideoDecode",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        false,
+        192,
+        192,
+        88,
+        88,
+        "default"
+      ],
+      "color": "#4a3424",
+      "bgcolor": "#6b4b33"
+    },
+    {
+      "id": 94,
+      "type": "ImageBatchMulti",
+      "pos": [
+        7667.14668307834,
+        1756.2133497450072
+      ],
+      "size": [
+        300,
+        155.60000610351562
+      ],
+      "flags": {},
+      "order": 82,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image_1",
+          "type": "IMAGE",
+          "link": 73
+        },
+        {
+          "name": "image_2",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 74
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            5,
+            11
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "06a60ac3fec854909f35aba20aa5be39ff59a6e3",
+        "Node name for S&R": "ImageBatchMulti",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        2,
+        null
+      ],
+      "color": "#4a3424",
+      "bgcolor": "#6b4b33"
+    },
+    {
+      "id": 13,
+      "type": "easy forLoopEnd",
+      "pos": [
+        8027.14668307834,
+        1756.2133497450072
+      ],
+      "size": [
+        300,
+        120
+      ],
+      "flags": {},
+      "order": 83,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "flow",
+          "shape": 5,
+          "type": "FLOW_CONTROL",
+          "link": 4
+        },
+        {
+          "name": "initial_value1",
+          "shape": 7,
+          "type": "*",
+          "link": 5
+        },
+        {
+          "name": "initial_value2",
+          "type": "*",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "value1",
+          "type": "*",
+          "links": [
+            64
+          ]
+        },
+        {
+          "name": "value2",
+          "type": "*",
+          "links": null
+        },
+        {
+          "name": "value2",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "title": "For Loop End (accumulated frames)",
+      "properties": {
+        "cnr_id": "comfyui-easy-use",
+        "ver": "1.3.6",
+        "Node name for S&R": "easy forLoopEnd",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [],
+      "color": "#4a3424",
+      "bgcolor": "#6b4b33"
+    },
+    {
+      "id": 28,
+      "type": "VHS_VideoCombine",
+      "pos": [
+        8387.146683078341,
+        1756.2133497450072
+      ],
+      "size": [
+        953.566650390625,
+        799.0499877929688
+      ],
+      "flags": {},
+      "order": 84,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 11
+        },
+        {
+          "name": "audio",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": null
+        },
+        {
+          "name": "meta_batch",
+          "shape": 7,
+          "type": "VHS_BatchManager",
+          "link": null
+        },
+        {
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "links": null
+        }
+      ],
+      "title": "Loop Section Preview/Combine",
+      "properties": {
+        "cnr_id": "comfyui-videohelpersuite",
+        "ver": "537f3a02269e14ab4b0350d4189a52034e9a3b12",
+        "Node name for S&R": "VHS_VideoCombine",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": {
+        "frame_rate": 8,
+        "loop_count": 0,
+        "filename_prefix": "AnimateDiff",
+        "format": "image/gif",
+        "pingpong": false,
+        "save_output": true,
+        "videopreview": {
+          "hidden": false,
+          "paused": false,
+          "params": {}
+        }
+      },
+      "color": "#4a3424",
+      "bgcolor": "#6b4b33"
+    },
+    {
+      "id": 86,
+      "type": "GetImageSizeAndCount",
+      "pos": [
+        8200,
+        360
+      ],
+      "size": [
+        300,
+        143.60000610351562
+      ],
+      "flags": {},
+      "order": 85,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 64
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            16
+          ]
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "count",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "06a60ac3fec854909f35aba20aa5be39ff59a6e3",
+        "Node name for S&R": "GetImageSizeAndCount",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 36,
+      "type": "VHS_VideoCombine",
+      "pos": [
+        8560,
+        360
+      ],
+      "size": [
+        330,
+        487.26666259765625
+      ],
+      "flags": {},
+      "order": 86,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 16
+        },
+        {
+          "name": "audio",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": null
+        },
+        {
+          "name": "meta_batch",
+          "shape": 7,
+          "type": "VHS_BatchManager",
+          "link": null
+        },
+        {
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "links": null
+        }
+      ],
+      "title": "Final Video Combine",
+      "properties": {
+        "cnr_id": "comfyui-videohelpersuite",
+        "ver": "537f3a02269e14ab4b0350d4189a52034e9a3b12",
+        "Node name for S&R": "VHS_VideoCombine",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": {
+        "frame_rate": 8,
+        "loop_count": 0,
+        "filename_prefix": "AnimateDiff",
+        "format": "image/gif",
+        "pingpong": false,
+        "save_output": true,
+        "videopreview": {
+          "hidden": false,
+          "paused": false,
+          "params": {}
+        }
+      },
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 146,
+      "type": "Note",
+      "pos": [
+        3350.865300359593,
+        56.10319646395462
+      ],
+      "size": [
+        320,
+        150
+      ],
+      "flags": {},
+      "order": 26,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "First generation note",
+      "properties": {
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "This section uses the first image/video prompt to create the initial seed image and first I2V section. It reads models/prompts through Get nodes only."
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 131,
+      "type": "SetNode",
+      "pos": [
+        1716.5591111111141,
+        1723.0524444444395
+      ],
+      "size": [
+        225,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 47,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "WANVIDEOMODEL",
+          "type": "WANVIDEOMODEL",
+          "link": 98
+        }
+      ],
+      "outputs": [
+        {
+          "name": "*",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "title": "Set_Model_I2V",
+      "properties": {
+        "previousName": "",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "I2VModel"
+      ]
+    },
+    {
+      "id": 116,
+      "type": "StoryboardGenerator_S2V",
+      "pos": [
+        530.3509208984484,
+        133.55783583987116
+      ],
+      "size": [
+        402.3500061035156,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 40,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "chunks",
+          "type": "CHUNKS",
+          "link": 88
+        }
+      ],
+      "outputs": [
+        {
+          "name": "storyboard_text",
+          "type": "STRING",
+          "links": [
+            89
+          ]
+        }
+      ],
+      "title": "2. Storyboard Generator (PDF chunks to storyboard)",
+      "properties": {
+        "aux_id": "Long-form-AI-video-generation/script-parser-custom-node",
+        "ver": "5a0a4af2f8d73c399cf8f65cd0014576b368d6a4",
+        "Node name for S&R": "StoryboardGenerator_S2V",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "You are an expert anime director and storyboard artist. Your task is to read the following anime script chunk and break it down into a sequence of visual storyboard panels.\n\nFor each key moment or line of dialogue, create a new panel. You must infer camera shots if they are not explicitly mentioned in the script.\n\n**Follow these rules for EACH panel you generate:**\n1. Start each panel with a unique panel number (e.g., \"PANEL 001\", \"PANEL 002\").\n2. Use the following labels to structure the information for each panel:\n    - **SHOT_TYPE:** Describe the camera shot (e.g., WIDE SHOT, ESTABLISHING SHOT, MEDIUM SHOT, CLOSE UP, POV SHOT). If the script implies a shot (e.g., 'Her eyes widened in fear'), infer a CLOSE UP.\n    - **SUBJECT:** Who or what is the main focus of the panel?\n    - **ACTION_DESCRIPTION:** A concise, visual description of what is happening in the frame. Describe character expressions, actions, and the environment. This should be written as if you are describing a drawing.\n    - **DIALOGUE:** The line of dialogue spoken during this panel, if any.\n3. Separate each complete panel block with \"--- PANEL BREAK ---\" on its own line.\n4. Do not add any conversational text, introductions, or summaries. Your output should ONLY be the formatted storyboard panels.\n5. If context is provided regarding previous panel numbers, you MUST start your numbering for this chunk immediately following the last panel number provided in the context.\n\nHere is the script chunk to process:"
+      ],
+      "color": "#1f3d4d",
+      "bgcolor": "#2d5a70"
+    },
+    {
+      "id": 143,
+      "type": "Note",
+      "pos": [
+        -20,
+        110
+      ],
+      "size": [
+        320,
+        150
+      ],
+      "flags": {},
+      "order": 27,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "Parser note",
+      "properties": {
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "Upload/select a PDF, convert it to chunks, then storyboard text, then prompt JSON. The Set nodes on the right publish prompt values to later sections."
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 115,
+      "type": "PDFUploadChunker_S2V",
+      "pos": [
+        -27.37545473666915,
+        361.35441479509757
+      ],
+      "size": [
+        377.1666564941406,
+        246.26666259765625
+      ],
+      "flags": {},
+      "order": 28,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "chunks",
+          "type": "CHUNKS",
+          "links": [
+            88
+          ]
+        },
+        {
+          "name": "debug_text_output",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "name": "chunk_count",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "title": "1a. PDF Upload Chunker (uploaded PDF to chunks)",
+      "properties": {
+        "aux_id": "Long-form-AI-video-generation/script-parser-custom-node",
+        "ver": "5a0a4af2f8d73c399cf8f65cd0014576b368d6a4",
+        "Node name for S&R": "PDFUploadChunker_S2V",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "Demo_script.pdf",
+        4000,
+        400
+      ],
+      "color": "#1f3d4d",
+      "bgcolor": "#2d5a70"
+    },
+    {
+      "id": 114,
+      "type": "StringSwitch_S2V",
+      "pos": [
+        1165.808334187245,
+        127.89626324682736
+      ],
+      "size": [
+        444.04998779296875,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 46,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "generated_input",
+          "shape": 7,
+          "type": "STRING",
+          "link": 87
+        }
+      ],
+      "outputs": [
+        {
+          "name": "selected_string",
+          "type": "STRING",
+          "links": [
+            17
+          ]
+        }
+      ],
+      "title": "Prompt Source Switch (generated PDF prompts by default)",
+      "properties": {
+        "aux_id": "Long-form-AI-video-generation/script-parser-custom-node",
+        "ver": "5a0a4af2f8d73c399cf8f65cd0014576b368d6a4",
+        "Node name for S&R": "StringSwitch_S2V",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "{\n  \"meta_summary\": \"A team of five masked operatives, supported by a sleek combat quadruped robot and a stealth drone, embarks on a covert infiltration mission into a colossal, grimy electrical power facility under the desolate night sky. The sequence details their precise, silent approach through a desolate alley, the swift neutralization of unsuspecting security guards, and the high-tech breach of a fortified gate. Their advance is abruptly interrupted by the unexpected appearance of a larger, aggressive security quadruped bot, leading to an immediate, brutal mechanical clash between the two advanced robots, while the human operatives navigate the escalating chaos and laser fire. A covert team infiltrates a vast industrial power facility under the cover of night. The mission begins with an intense, brutal mechanical battle between their agile quadruped bot and a formidable security bot, culminating in the destruction of the enemy. Following this, the operatives systematically breach the facility's defenses, navigate through its grimy, monolithic interior, and descend into a cavernous basement to plant a timed explosive device on a central control unit. With the bomb armed and a ten-minute countdown initiated, the team executes a swift, synchronized exfiltration, regrouping with a waiting element outside the perimeter as their bot seals their point of entry, leaving behind a ticking threat. This sequence depicts the swift exfiltration of a covert team after planting explosives at an industrial power facility. Their agile quadruped bot, along with the operatives, quickly enters a waiting armored van, which then speeds away from the scene. Moments later, the facility erupts in a catastrophic explosion, followed by a secondary blast, causing widespread destruction. The team, now safely positioned on a distant cliff, observes the inferno with a detached, contemplative, and slightly unsettling appreciation for the chaos they've wrought, contemplating the nature of their destruction.\",\n  \"panels\": [\n    {\n      \"panel_number\": 1,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, establishing shot, colossal grimy electrical power facility, desolate night sky, patchwork metal sheets, crisscrossed pipes and conduits, visible arcs of electricity, eerie glow, intermittent sparks, industrial wasteland, dark atmosphere, intricate details, high contrast, cyberpunk\",\n      \"video_prompt\": \"Electricity pulsing through conduits, sparks intermittently flashing, camera slowly pulls back to reveal the scale.\"\n    },\n    {\n      \"panel_number\": 2,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, wide shot, desolate cracked asphalt alleyway, grimy street, dilapidated buildings, scarred facades, immense electrical power facility looming in background, night, urban decay, harsh lighting\",\n      \"video_prompt\": \"Camera slowly pans across the desolate alley, showing the facility in the distance.\"\n    },\n    {\n      \"panel_number\": 3,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, unmarked black van, turning into desolate grimy alley, brief headlights, dimming lights, turning off lights, silent maneuver, stealth, night scene\",\n      \"video_prompt\": \"Van slowly turns into the alley, headlights briefly flash then dim and disappear.\"\n    },\n    {\n      \"panel_number\": 4,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, unmarked black van, gliding silently, parking spot, shrouded in deep shadow, engine cutting off, soft click, deep silence, night, clandestine\",\n      \"video_prompt\": \"Van glides smoothly into shadow, engine light flickers then goes out.\"\n    },\n    {\n      \"panel_number\": 5,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, low angle, side door of black van, smoothly sliding open, revealing glimpse of darkness inside, quiet deliberate motion, anticipation, stealthy entry\",\n      \"video_prompt\": \"Van door slides open smoothly, revealing dark interior.\"\n    },\n    {\n      \"panel_number\": 6,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium wide shot, five masked figures, emerging from van, sleek black bodysuits, dark masks, military precision, synchronized movements, silent, streamlined tactical backpacks, stealth operatives, cyberpunk, night\",\n      \"video_prompt\": \"Five figures step out of the van in coordinated sequence, subtle head turns.\"\n    },\n    {\n      \"panel_number\": 7,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, masked operative 1, sleek black bodysuit, dark mask, moving to rear of van, reaching for back door handle, focused, determined, stealthy\",\n      \"video_prompt\": \"Operative's hand reaches for the door handle, subtle body shift.\"\n    },\n    {\n      \"panel_number\": 8,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, dynamic medium shot, rear door swinging open, large advanced canine-like quadruped robot, combat robot, leaping out, powerful grace, surveillance camera on head, reinforced claw on limb, sci-fi tech, mechanical beast, night, high detail\",\n      \"video_prompt\": \"Robot leaps out of the van with powerful, fluid motion, surveillance camera subtly swivels.\"\n    },\n    {\n      \"panel_number\": 9,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, wide shot, five masked operatives, canine robot, moving in tight formation, heading purposefully, distant looming electrical facility, stealth infiltration, night, desolate landscape, coordinated team\",\n      \"video_prompt\": \"Group moves in synchronized stride, camera slowly tracks them forward.\"\n    },\n    {\n      \"panel_number\": 10,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, close up, low angle, small stealthy drone, barely visible, dark underside of van, detaching, silently gliding away, advanced tech, reconnaissance, hidden, sleek design\",\n      \"video_prompt\": \"Drone detaches and silently glides away, subtle humming sound implied.\"\n    },\n    {\n      \"panel_number\": 11,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, wide shot, slightly aerial, group of operatives, canine robot, advancing towards facility, tiny drone trailing behind, silent shadow, coordinated movement, night mission, high angle, strategic overview\",\n      \"video_prompt\": \"Drone glides smoothly behind the group, camera slowly elevates.\"\n    },\n    {\n      \"panel_number\": 12,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium wide shot, masked operatives, canine robot, reaching outer boundaries, electrical power facility, formidable fence, barbed wire, security perimeter, industrial, night, tense atmosphere\",\n      \"video_prompt\": \"Operatives and robot stop at the fence, heads subtly scanning the perimeter.\"\n    },\n    {\n      \"panel_number\": 13,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, two masked operatives, splitting off from group, practiced stealth, moving towards concealed locations, perimeter, infiltration tactics, night, focused, quiet.\",\n      \"video_prompt\": \"Two operatives separate from the group, their movements fluid and silent.\"\n    },\n    {\n      \"panel_number\": 14,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, canine robot, trailing behind operatives, optical sensors emitting faint low pulses of light, actively scanning, surrounding area, potential threats, advanced reconnaissance, night, vigilant\",\n      \"video_prompt\": \"Robot's optical sensors pulse faintly, head subtly swiveling, scanning motions.\"\n    },\n    {\n      \"panel_number\": 15,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, close up, masked operative 1, intense eye, visible through scope of raised pistol, barely perceptible breathing, extreme stillness, concentration, focused, sharpshooter, night vision scope effect, target acquisition\",\n      \"video_prompt\": \"Operative's eye blinks slowly, the scope reticle subtly shifts, subtle chest rise and fall.\"\n    },\n    {\n      \"panel_number\": 16,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, masked operative 1, concealed spot, holding suppressed pistol steady, aiming with absolute precision, unseen target, stealth sniper, focused posture, night, ready to fire\",\n      \"video_prompt\": \"Operative's hand holding pistol remains perfectly still, subtle glint on the suppressor.\"\n    },\n    {\n      \"panel_number\": 17,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, brightly lit security tower, two bored-looking security guards, patrolling near entrance, one guard bringing potato chip to mouth, mundane task, unsuspecting, contrasting light\",\n      \"video_prompt\": \"Guard's hand slowly raises chip to mouth, other guard paces idly.\"\n    },\n    {\n      \"panel_number\": 18,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, close up, security guard 1, eyes widening slightly in surprise, glazing over, instantly crumpling to floor, without a sound, potato chip held in limp fingers, visual \\\"ZZZ!\\\" sound effect, silent takedown, shock, immediate collapse\",\n      \"video_prompt\": \"Guard's eyes widen then quickly lose focus, body slumps silently, chip falls from fingers.\"\n    },\n    {\n      \"panel_number\": 19,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, close up, security guard 2, face contorting in shock and confusion, eyes darting frantically, fallen colleague, snapping eyes towards silent shot origin, sudden realization, fear, panic\",\n      \"video_prompt\": \"Guard's eyes dart frantically, head snaps around, subtle gasp indicated by facial expression.\"\n    },\n    {\n      \"panel_number\": 20,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, security guard 2, collapsing to ground in a heap, mirroring first guard, completely silent, visual \\\"ZZZ!\\\" sound effect, silent takedown, immediate incapacitation, clean sweep\",\n      \"video_prompt\": \"Guard collapses silently to the floor, body slumps, no struggle.\"\n    },\n    {\n      \"panel_number\": 21,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, masked operative 2, masked operative 3, approaching facility fence, topped with barbed wire, leading to locked gate, stealthy approach, infiltration point, industrial setting\",\n      \"video_prompt\": \"Operatives walk purposefully towards the fence, scanning the lock.\"\n    },\n    {\n      \"panel_number\": 22,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, close up, masked operative 3's hand, holding compact handheld scanning device, waving deliberately over electronic lock mechanism, gate, screen displaying data, hacking tool, tech infiltration, precise movement\",\n      \"video_prompt\": \"Scanner screen flickers with data, hand moves slowly over the lock.\"\n    },\n    {\n      \"panel_number\": 23,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, close up, gate lock, emitting soft quick \\\"BEEP\\\", visibly disengaging, small mechanism clicking open, successful hack, high-tech security, satisfying click\",\n      \"video_prompt\": \"Lock mechanism visibly retracts, small gears whirring, subtle click.\"\n    },\n    {\n      \"panel_number\": 24,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium wide shot, operatives 2 and 3, lock disengaged, bursting into sprint, swiftly moving through gate, main building of facility, urgent advance, infiltration, dynamic action, night\",\n      \"video_prompt\": \"Operatives burst into a sprint, camera tracks their rapid movement through the gate.\"\n    },\n    {\n      \"panel_number\": 25,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, tracking shot, masked operative 4, carrying large heavy-looking duffel bag, following closely, sprinting with agility, despite heavy bag, determined, vital cargo, dynamic motion\",\n      \"video_prompt\": \"Operative 4 sprints, duffel bag subtly bounces with momentum, camera tracks closely.\"\n    },\n    {\n      \"panel_number\": 26,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, dynamic wide shot, quadruped robot, guarded flank, executing brief silent burst of speed, catching up, running alongside operatives, fluid powerful movements, mechanical agility, combat ready, coordinated\",\n      \"video_prompt\": \"Robot charges forward, closing distance, its legs moving in a blur.\"\n    },\n    {\n      \"panel_number\": 27,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, over the shoulder shot, sprinting operatives, vehicle idling, lights on very dim, operatives abruptly stopping, sensing new presence, sudden halt, unexpected threat, tense atmosphere\",\n      \"video_prompt\": \"Operatives come to an abrupt halt, their posture tenses, subtle camera sway.\"\n    },\n    {\n      \"panel_number\": 28,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, operatives freezing in tracks, bodies tensed, heads subtly turning, idling vehicle, masks concealing faces, alert posture, palpable tension, sudden encounter, night\",\n      \"video_prompt\": \"Operatives' heads turn slowly and simultaneously towards the vehicle, slight body shifts.\"\n    },\n    {\n      \"panel_number\": 29,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, operatives' quadruped robot, quickly pivoting, robotic head swiveling, optical sensors focusing intently, dim vehicle, threat assessment, mechanical precision, alert\",\n      \"video_prompt\": \"Robot's head swivels with a whirring sound, optical sensors pinpointing target.\"\n    },\n    {\n      \"panel_number\": 30,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, low angle, second larger quadruped robot, stepping into view, from behind idling vehicle, ominous blood-red glowing eyes, imposing presence, security bot, advanced combat machine, new threat\",\n      \"video_prompt\": \"Robot steps slowly into frame, its red eyes glowing intensely, camera pushes in slightly.\"\n    },\n    {\n      \"panel_number\": 31,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, close up, security quadruped's eyes, blazing intense blood-red, faint digitally generated warning message echoing around frame, sci-fi interface, threat warning, mechanical menace, glowing red optics\",\n      \"video_prompt\": \"Robot's red eyes pulsate with light, subtle digital glitch effect over the warning message.\"\n    },\n    {\n      \"panel_number\": 32,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, wide shot, operatives, their robot, facing imposing security quadruped, standing braced and ready, red eyes fixed on them, warning message ringing out, tense standoff, impending conflict, industrial backdrop\",\n      \"video_prompt\": \"Security bot slowly shifts weight, red eyes fixate, camera holds wide view.\"\n    },\n    {\n      \"panel_number\": 33,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, low angle, security quadruped, visibly bracing reinforced frame, mechanical legs locking into low hyper-aggressive stance, ready to spring into action, coiled power, menacing posture, combat readiness\",\n      \"video_prompt\": \"Robot's legs visibly tense and lock, small dust motes disturbed around its feet.\"\n    },\n    {\n      \"panel_number\": 34,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, close up, security quadruped's sides, small compartments snapping open, metallic hiss, revealing various weaponry, extending and locking into place, futuristic weapons, imminent threat, mechanical transformation\",\n      \"video_prompt\": \"Compartments snap open with sharp metallic sound, weapons smoothly extend and lock.\"\n    },\n    {\n      \"panel_number\": 35,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, POV shot, from security quadruped, rapid head swivel, red optic vision, locking onto masked operative, targeting reticle flashing, digital overlay, threat assessment, hunter's perspective\",\n      \"video_prompt\": \"Targeting reticle quickly sweeps over each operative, red glow intensified.\"\n    },\n    {\n      \"panel_number\": 36,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, operative's quadruped robot, turning head, gaze shifting from security bot to human companions, awaiting command, loyal companion, intelligent machine, tense pause\",\n      \"video_prompt\": \"Robot's head turns slowly, subtle click of internal gears, optical sensors briefly flicker.\"\n    },\n    {\n      \"panel_number\": 37,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, close up, masked operative 2, masked face in profile, subtle determined tilt to head, issuing terse command, resolute expression, leadership, decision making, battle ready\",\n      \"video_prompt\": \"Operative's head tilts slightly, a subtle nod of command.\"\n    },\n    {\n      \"panel_number\": 38,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, low angle, security quadruped, taking aggressive step forward, reinforced frame visibly tensing for impact, hum of powerful servos distinctly audible, impending attack, mechanical power, intimidating presence\",\n      \"video_prompt\": \"Robot takes a heavy step forward, frame slightly shudders, subtle dust cloud from foot.\"\n    },\n    {\n      \"panel_number\": 39,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, close up, security quadruped's head, vent or speaker vibrating intensely, low guttural GROWL emitting from audio system, menacing sound, mechanical roar, intimidation, warning\",\n      \"video_prompt\": \"Vent vibrates, slight distortion effect on the frame, digital growl implied.\"\n    },\n    {\n      \"panel_number\": 40,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, dynamic wide shot, security quadruped, exploding into full-speed charge, blur of motion, gritty ground, heading directly for operatives' robot, aggressive assault, powerful acceleration, dust kicking up\",\n      \"video_prompt\": \"Robot charges, blurring across the ground, kicking up a trail of dust.\"\n    },\n    {\n      \"panel_number\": 41,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, dynamic wide shot, operative's quadruped robot, launching into charge, matching security bot's aggression, sleek powerful streak, high speed, agile combat, counter-attack, determined\",\n      \"video_prompt\": \"Operative's robot launches forward, body tensing, legs churning.\"\n    },\n    {\n      \"panel_number\": 42,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, dynamic medium shot, two combat robots colliding, thunderous impact, visible shockwave, kicking up dust and debris, violent collision, metal on metal, explosion of energy, epic battle\",\n      \"video_prompt\": \"Robots collide, dust explodes outwards, camera shakes slightly.\"\n    },\n    {\n      \"panel_number\": 43,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, close up, frantic robot combat, clashing bodies, sharp claws scraping violently, reinforced metal plating, shower of bright electric sparks flying, intense melee, destructive power, mechanical fury\",\n      \"video_prompt\": \"Claws scrape, sparks fly, camera slightly judders with each impact.\"\n    },\n    {\n      \"panel_number\": 44,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, masked operatives, standing and watching, brutal robot-on-robot combat, tense postures, ready for any next move, vigilant, tactical observers, silent anticipation\",\n      \"video_prompt\": \"Operatives' eyes follow the combat, subtle shifts in their stance.\"\n    },\n    {\n      \"panel_number\": 45,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, operative's robot, locked onto security bot, vicious grip, aggressively tearing at security bot's body, ripping away plating, exposing internal wires, sparking wires, brutal attack, mechanical damage\",\n      \"video_prompt\": \"Operative's robot tears away plating, sparks continuously fly, camera slightly zooms in on the damage.\"\n    },\n    {\n      \"panel_number\": 46,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, dynamic medium shot, security bot, grappled, weapon compartments flashing brightly, firing burst of vivid stun lasers, aiming over grappling bot, towards human operatives, desperate counter-attack, focused threat\",\n      \"video_prompt\": \"Weapon compartments flash, lasers streak across the frame, rapid fire effect.\"\n    },\n    {\n      \"panel_number\": 47,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, bright stun lasers streaking past operatives, narrowly missing by inches, visibly singeing ground, singeing nearby wall, close call, intense danger, evasive action implied\",\n      \"video_prompt\": \"Lasers streak past operatives, light flickers across their masks, small scorch marks appear.\"\n    },\n    {\n      \"panel_number\": 48,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, operative's quadruped bot, sleek mechanical design, standing poised, optical sensors glowing red, whirring to life, legs tensing, preparing for movement, battle ready, high-tech companion\",\n      \"video_prompt\": \"Robot's optical sensors intensify their glow, subtle whirring sound indicated, legs subtly shift weight.\"\n    },\n    {\n      \"panel_number\": 49,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, wide shot, operative's quadruped bot charging, open dusty field, powerful legs propelling at high speed, larger blocky security bot in distance also charging, kicking up dust, dual charge, impending clash, desolate landscape\",\n      \"video_prompt\": \"Both robots charge across the field, dust trails behind them, camera tracks their converging paths.\"\n    },\n    {\n      \"panel_number\": 50,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, two bots colliding head-on, powerful thunderous impact, metal grinding against metal, bodies connecting, visible shockwaves through air, violent clash, devastating force, sparks and debris\",\n      \"video_prompt\": \"Robots collide violently, camera shakes, dust and debris explode outwards.\"\n    },\n    {\n      \"panel_number\": \"004\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, close up, sharp metal claws scraping violently across armored plating of security bot, bright orange sparks erupting dramatically from friction point, intense mechanical combat, metallic textures, high contrast lighting, dynamic action, industrial setting.\",\n      \"video_prompt\": \"Sparks erupting and flickering, claws dragging, subtle camera shake.\"\n    },\n    {\n      \"panel_number\": \"005\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, wide shot, two masked operatives standing several meters back, observing intense bot battle, sharp silhouettes against bright orange sparks flying from clashing machines, industrial background, tense atmosphere, tactical gear.\",\n      \"video_prompt\": \"Sparks flying vividly in background, operatives subtly shifting weight.\"\n    },\n    {\n      \"panel_number\": \"006\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, operative's quadruped bot, jaws wide, clamping onto security bot's upper body with vicious unyielding grip, other limbs tearing at security bot's frame, wrenching plates of metal, violent mechanical struggle, debris flying, powerful attack.\",\n      \"video_prompt\": \"Bot's jaws clenching, metal plates visibly warping and tearing.\"\n    },\n    {\n      \"panel_number\": \"007\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, security bot's head-mounted turret swiveling, firing rapid burst of bright blue stun lasers, beams streaking past operative's bot, narrowly missing distant masked operatives, chaotic laser fire, smoke trails, defensive action.\",\n      \"video_prompt\": \"Laser beams rapidly streaking across screen, turret rotating and firing.\"\n    },\n    {\n      \"panel_number\": \"008\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, operative's quadruped bot recovering quickly, lunging forward, swipe of reinforced claw, security bot surprisingly agile, twisting body, dodging attack by mere inches, fast-paced action, blurred motion, counter-attack.\",\n      \"video_prompt\": \"Operative's bot lunging quickly, security bot rapidly twisting to dodge.\"\n    },\n    {\n      \"panel_number\": \"009\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, security bot swinging heavy reinforced tail in powerful arc, tail slamming hard into side of operative's bot, operative's bot visibly lurching, losing balance, one leg lifting off ground, dust kickup, heavy impact.\",\n      \"video_prompt\": \"Tail swinging violently, operative's bot visibly shaking and lurching.\"\n    },\n    {\n      \"panel_number\": \"010\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, high angle shot, security bot capitalizing on moment, leaping with surprising force onto back of operative's bot, pinning it downwards, dust kicking up from impact, overhead view of mechanical struggle, grappling.\",\n      \"video_prompt\": \"Security bot leaping and landing heavily, dust cloud expanding.\"\n    },\n    {\n      \"panel_number\": \"011\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, close up, bots struggling, operative's bot pinned, twisting head around to struggle face-to-face with security bot, optical sensors glowing fiercely, metallic teeth grinding, intense mechanical aggression, desperate fight.\",\n      \"video_prompt\": \"Bots struggling with force, optical sensors intensifying glow, grinding teeth motion.\"\n    },\n    {\n      \"panel_number\": \"012\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, two masked operatives looking at each other, bodies slightly hunched, posture conveying tense uncertainty about ongoing fight, industrial background, dim lighting, cautious expressions, team dynamics.\",\n      \"video_prompt\": \"Operatives' heads subtly turning towards each other, slight body shifts.\"\n    },\n    {\n      \"panel_number\": \"013\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, dynamic medium shot, operative's bot finding moment of space, extending hidden mounted claw from its side, claw plunging behind security bot, quickly ripping into one of its legs, metal tearing, shower of sparks exploding from wound, brutal mechanical damage, decisive move.\",\n      \"video_prompt\": \"Claw extending quickly, ripping motion, sparks erupting violently.\"\n    },\n    {\n      \"panel_number\": \"014\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, security bot, leg mangled, buckling, collapsing to ground in shower of dust and small debris, trying to push itself up, damaged leg dragging uselessly, defeated posture, industrial floor, broken machinery.\",\n      \"video_prompt\": \"Security bot falling heavily, debris scattering, attempting to push up with difficulty.\"\n    },\n    {\n      \"panel_number\": \"015\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, high angle shot, operative's bot leaping onto prone security bot's back, digging powerful claws deep into enemy's body, final violent motion, ripping security bot's head clean off, brutal finishing move, mechanical gore.\",\n      \"video_prompt\": \"Operative's bot leaping onto foe, claws digging in, head ripping motion.\"\n    },\n    {\n      \"panel_number\": \"016\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, close up, severed head of security bot flying off-screen, sparks igniting, thick cables dangling limply from neck joint, body slumping lifelessly to ground, destroyed machinery, smoke, final defeat.\",\n      \"video_prompt\": \"Sparks igniting and flaring, cables swaying, body slumping to the ground.\"\n    },\n    {\n      \"panel_number\": \"017\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, operative's quadruped bot standing over vanquished opponent, which lies still on ground, slowly turning head towards masked operatives, optical sensors holding anticipatory questioning gaze, victory pose, industrial backdrop, silent communication.\",\n      \"video_prompt\": \"Bot's head slowly turning, optical sensors subtly changing color.\"\n    },\n    {\n      \"panel_number\": \"018\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium close up, Masked Operative 3 walking over to quadruped bot, kneeling down to its level, reaching out hand, gently stroking bot's head, rare moment of tenderness, human-robot connection, intimate gesture, low light, care. Masked Operative 3.\",\n      \"video_prompt\": \"Operative kneeling, hand slowly reaching and stroking bot's head.\"\n    },\n    {\n      \"panel_number\": \"019\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, close up, Masked Operative 3's gloved hand resting on smooth cool metal of bot's head, bot's optical sensor softening slightly, moment of connection, subtle emotions, sci-fi tenderness, loyalty. Masked Operative 3.\",\n      \"video_prompt\": \"Gloved hand gently caressing, optical sensor's glow subtly dimming.\"\n    },\n    {\n      \"panel_number\": \"020\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, wide shot, three masked operatives, triumphant quadruped bot walking calmly behind them, moving as cohesive unit towards large imposing building in distance, mission accomplished, determined stride, ominous architecture, post-battle.\",\n      \"video_prompt\": \"Operatives walking forward with purpose, bot's calm, steady stride, camera tracking.\"\n    },\n    {\n      \"panel_number\": \"021\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium close up, Masked Operative 2 approaching heavy metal door, revealing compact sleek laser cutter from belt, expertly aiming it at door's robust lock, focused beam of energy emitting from device, high-tech infiltration, precision tool. Masked Operative 2.\",\n      \"video_prompt\": \"Laser cutter extending from belt, beam focusing intensely, slight hand tremor.\"\n    },\n    {\n      \"panel_number\": \"022\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, close up, laser cutter beam precisely severing metal lock, lock glowing cherry red before breaking apart, falling with metallic clang, sparks, smoke, precise destruction, melted metal.\",\n      \"video_prompt\": \"Laser beam cutting, metal glowing intensely, lock breaking apart and falling.\"\n    },\n    {\n      \"panel_number\": \"023\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, heavy metal door swinging inward with creak, quadruped bot stepping forward, placing sturdy limb against edge of door, pushing it wide open with ease, seamless entry, industrial entrance, imposing doorway.\",\n      \"video_prompt\": \"Door slowly creaking open, bot's leg pushing, camera subtle push in.\"\n    },\n    {\n      \"panel_number\": \"024\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, wide shot, masked operatives, led by Masked Operative 2, moving silently into dark interior of facility, forms disappearing into shadows, stealthy infiltration, foreboding darkness, unknown depths.\",\n      \"video_prompt\": \"Operatives moving silently into darkness, shadows deepening.\"\n    },\n    {\n      \"panel_number\": \"025\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, low angle shot, small dark unobtrusive drone silently detaching from ground near door, hovering for moment, gliding smoothly into facility behind operatives, completely unnoticed, stealth technology, surveillance, hidden entry.\",\n      \"video_prompt\": \"Drone detaching, hovering briefly, smoothly gliding forward.\"\n    },\n    {\n      \"panel_number\": \"026\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, establishing shot, vast interior revealing complex maze of rusty metal walkways, towering industrial equipment, flickering overhead lights, air thick with metallic scent of industry, faint footsteps echoing, expansive, grimy, desolate.\",\n      \"video_prompt\": \"Flickering lights casting moving shadows, dust motes slowly drifting, faint camera pan.\"\n    },\n    {\n      \"panel_number\": \"027\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, Masked Operative 4 standing vigilantly by entrance door, head moving sharply, scanning immediate area, quadruped bot standing patiently beside them, optical sensors sweeping back and forth, watchful guard, security detail. Masked Operative 4.\",\n      \"video_prompt\": \"Operative's head scanning rapidly, bot's sensors sweeping back and forth.\"\n    },\n    {\n      \"panel_number\": \"028\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, Masked Operative 2 and Masked Operative 3 beginning descent down series of grime-covered metal ladders, movements swift and efficient, bodies focused, industrial shaft, downwards perspective, disciplined action. Masked Operative 2, Masked Operative 3.\",\n      \"video_prompt\": \"Operatives climbing down swiftly, subtle sway of ladders, camera tracking down.\"\n    },\n    {\n      \"panel_number\": \"029\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, wide shot, operatives reaching bottom floor, stepping into massive dimly lit basement, towering monolithic machines looming everywhere, connected by intricate tangle of pipes and cables, sprawling cavernous landscape of concrete and steel, stuttering fluorescent lights casting long stark shadows, oppressive industrial scale, vastness.\",\n      \"video_prompt\": \"Stuttering fluorescent lights, long stark shadows slowly shifting across machines.\"\n    },\n    {\n      \"panel_number\": \"030\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, two masked operatives stopping, looking around at overwhelming industrial environment, masked faces turned upward, taking in scale of towering machinery, awe, determination, strategizing.\",\n      \"video_prompt\": \"Operatives slowly looking up, heads turning subtly to take in scale.\"\n    },\n    {\n      \"panel_number\": \"031\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, close up, complex control panel blinking with constellation of indicator lights \\u2013 reds, greens, blues \\u2013 casting artificial ethereal glow across grimy metal surface, intricate circuitry, high-tech interface, steam, digital display.\",\n      \"video_prompt\": \"Indicator lights subtly pulsing and changing color, soft glow fluctuating.\"\n    },\n    {\n      \"panel_number\": \"032\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, massive generators, slick with condensation, looming in background, sheer size dominating frame, emphasizing chill and dampness of basement, hum of power, industrial giants, ominous presence.\",\n      \"video_prompt\": \"Condensation dripping slowly down, subtle hum vibrations emanating.\"\n    },\n    {\n      \"panel_number\": \"033\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, masked operatives looking at each other, silent acknowledgment passing between them, subtle head nod, shared resolve, unspoken plan.\",\n      \"video_prompt\": \"Operatives' eyes meeting, slight head tilt of acknowledgement.\"\n    },\n    {\n      \"panel_number\": \"034\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium close up, Masked Operative 2 pulling nondescript duffel bag from shoulder, smoothly unzipping it, revealing sleek black bomb with digital timer embedded within, high-tech demolition, focused expression, dangerous device. Masked Operative 2.\",\n      \"video_prompt\": \"Duffel bag unzipping, bomb slowly revealed, light glinting off device.\"\n    },\n    {\n      \"panel_number\": \"035\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, close up, bomb exchange, Masked Operative 2 extending bomb towards Masked Operative 3, hand offering it, Masked Operative 3 taking device with firm grip, Masked Operative 2 giving subtle affirming nod, trust, precision, critical transfer. Masked Operative 2, Masked Operative 3.\",\n      \"video_prompt\": \"Hands exchanging bomb with steady motion, subtle nod, bomb timer softly glowing.\"\n    },\n    {\n      \"panel_number\": \"036\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, Masked Operative 3 moving with practiced speed and precision, securing bomb to central control unit, fingers deftly pressing buttons, setting timer, expert sabotage, focused action, mechanical interface. Masked Operative 3.\",\n      \"video_prompt\": \"Fingers rapidly pressing buttons, bomb securely attaching to unit.\"\n    },\n    {\n      \"panel_number\": \"037\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, low angle shot, small dark drone silently gliding past busy masked operatives, approaching metal wall not far from planted bomb, using small suction cups or magnetic clamps to affix itself, becoming almost invisible against dark surface, covert surveillance, hidden camera.\",\n      \"video_prompt\": \"Drone gliding smoothly, suction cups deploying, subtle shimmer as it attaches.\"\n    },\n    {\n      \"panel_number\": \"038\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, close up, digital timer on bomb glowing with soft red light, small rhythmic \\\"BEEP\\\" icon appearing on screen, indicating activation, ticking countdown, impending doom, technological menace, time bomb.\",\n      \"video_prompt\": \"Timer digits changing, 'BEEP' icon pulsing rhythmically, soft red glow.\"\n    },\n    {\n      \"panel_number\": \"039\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, close up, Masked Operative 3 looking at bomb, then up towards team, head slightly tilted, masked face conveying resolution, urgency, low light, critical decision. Masked Operative 3.\",\n      \"video_prompt\": \"Operative's head slowly tilting, gaze shifting from bomb to team.\"\n    },\n    {\n      \"panel_number\": \"040\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, masked operatives turning sharply, moving with efficient synchronized steps towards ladders, beginning ascent back up, mission accomplished, urgent exit, swift departure.\",\n      \"video_prompt\": \"Operatives turning sharply, moving quickly and synchronously towards ladders.\"\n    },\n    {\n      \"panel_number\": \"041\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, masked operatives swiftly climbing metal ladders, bodies moving with practiced ease, vast basement space receding below them, determined ascent, industrial architecture, escape.\",\n      \"video_prompt\": \"Operatives quickly ascending ladders, camera slightly pulling back to reveal space.\"\n    },\n    {\n      \"panel_number\": \"042\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, wide shot, Masked Operative 4 waiting at main entrance, gesturing urgently to ascending operatives, quickly regrouping by open door, coordinated extraction, watchful guardian, safe rendezvous. Masked Operative 4.\",\n      \"video_prompt\": \"Operative 4's urgent hand gesture, ascending figures moving faster to regroup.\"\n    },\n    {\n      \"panel_number\": \"043\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, quadruped bot, positioned at rear of group, pausing for moment, optical sensors sweeping across facility's interior one last time, almost sentient final check, mechanical sentry, vigilant observation.\",\n      \"video_prompt\": \"Bot pausing, optical sensors slowly sweeping across interior with a hum.\"\n    },\n    {\n      \"panel_number\": \"044\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, wide shot, masked operatives exiting facility, stepping out into daylight, quadruped bot following last, mechanical arm extending to push heavy metal door shut with decisive clang, successful exfiltration, sealing fate, final departure.\",\n      \"video_prompt\": \"Operatives exiting, bot's arm extending, door slowly closing with a decisive clang.\"\n    },\n    {\n      \"panel_number\": \"001\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium close up, Masked Operative 3, clad in tactical gear, looking directly at camera with a calculating gaze, light reflecting faintly off their mask, intense focus, determination, tactical visor. Masked Operative 3.\",\n      \"video_prompt\": \"Light glinting off mask, subtle shift in operative's gaze, minimal head movement.\"\n    },\n    {\n      \"panel_number\": \"002\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, wide shot, three masked operatives turning in unison, their movements precise and efficient, beginning to move towards a distant set of ladders, their backs to the camera, synchronized movement, urgent departure, industrial background.\",\n      \"video_prompt\": \"Operatives turning sharply, moving in unison, camera tracking from behind.\"\n    },\n    {\n      \"panel_number\": \"003\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, over-the-shoulder shot, looking over the shoulder of the lead masked operative, two other operatives quickly ascending metal ladders into the darkness above, harsh industrial lighting below diminishing as they climb, rapid ascent, disciplined movement.\",\n      \"video_prompt\": \"Operatives climbing swiftly, light fading below, camera slightly swaying with movement.\"\n    },\n    {\n      \"panel_number\": \"004\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, Masked Operative 4, wearing a slightly different mask than the others, standing near an exit, making a sharp, urgent hand gesture, signaling the approaching team to hurry, alert posture, tactical communication, readiness. Masked Operative 4.\",\n      \"video_prompt\": \"Operative 4's sharp hand gesture, head quickly darting to look at approaching team.\"\n    },\n    {\n      \"panel_number\": \"005\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, wide shot, three masked operatives quickly regrouping with Masked Operative 4 near a heavy metal door, the mechanical quadruped, low to the ground, is at the back of the group, its optical sensors briefly sweeping the room, organized exit, tense readiness, team formation. Masked Operative 4.\",\n      \"video_prompt\": \"Operatives quickly converging, bot's optical sensors sweeping the room.\"\n    },\n    {\n      \"panel_number\": \"006\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium close up, quadruped bot's head swiveling, its multi-faceted optical sensor glowing faintly as it performs a final scan of the empty electrical facility, its metallic claw is poised near the door, vigilant mechanical sentinel, silent guardian.\",\n      \"video_prompt\": \"Bot's head slowly swiveling, optical sensor's glow intensifying slightly.\"\n    },\n    {\n      \"panel_number\": \"007\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, quadruped bot's sturdy leg pressing against the heavy metal door, slowly pushing it shut with a soft hiss, leaving only a sliver of darkness before it fully closes, decisive action, final seal, ominous closing.\",\n      \"video_prompt\": \"Bot's leg pressing, door slowly closing, soft hiss audible as it seals.\"\n    },\n    {\n      \"panel_number\": \"008\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, extreme wide shot, high angle, four masked operatives and the quadruped bot seen as tiny figures sprinting across a desolate, industrial perimeter towards a chain-link fence, urgent escape, vast environment, strategic retreat.\",\n      \"video_prompt\": \"Tiny figures rapidly moving across the desolate landscape, camera slowly panning with them.\"\n    },\n    {\n      \"panel_number\": \"009\",\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, Masked Operative 1 and Masked Operative 5 standing outside the fence, their high-tech rifles raised and aimed, scanning the exterior environment with intense focus, completely still, waiting, watchful cover, armed readiness, vigilant sentinels. Masked Operative 1, Masked Operative 5.\",\n      \"video_prompt\": \"Operatives' heads subtly scanning, rifle barrels gently swaying with breath.\"\n    },\n    {\n      \"panel_number\": 10,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, action shot, agile quadruped robot, sleek design, blur of motion, effortlessly leaping, chain-link fence, landing silently, perfect balance, industrial setting, night, Operative 1, Operative 5\",\n      \"video_prompt\": \"Quadruped's legs move in fluid motion, subtle bounce on landing.\"\n    },\n    {\n      \"panel_number\": 11,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, wide shot, operatives, tactical gear, scrambling into dark armored van, shadowy alley, urgent movement, one operative in driver's seat, night, urban environment\",\n      \"video_prompt\": \"Operatives' quick movements as they enter the van, subtle dust particles in the air.\"\n    },\n    {\n      \"panel_number\": 12,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, close up, van's engine roaring to life, mechanical details, subtle vibration, dark exhaust plume, tailpipe, gritty textures, urgency, night\",\n      \"video_prompt\": \"Subtle engine vibration, exhaust smoke billowing quickly, camera slight shake.\"\n    },\n    {\n      \"panel_number\": 13,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium close up, Operative 5, heavily booted foot, tactical boot, slamming down on accelerator pedal, urgent revving, van interior, focused action, Operative 5\",\n      \"video_prompt\": \"Foot presses down, pedal depresses, subtle vibration through the boot.\"\n    },\n    {\n      \"panel_number\": 14,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, action shot, quadruped robot, powerful leap, graceful arc, mid-air motion, disappearing into back of van, van lurching forward, urgent escape, night\",\n      \"video_prompt\": \"Quadruped's body arcs smoothly, van begins to shift, camera tracking its movement.\"\n    },\n    {\n      \"panel_number\": 15,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium shot, armored van, speeding away, blurred background, dark alley, two operatives pulling back doors shut, echoing clank, vanishing into distance, night\",\n      \"video_prompt\": \"Van quickly recedes, doors smoothly closing, alley lights blurring.\"\n    },\n    {\n      \"panel_number\": 16,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, establishing shot, electrical power facility, massive industrial complex, eerie silence, isolated, dark sky, no lights, no movement, palpable quiet, slight breeze, pre-explosion atmosphere, night\",\n      \"video_prompt\": \"Subtle breeze rustling, shadows slightly shifting, camera slowly panning across the facility.\"\n    },\n    {\n      \"panel_number\": 17,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, wide shot, electrical power facility, massive explosion, orange fireball, intense flames, thick black smoke, rocket towards sky, flying debris, ground visibly trembling, destructive power, night\",\n      \"video_prompt\": \"Fireball rapidly expanding, smoke billowing upwards, debris flying, camera shaking violently.\"\n    },\n    {\n      \"panel_number\": 18,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, close up, concrete ground, violent cracking, jagged fissures forming rapidly, splitting surface, small pebbles, dust thrown into air, seismic impact, raw power\",\n      \"video_prompt\": \"Cracks propagate rapidly, dust and pebbles jump, ground visibly shifting.\"\n    },\n    {\n      \"panel_number\": 19,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, extreme wide shot, dual explosions, main facility, smaller adjacent building, towering plumes, thick dark smoke, spiraling upwards, merging ominously, night sky, terrifying destruction, inferno\",\n      \"video_prompt\": \"Second explosion bursting, smoke plumes coiling and merging, distant flames flickering.\"\n    },\n    {\n      \"panel_number\": 20,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, establishing shot, dark armored van, quiet, lights off, grassy cliff, vast dark expanse, scattered shrubs, tall grass, partially concealed, distant twin pillars of fire, burning facilities, horizon, serene destruction, night\",\n      \"video_prompt\": \"Subtle wind rustling grass, distant fires flickering, camera slow pan across the scene.\"\n    },\n    {\n      \"panel_number\": 21,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium wide shot, operatives, sprawled casually, against van, sitting on hood, tactical gear, faces illuminated by distant flickering orange glow, explosions, watching inferno, contemplative stillness, detached spectators, strange appreciation\",\n      \"video_prompt\": \"Distant fire's glow subtly shifts on their faces, slight head movements, camera slowly pushing in.\"\n    },\n    {\n      \"panel_number\": 22,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium close up, Operative 2, masked face, tactical mask, head slightly tilted, turned towards distant fire, orange light reflections, expressionless mask, pensive mood, contemplative, Operative 2\",\n      \"video_prompt\": \"Subtle flickering of light on mask, slight head tilt, very slow zoom on Operative 2.\"\n    },\n    {\n      \"panel_number\": 23,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, medium close up, Operative 4, masked face, tactical gear, illuminated by distant blaze, looking at fire, subtle head tilt, imperceptible tilt, deep appreciation, dark appreciation, pensive, Operative 4\",\n      \"video_prompt\": \"Flickering light plays on mask, eyes slowly shift, very slight head tilt of Operative 4.\"\n    },\n    {\n      \"panel_number\": 24,\n      \"image_prompt\": \"masterpiece, best quality, anime style, cinematic still, close up, Operative 3, masked face, starkly lit by flickering orange, eyes fixed on fire, profound question, unsettling posture, contemplative, Operative 3\",\n      \"video_prompt\": \"Orange light flickers intensely, subtle breathing movement, very slow push in on Operative 3's eyes.\"\n    }\n  ]\n}",
+        false
+      ],
+      "color": "#1f3d4d",
+      "bgcolor": "#2d5a70"
+    },
+    {
+      "id": 66,
+      "type": "WanVideoTextEncode",
+      "pos": [
+        5850.865300359592,
+        106.10319646395462
+      ],
+      "size": [
+        232.06666564941406,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 38,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "t5",
+          "shape": 7,
+          "type": "WANTEXTENCODER",
+          "link": 29
+        },
+        {
+          "name": "model_to_offload",
+          "shape": 7,
+          "type": "WANVIDEOMODEL",
+          "link": null
+        },
+        {
+          "name": "positive_prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "positive_prompt"
+          },
+          "link": 28
+        }
+      ],
+      "outputs": [
+        {
+          "name": "text_embeds",
+          "type": "WANVIDEOTEXTEMBEDS",
+          "links": [
+            44
+          ]
+        }
+      ],
+      "title": "Encode First Video Prompt",
+      "properties": {
+        "cnr_id": "comfyui-wanvideowrapper",
+        "ver": "1.4.7",
+        "Node name for S&R": "WanVideoTextEncode",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "bright tones, overexposed, static, blurred details, subtitles, style, works, paintings, images, static, overall gray, worst quality, low quality, JPEG compression residue, ugly, incomplete, extra fingers, poorly drawn hands, poorly drawn faces, deformed, disfigured, misshapen limbs, fused fingers, still picture, messy background, three legs, many people in the background, walking backwards",
+        true,
+        true,
+        "gpu",
+        "gpu"
+      ],
+      "color": "#26324d",
+      "bgcolor": "#3a4c73"
+    },
+    {
+      "id": 69,
+      "type": "WanVideoClipVisionEncode",
+      "pos": [
+        5490.865300359592,
+        106.10319646395462
+      ],
+      "size": [
+        245.3333282470703,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 52,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip_vision",
+          "type": "CLIP_VISION",
+          "link": 30
+        },
+        {
+          "name": "image_1",
+          "type": "IMAGE",
+          "link": 31
+        },
+        {
+          "name": "image_2",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "negative_image",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image_embeds",
+          "type": "WANVIDIMAGE_CLIPEMBEDS",
+          "links": [
+            40
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-wanvideowrapper",
+        "ver": "1.4.7",
+        "Node name for S&R": "WanVideoClipVisionEncode",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        1,
+        1,
+        "center",
+        "average",
+        true,
+        0,
+        0.20000000000000004
+      ],
+      "color": "#26324d",
+      "bgcolor": "#3a4c73"
+    },
+    {
+      "id": 75,
+      "type": "WanVideoImageToVideoEncode",
+      "pos": [
+        6210.865300359592,
+        106.10319646395462
+      ],
+      "size": [
+        273.3500061035156,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 57,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "vae",
+          "shape": 7,
+          "type": "WANVAE",
+          "link": 39
+        },
+        {
+          "name": "clip_embeds",
+          "shape": 7,
+          "type": "WANVIDIMAGE_CLIPEMBEDS",
+          "link": 40
+        },
+        {
+          "name": "start_image",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 41
+        },
+        {
+          "name": "end_image",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "control_embeds",
+          "shape": 7,
+          "type": "WANVIDIMAGE_EMBEDS",
+          "link": null
+        },
+        {
+          "name": "temporal_mask",
+          "shape": 7,
+          "type": "MASK",
+          "link": null
+        },
+        {
+          "name": "extra_latents",
+          "shape": 7,
+          "type": "LATENT",
+          "link": null
+        },
+        {
+          "name": "add_cond_latents",
+          "shape": 7,
+          "type": "ADD_COND_LATENTS",
+          "link": null
+        },
+        {
+          "name": "empty_frame_pad_image",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": 36
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": 37
+        },
+        {
+          "name": "num_frames",
+          "type": "INT",
+          "widget": {
+            "name": "num_frames"
+          },
+          "link": 38
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image_embeds",
+          "type": "WANVIDIMAGE_EMBEDS",
+          "links": [
+            43
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-wanvideowrapper",
+        "ver": "1.4.7",
+        "Node name for S&R": "WanVideoImageToVideoEncode",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        0,
+        1,
+        1,
+        true,
+        false,
+        false,
+        0,
+        true,
+        false,
+        0
+      ],
+      "color": "#26324d",
+      "bgcolor": "#3a4c73"
+    },
+    {
+      "id": 76,
+      "type": "WanVideoSampler",
+      "pos": [
+        6570.865300359592,
+        106.10319646395462
+      ],
+      "size": [
+        225,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 62,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "WANVIDEOMODEL",
+          "link": 42
+        },
+        {
+          "name": "image_embeds",
+          "type": "WANVIDIMAGE_EMBEDS",
+          "link": 43
+        },
+        {
+          "name": "text_embeds",
+          "shape": 7,
+          "type": "WANVIDEOTEXTEMBEDS",
+          "link": 44
+        },
+        {
+          "name": "samples",
+          "shape": 7,
+          "type": "LATENT",
+          "link": null
+        },
+        {
+          "name": "feta_args",
+          "shape": 7,
+          "type": "FETAARGS",
+          "link": null
+        },
+        {
+          "name": "context_options",
+          "shape": 7,
+          "type": "WANVIDCONTEXT",
+          "link": null
+        },
+        {
+          "name": "cache_args",
+          "shape": 7,
+          "type": "CACHEARGS",
+          "link": null
+        },
+        {
+          "name": "flowedit_args",
+          "shape": 7,
+          "type": "FLOWEDITARGS",
+          "link": null
+        },
+        {
+          "name": "slg_args",
+          "shape": 7,
+          "type": "SLGARGS",
+          "link": null
+        },
+        {
+          "name": "loop_args",
+          "shape": 7,
+          "type": "LOOPARGS",
+          "link": null
+        },
+        {
+          "name": "experimental_args",
+          "shape": 7,
+          "type": "EXPERIMENTALARGS",
+          "link": null
+        },
+        {
+          "name": "sigmas",
+          "shape": 7,
+          "type": "SIGMAS",
+          "link": null
+        },
+        {
+          "name": "unianimate_poses",
+          "shape": 7,
+          "type": "UNIANIMATE_POSE",
+          "link": null
+        },
+        {
+          "name": "fantasytalking_embeds",
+          "shape": 7,
+          "type": "FANTASYTALKING_EMBEDS",
+          "link": null
+        },
+        {
+          "name": "uni3c_embeds",
+          "shape": 7,
+          "type": "UNI3C_EMBEDS",
+          "link": null
+        },
+        {
+          "name": "multitalk_embeds",
+          "shape": 7,
+          "type": "MULTITALK_EMBEDS",
+          "link": null
+        },
+        {
+          "name": "freeinit_args",
+          "shape": 7,
+          "type": "FREEINITARGS",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "links": [
+            33
+          ]
+        },
+        {
+          "name": "denoised_samples",
+          "type": "LATENT",
+          "links": null
+        }
+      ],
+      "title": "First I2V Sampler",
+      "properties": {
+        "cnr_id": "comfyui-wanvideowrapper",
+        "ver": "1.4.7",
+        "Node name for S&R": "WanVideoSampler",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        8,
+        1,
+        5,
+        0,
+        "fixed",
+        true,
+        "euler",
+        0,
+        1,
+        false,
+        "comfy",
+        0,
+        -1,
+        false
+      ],
+      "color": "#26324d",
+      "bgcolor": "#3a4c73"
+    },
+    {
+      "id": 72,
+      "type": "WanVideoDecode",
+      "pos": [
+        6930.865300359592,
+        106.10319646395462
+      ],
+      "size": [
+        225,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 63,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "vae",
+          "type": "WANVAE",
+          "link": 32
+        },
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 33
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            15,
+            45,
+            66
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-wanvideowrapper",
+        "ver": "1.4.7",
+        "Node name for S&R": "WanVideoDecode",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        false,
+        272,
+        272,
+        144,
+        32,
+        "default"
+      ],
+      "color": "#26324d",
+      "bgcolor": "#3a4c73"
+    },
+    {
+      "id": 77,
+      "type": "VHS_VideoCombine",
+      "pos": [
+        7290.865300359592,
+        106.10319646395462
+      ],
+      "size": [
+        243.53334045410156,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 65,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 45
+        },
+        {
+          "name": "audio",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": null
+        },
+        {
+          "name": "meta_batch",
+          "shape": 7,
+          "type": "VHS_BatchManager",
+          "link": null
+        },
+        {
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "links": null
+        }
+      ],
+      "title": "First Section Video Combine",
+      "properties": {
+        "cnr_id": "comfyui-videohelpersuite",
+        "ver": "537f3a02269e14ab4b0350d4189a52034e9a3b12",
+        "Node name for S&R": "VHS_VideoCombine",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": {
+        "frame_rate": 8,
+        "loop_count": 0,
+        "filename_prefix": "AnimateDiff",
+        "format": "image/gif",
+        "pingpong": false,
+        "save_output": true,
+        "videopreview": {
+          "hidden": false,
+          "paused": false,
+          "params": {}
+        }
+      },
+      "color": "#26324d",
+      "bgcolor": "#3a4c73"
+    },
+    {
+      "id": 57,
+      "type": "VHS_VideoCombine",
+      "pos": [
+        7290.865300359592,
+        446.1031964639548
+      ],
+      "size": [
+        233.38333129882812,
+        7.599998474121094
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 48,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 24
+        },
+        {
+          "name": "audio",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": null
+        },
+        {
+          "name": "meta_batch",
+          "shape": 7,
+          "type": "VHS_BatchManager",
+          "link": null
+        },
+        {
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "links": null
+        }
+      ],
+      "title": "Initial Seed Video Combine",
+      "properties": {
+        "cnr_id": "comfyui-videohelpersuite",
+        "ver": "537f3a02269e14ab4b0350d4189a52034e9a3b12",
+        "Node name for S&R": "VHS_VideoCombine",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": {
+        "frame_rate": 8,
+        "loop_count": 0,
+        "filename_prefix": "AnimateDiff",
+        "format": "image/gif",
+        "pingpong": false,
+        "save_output": true,
+        "videopreview": {
+          "hidden": false,
+          "paused": false,
+          "params": {}
+        }
+      },
+      "color": "#26324d",
+      "bgcolor": "#3a4c73"
+    }
+  ],
+  "links": [
+    [
+      1,
+      73,
+      0,
+      6,
+      0,
+      "IMAGE"
+    ],
+    [
+      2,
+      78,
+      0,
+      8,
+      0,
+      "WANVIDEOMODEL"
+    ],
+    [
+      3,
+      62,
+      0,
+      8,
+      1,
+      "BLOCKSWAPARGS"
+    ],
+    [
+      4,
+      88,
+      0,
+      13,
+      0,
+      "FLOW_CONTROL"
+    ],
+    [
+      5,
+      94,
+      0,
+      13,
+      1,
+      "IMAGE"
+    ],
+    [
+      6,
+      93,
+      1,
+      16,
+      0,
+      "MASK"
+    ],
+    [
+      7,
+      20,
+      3,
+      17,
+      0,
+      "INT"
+    ],
+    [
+      8,
+      141,
+      0,
+      17,
+      1,
+      "INT"
+    ],
+    [
+      9,
+      88,
+      2,
+      20,
+      0,
+      "*"
+    ],
+    [
+      10,
+      88,
+      1,
+      27,
+      0,
+      "INT"
+    ],
+    [
+      11,
+      94,
+      0,
+      28,
+      0,
+      "IMAGE"
+    ],
+    [
+      12,
+      96,
+      0,
+      32,
+      0,
+      "INT"
+    ],
+    [
+      13,
+      140,
+      0,
+      32,
+      1,
+      "INT"
+    ],
+    [
+      14,
+      33,
+      0,
+      32,
+      2,
+      "INT"
+    ],
+    [
+      15,
+      72,
+      0,
+      33,
+      0,
+      "IMAGE"
+    ],
+    [
+      16,
+      86,
+      0,
+      36,
+      0,
+      "IMAGE"
+    ],
+    [
+      17,
+      114,
+      0,
+      39,
+      0,
+      "STRING"
+    ],
+    [
+      18,
+      39,
+      0,
+      41,
+      0,
+      "PROMPTS_LIST"
+    ],
+    [
+      19,
+      39,
+      1,
+      41,
+      1,
+      "PROMPTS_LIST"
+    ],
+    [
+      20,
+      136,
+      0,
+      52,
+      0,
+      "WANVAE"
+    ],
+    [
+      21,
+      102,
+      0,
+      52,
+      1,
+      "LATENT"
+    ],
+    [
+      22,
+      123,
+      0,
+      55,
+      2,
+      "STRING"
+    ],
+    [
+      23,
+      135,
+      0,
+      55,
+      0,
+      "WANTEXTENCODER"
+    ],
+    [
+      24,
+      52,
+      0,
+      57,
+      0,
+      "IMAGE"
+    ],
+    [
+      25,
+      59,
+      0,
+      58,
+      0,
+      "IMAGE"
+    ],
+    [
+      26,
+      52,
+      0,
+      59,
+      0,
+      "IMAGE"
+    ],
+    [
+      27,
+      99,
+      0,
+      61,
+      0,
+      "WANVIDLORA"
+    ],
+    [
+      28,
+      124,
+      0,
+      66,
+      2,
+      "STRING"
+    ],
+    [
+      29,
+      135,
+      0,
+      66,
+      0,
+      "WANTEXTENCODER"
+    ],
+    [
+      30,
+      137,
+      0,
+      69,
+      0,
+      "CLIP_VISION"
+    ],
+    [
+      31,
+      59,
+      0,
+      69,
+      1,
+      "IMAGE"
+    ],
+    [
+      32,
+      136,
+      0,
+      72,
+      0,
+      "WANVAE"
+    ],
+    [
+      33,
+      76,
+      0,
+      72,
+      1,
+      "LATENT"
+    ],
+    [
+      34,
+      59,
+      0,
+      73,
+      0,
+      "IMAGE"
+    ],
+    [
+      35,
+      73,
+      0,
+      74,
+      0,
+      "IMAGE"
+    ],
+    [
+      36,
+      73,
+      1,
+      75,
+      9,
+      "INT"
+    ],
+    [
+      37,
+      73,
+      2,
+      75,
+      10,
+      "INT"
+    ],
+    [
+      38,
+      140,
+      0,
+      75,
+      11,
+      "INT"
+    ],
+    [
+      39,
+      136,
+      0,
+      75,
+      0,
+      "WANVAE"
+    ],
+    [
+      40,
+      69,
+      0,
+      75,
+      1,
+      "WANVIDIMAGE_CLIPEMBEDS"
+    ],
+    [
+      41,
+      73,
+      0,
+      75,
+      2,
+      "IMAGE"
+    ],
+    [
+      42,
+      139,
+      0,
+      76,
+      0,
+      "WANVIDEOMODEL"
+    ],
+    [
+      43,
+      75,
+      0,
+      76,
+      1,
+      "WANVIDIMAGE_EMBEDS"
+    ],
+    [
+      44,
+      66,
+      0,
+      76,
+      2,
+      "WANVIDEOTEXTEMBEDS"
+    ],
+    [
+      45,
+      72,
+      0,
+      77,
+      0,
+      "IMAGE"
+    ],
+    [
+      46,
+      63,
+      0,
+      78,
+      0,
+      "WANCOMPILEARGS"
+    ],
+    [
+      47,
+      61,
+      0,
+      78,
+      2,
+      "WANVIDLORA"
+    ],
+    [
+      48,
+      141,
+      0,
+      79,
+      2,
+      "INT"
+    ],
+    [
+      49,
+      20,
+      0,
+      79,
+      0,
+      "IMAGE"
+    ],
+    [
+      50,
+      142,
+      0,
+      80,
+      3,
+      "INT"
+    ],
+    [
+      51,
+      90,
+      0,
+      80,
+      4,
+      "*"
+    ],
+    [
+      52,
+      20,
+      0,
+      80,
+      0,
+      "IMAGE"
+    ],
+    [
+      53,
+      137,
+      0,
+      80,
+      1,
+      "CLIP_VISION"
+    ],
+    [
+      54,
+      135,
+      0,
+      80,
+      2,
+      "WANTEXTENCODER"
+    ],
+    [
+      55,
+      17,
+      0,
+      81,
+      2,
+      "INT"
+    ],
+    [
+      56,
+      20,
+      0,
+      81,
+      0,
+      "IMAGE"
+    ],
+    [
+      57,
+      139,
+      0,
+      83,
+      0,
+      "WANVIDEOMODEL"
+    ],
+    [
+      58,
+      95,
+      0,
+      83,
+      1,
+      "WANVIDIMAGE_EMBEDS"
+    ],
+    [
+      59,
+      85,
+      0,
+      83,
+      2,
+      "WANVIDEOTEXTEMBEDS"
+    ],
+    [
+      60,
+      136,
+      0,
+      84,
+      0,
+      "WANVAE"
+    ],
+    [
+      61,
+      83,
+      0,
+      84,
+      1,
+      "LATENT"
+    ],
+    [
+      62,
+      90,
+      0,
+      85,
+      2,
+      "*"
+    ],
+    [
+      63,
+      135,
+      0,
+      85,
+      0,
+      "WANTEXTENCODER"
+    ],
+    [
+      64,
+      13,
+      0,
+      86,
+      0,
+      "*"
+    ],
+    [
+      65,
+      32,
+      0,
+      88,
+      1,
+      "INT"
+    ],
+    [
+      66,
+      72,
+      0,
+      88,
+      0,
+      "IMAGE"
+    ],
+    [
+      67,
+      137,
+      0,
+      89,
+      0,
+      "CLIP_VISION"
+    ],
+    [
+      68,
+      80,
+      0,
+      89,
+      1,
+      "IMAGE"
+    ],
+    [
+      69,
+      27,
+      0,
+      90,
+      1,
+      "INT"
+    ],
+    [
+      70,
+      125,
+      0,
+      90,
+      0,
+      "PROMPTS_LIST"
+    ],
+    [
+      71,
+      79,
+      0,
+      93,
+      0,
+      "IMAGE"
+    ],
+    [
+      72,
+      6,
+      0,
+      93,
+      2,
+      "IMAGE"
+    ],
+    [
+      73,
+      81,
+      0,
+      94,
+      0,
+      "IMAGE"
+    ],
+    [
+      74,
+      84,
+      0,
+      94,
+      1,
+      "IMAGE"
+    ],
+    [
+      75,
+      20,
+      1,
+      95,
+      9,
+      "INT"
+    ],
+    [
+      76,
+      20,
+      2,
+      95,
+      10,
+      "INT"
+    ],
+    [
+      77,
+      140,
+      0,
+      95,
+      11,
+      "INT"
+    ],
+    [
+      78,
+      136,
+      0,
+      95,
+      0,
+      "WANVAE"
+    ],
+    [
+      79,
+      89,
+      0,
+      95,
+      1,
+      "WANVIDIMAGE_CLIPEMBEDS"
+    ],
+    [
+      80,
+      93,
+      0,
+      95,
+      2,
+      "IMAGE"
+    ],
+    [
+      81,
+      16,
+      0,
+      95,
+      5,
+      "MASK"
+    ],
+    [
+      82,
+      126,
+      0,
+      96,
+      0,
+      "INT"
+    ],
+    [
+      83,
+      140,
+      0,
+      96,
+      1,
+      "INT"
+    ],
+    [
+      84,
+      138,
+      0,
+      102,
+      0,
+      "WANVIDEOMODEL"
+    ],
+    [
+      85,
+      51,
+      0,
+      102,
+      1,
+      "WANVIDIMAGE_EMBEDS"
+    ],
+    [
+      86,
+      55,
+      0,
+      102,
+      2,
+      "WANVIDEOTEXTEMBEDS"
+    ],
+    [
+      87,
+      117,
+      0,
+      114,
+      0,
+      "STRING"
+    ],
+    [
+      88,
+      115,
+      0,
+      116,
+      0,
+      "CHUNKS"
+    ],
+    [
+      89,
+      116,
+      0,
+      117,
+      0,
+      "STRING"
+    ],
+    [
+      90,
+      41,
+      0,
+      119,
+      0,
+      "STRING"
+    ],
+    [
+      91,
+      41,
+      1,
+      120,
+      0,
+      "STRING"
+    ],
+    [
+      92,
+      41,
+      2,
+      121,
+      0,
+      "PROMPTS_LIST"
+    ],
+    [
+      93,
+      41,
+      4,
+      122,
+      0,
+      "INT"
+    ],
+    [
+      94,
+      64,
+      0,
+      127,
+      0,
+      "WANTEXTENCODER"
+    ],
+    [
+      95,
+      65,
+      0,
+      128,
+      0,
+      "WANVAE"
+    ],
+    [
+      96,
+      67,
+      0,
+      129,
+      0,
+      "CLIP_VISION"
+    ],
+    [
+      97,
+      34,
+      0,
+      130,
+      0,
+      "WANVIDEOMODEL"
+    ],
+    [
+      98,
+      8,
+      0,
+      131,
+      0,
+      "WANVIDEOMODEL"
+    ],
+    [
+      99,
+      70,
+      0,
+      132,
+      0,
+      "INT"
+    ],
+    [
+      100,
+      21,
+      0,
+      133,
+      0,
+      "INT"
+    ],
+    [
+      101,
+      118,
+      0,
+      134,
+      0,
+      "INT"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "1. Script Parser and Prompt Builder",
+      "bounding": [
+        -60,
+        40,
+        2240,
+        700
+      ],
+      "color": "#3f789e",
+      "flags": {}
+    },
+    {
+      "id": 2,
+      "title": "2. Model Hub: loaders, LoRAs, compile, model exports",
+      "bounding": [
+        -463.44088888888655,
+        1663.0524444444393,
+        2880,
+        540
+      ],
+      "color": "#406da3",
+      "flags": {}
+    },
+    {
+      "id": 3,
+      "title": "3. Frame Constants",
+      "bounding": [
+        -80.0350613573753,
+        1018.2435878591587,
+        2140,
+        300
+      ],
+      "color": "#29699c",
+      "flags": {}
+    },
+    {
+      "id": 4,
+      "title": "4. First Video Generation Section",
+      "bounding": [
+        3290.865300359593,
+        -13.896803536045494,
+        4380,
+        780
+      ],
+      "color": "#5870a8",
+      "flags": {}
+    },
+    {
+      "id": 5,
+      "title": "5. Context-Aware Loop Section",
+      "bounding": [
+        2947.146683078341,
+        1356.2133497450072,
+        5800,
+        880
+      ],
+      "color": "#a36f30",
+      "flags": {}
+    },
+    {
+      "id": 6,
+      "title": "6. Final Output",
+      "bounding": [
+        8140,
+        300,
+        820,
+        500
+      ],
+      "color": "#4f8a8b",
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.23579476910000052,
+      "offset": [
+        947.6359403315146,
+        524.4059184143596
+      ]
+    },
+    "ue_links": [],
+    "links_added_by_ue": [],
+    "VHS_latentpreview": false,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true,
+    "frontendVersion": "1.44.19",
+    "VHS_latentpreviewrate": 0
+  },
+  "version": 0.4
+}

@@ -235,7 +235,7 @@
       "widgets_values": [
         "a - b"
       ],
-      "title": "🔧 Simple Math",
+      "title": "\ud83d\udd27 Simple Math",
       "color": "#323",
       "bgcolor": "#535"
     },
@@ -390,7 +390,7 @@
       "widgets_values": [
         "a+1"
       ],
-      "title": "Math Expression 🐍",
+      "title": "Math Expression \ud83d\udc0d",
       "color": "#323",
       "bgcolor": "#535"
     },
@@ -541,7 +541,7 @@
       "widgets_values": [
         "ceil((a-c)/b)"
       ],
-      "title": "Math Expression 🐍",
+      "title": "Math Expression \ud83d\udc0d",
       "color": "#323",
       "bgcolor": "#535"
     },
@@ -580,7 +580,7 @@
         "widget_ue_connectable": {}
       },
       "widgets_values": [],
-      "title": "Get Image Count 🎥🅥🅗🅢",
+      "title": "Get Image Count \ud83c\udfa5\ud83c\udd65\ud83c\udd57\ud83c\udd62",
       "color": "#323",
       "bgcolor": "#535"
     },
@@ -2570,11 +2570,12 @@
         1,
         5,
         0,
+        "fixed",
         true,
         "euler",
         0,
         1,
-        "",
+        false,
         "comfy",
         0,
         -1,
@@ -3151,11 +3152,12 @@
         1,
         5,
         1,
+        "fixed",
         true,
         "euler",
         0,
         1,
-        "",
+        false,
         "comfy",
         0,
         -1,
@@ -3951,7 +3953,7 @@
       "widgets_values": [
         "a*b"
       ],
-      "title": "Math Expression 🐍",
+      "title": "Math Expression \ud83d\udc0d",
       "color": "#323",
       "bgcolor": "#535"
     },
@@ -4179,11 +4181,12 @@
         1,
         5,
         0,
+        "fixed",
         true,
         "euler",
         0,
         1,
-        "",
+        false,
         "comfy",
         0,
         -1,

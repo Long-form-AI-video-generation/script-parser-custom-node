@@ -70,7 +70,7 @@
     },
     "class_type": "SimpleMath+",
     "_meta": {
-      "title": "🔧 Simple Math"
+      "title": "\ud83d\udd27 Simple Math"
     }
   },
   "20": {
@@ -104,7 +104,7 @@
     },
     "class_type": "MathExpression|pysssss",
     "_meta": {
-      "title": "Math Expression 🐍"
+      "title": "Math Expression \ud83d\udc0d"
     }
   },
   "28": {
@@ -143,7 +143,7 @@
     },
     "class_type": "MathExpression|pysssss",
     "_meta": {
-      "title": "Math Expression 🐍"
+      "title": "Math Expression \ud83d\udc0d"
     }
   },
   "33": {
@@ -155,7 +155,7 @@
     },
     "class_type": "VHS_GetImageCount",
     "_meta": {
-      "title": "Get Image Count 🎥🅥🅗🅢"
+      "title": "Get Image Count \ud83c\udfa5\ud83c\udd65\ud83c\udd57\ud83c\udd62"
     }
   },
   "34": {
@@ -551,7 +551,7 @@
       "scheduler": "euler",
       "riflex_freq_index": 0,
       "denoise_strength": 1,
-      "batched_cfg": "",
+      "batched_cfg": false,
       "rope_function": "comfy",
       "start_step": 0,
       "end_step": -1,
@@ -691,7 +691,7 @@
       "scheduler": "euler",
       "riflex_freq_index": 0,
       "denoise_strength": 1,
-      "batched_cfg": "",
+      "batched_cfg": false,
       "rope_function": "comfy",
       "start_step": 0,
       "end_step": -1,
@@ -918,7 +918,7 @@
     },
     "class_type": "MathExpression|pysssss",
     "_meta": {
-      "title": "Math Expression 🐍"
+      "title": "Math Expression \ud83d\udc0d"
     }
   },
   "99": {
@@ -943,7 +943,7 @@
       "scheduler": "euler",
       "riflex_freq_index": 0,
       "denoise_strength": 1,
-      "batched_cfg": "",
+      "batched_cfg": false,
       "rope_function": "comfy",
       "start_step": 0,
       "end_step": -1,
