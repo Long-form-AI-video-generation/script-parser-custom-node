@@ -29,7 +29,7 @@ class PDFChunker:
     def IS_CHANGED(cls, **kwargs):
         # A simple mechanism to suggest reloading when the code changes.
         return float("NaN")
-
+ 
     @classmethod
     def INPUT_TYPES(cls):
         """
