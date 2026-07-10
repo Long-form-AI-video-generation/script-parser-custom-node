@@ -19,18 +19,18 @@ app.registerExtension({
                         api_key: apiKey
                     })
                 });
-                console.log("✅ LLM Provider settings synced to backend successfully.");
+                console.log(" LLM Provider settings synced to backend successfully.");
             } catch (e) {
-                console.error("❌ Failed to sync LLM Provider settings to backend:", e);
+                console.error(" Failed to sync LLM Provider settings to backend:", e);
             }
         } else {
             try {
                 await fetch("/s2v/clear_llm_config", {
                     method: "POST"
                 });
-                console.log("ℹ️ LLM Provider node is disabled/absent. Reverted to .env settings.");
+                console.log("LLM Provider node is disabled/absent. Reverted to .env settings.");
             } catch (e) {
-                console.error("❌ Failed to clear LLM Provider settings in backend:", e);
+                console.error("Failed to clear LLM Provider settings in backend:", e);
             }
         }
     },

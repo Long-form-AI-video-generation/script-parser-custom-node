@@ -90,6 +90,98 @@ def clear_active_config():
     global _active_llm_config
     _active_llm_config = None
 
+def call_gemini_with_config(prompt: str, api_key: str, temperature: float, max_tokens: int) -> str:
+    """Calls Gemini directly via SDK using custom configuration parameters."""
+    if not api_key:
+        return "Error: Gemini API Key is missing/empty."
+    model = "gemini-1.5-flash"
+    try:
+        proxy = os.getenv("GEMINI_PROXY")
+        if proxy:
+            os.environ["HTTPS_PROXY"] = proxy
+            
+        import google.generativeai as genai
+        genai.configure(api_key=api_key, transport="rest")
+        
+        client = genai.GenerativeModel(model_name=model)
+        response = client.generate_content(
+            prompt,
+            generation_config={
+                "temperature": temperature,
+                "max_output_tokens": max_tokens
+            }
+        )
+        return response.text
+    except Exception as e:
+        return f"Error: Gemini call failed: {e}"
+
+def call_openai_with_config(prompt: str, api_key: str, temperature: float, max_tokens: int) -> str:
+    """Calls OpenAI API using custom configuration parameters."""
+    if not api_key:
+        return "Error: OpenAI API Key is missing/empty."
+    model = "gpt-4o-mini"
+    try:
+        proxy = os.getenv("OPENAI_PROXY")
+        if proxy:
+            client = OpenAI(api_key=api_key, http_client=httpx.Client(proxy=proxy, timeout=60.0))
+        else:
+            client = OpenAI(api_key=api_key)
+        response = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=max_tokens,
+            temperature=temperature
+        )
+        content = response.choices[0].message.content
+        return content if content is not None else "Error: OpenAI returned empty content."
+    except Exception as e:
+        return f"Error: OpenAI call failed: {e}"
+
+def call_anthropic_with_config(prompt: str, api_key: str, temperature: float, max_tokens: int) -> str:
+    """Calls Anthropic API using custom configuration parameters."""
+    if not api_key:
+        return "Error: Anthropic API Key is missing/empty."
+    model = "claude-3-5-sonnet-20241022"
+    try:
+        proxy = os.getenv("ANTHROPIC_PROXY")
+        if proxy:
+            client = anthropic.Anthropic(api_key=api_key, http_client=httpx.Client(proxy=proxy, timeout=60.0))
+        else:
+            client = anthropic.Anthropic(api_key=api_key)
+        response = client.messages.create(
+            model=model,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        text = response.content[0].text
+        return text if text is not None else "Error: Anthropic returned empty content."
+    except Exception as e:
+        return f"Error: Anthropic call failed: {e}"
+
+def call_grok_with_config(prompt: str, api_key: str, temperature: float, max_tokens: int) -> str:
+    """Calls Grok API using custom configuration parameters."""
+    if not api_key:
+        return "Error: Grok API Key is missing/empty."
+    model = "grok-2-1212"
+    try:
+        # Grok has an OpenAI-compatible API
+        proxy = os.getenv("GROK_PROXY")
+        if proxy:
+            client = OpenAI(api_key=api_key, base_url="https://api.x.ai/v1", http_client=httpx.Client(proxy=proxy, timeout=60.0))
+        else:
+            client = OpenAI(api_key=api_key, base_url="https://api.x.ai/v1")
+        response = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=max_tokens,
+            temperature=temperature
+        )
+        content = response.choices[0].message.content
+        return content if content is not None else "Error: Grok returned empty content."
+    except Exception as e:
+        return f"Error: Grok call failed: {e}"
+
 def query_llm_with_config(prompt: str, config: dict) -> str:
     """
     Routes the LLM call using the provided in-memory config dict.
@@ -101,96 +193,15 @@ def query_llm_with_config(prompt: str, config: dict) -> str:
     # Static parameters optimized for structured prompt generation tasks
     temperature = 0.2
     max_tokens = 4000
-    
 
     if provider == "Gemini":
-        if not api_key:
-            return "Error: Gemini API Key is missing/empty."
-        model = "gemini-1.5-flash"
-        try:
-            proxy = os.getenv("GEMINI_PROXY")
-            if proxy:
-                os.environ["HTTPS_PROXY"] = proxy
-                
-            import google.generativeai as genai
-            genai.configure(api_key=api_key, transport="rest")
-            
-            client = genai.GenerativeModel(model_name=model)
-            response = client.generate_content(
-                prompt,
-                generation_config={
-                    "temperature": temperature,
-                    "max_output_tokens": max_tokens
-                }
-            )
-            return response.text
-        except Exception as e:
-            return f"Error: Gemini call failed: {e}"
-
+        return call_gemini_with_config(prompt, api_key, temperature, max_tokens)
     elif provider == "OpenAI":
-        if not api_key:
-            return "Error: OpenAI API Key is missing/empty."
-        model = "gpt-4o-mini"
-        try:
-            proxy = os.getenv("OPENAI_PROXY")
-            if proxy:
-                client = OpenAI(api_key=api_key, http_client=httpx.Client(proxy=proxy, timeout=60.0))
-            else:
-                client = OpenAI(api_key=api_key)
-            response = client.chat.completions.create(
-                model=model,
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=max_tokens,
-                temperature=temperature
-            )
-            content = response.choices[0].message.content
-            return content if content is not None else "Error: OpenAI returned empty content."
-        except Exception as e:
-            return f"Error: OpenAI call failed: {e}"
-    
+        return call_openai_with_config(prompt, api_key, temperature, max_tokens)
     elif provider == "Anthropic":
-        if not api_key:
-            return "Error: Anthropic API Key is missing/empty."
-        model = "claude-3-5-sonnet-20241022"
-        try:
-            proxy = os.getenv("ANTHROPIC_PROXY")
-            if proxy:
-                client = anthropic.Anthropic(api_key=api_key, http_client=httpx.Client(proxy=proxy, timeout=60.0))
-            else:
-                client = anthropic.Anthropic(api_key=api_key)
-            response = client.messages.create(
-                model=model,
-                max_tokens=max_tokens,
-                temperature=temperature,
-                messages=[{"role": "user", "content": prompt}]
-            )
-            text = response.content[0].text
-            return text if text is not None else "Error: Anthropic returned empty content."
-        except Exception as e:
-            return f"Error: Anthropic call failed: {e}"
-
+        return call_anthropic_with_config(prompt, api_key, temperature, max_tokens)
     elif provider == "Grok":
-        if not api_key:
-            return "Error: Grok API Key is missing/empty."
-        model = "grok-2-1212"
-        try:
-            # Grok has an OpenAI-compatible API
-            proxy = os.getenv("GROK_PROXY")
-            if proxy:
-                client = OpenAI(api_key=api_key, base_url="https://api.x.ai/v1", http_client=httpx.Client(proxy=proxy, timeout=60.0))
-            else:
-                client = OpenAI(api_key=api_key, base_url="https://api.x.ai/v1")
-            response = client.chat.completions.create(
-                model=model,
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=max_tokens,
-                temperature=temperature
-            )
-            content = response.choices[0].message.content
-            return content if content is not None else "Error: Grok returned empty content."
-        except Exception as e:
-            return f"Error: Grok call failed: {e}"
-
+        return call_grok_with_config(prompt, api_key, temperature, max_tokens)
     else:
         return f"Error: Unknown provider '{provider}'"
 
