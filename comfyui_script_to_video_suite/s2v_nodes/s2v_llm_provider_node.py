@@ -1,4 +1,31 @@
 from . import llm_manager
+from server import PromptServer
+from aiohttp import web
+
+@PromptServer.instance.routes.post("/s2v/update_llm_config")
+async def update_llm_config(request):
+    try:
+        json_data = await request.json()
+        provider = json_data.get("provider")
+        api_key = json_data.get("api_key", "").strip()
+        
+        config = {
+            "provider": provider,
+            "api_key": api_key
+        }
+        
+        llm_manager.set_active_config(config)
+        return web.json_response({"status": "success"})
+    except Exception as e:
+        return web.json_response({"status": "error", "message": str(e)}, status=500)
+
+@PromptServer.instance.routes.post("/s2v/clear_llm_config")
+async def clear_llm_config(request):
+    try:
+        llm_manager.clear_active_config()
+        return web.json_response({"status": "success"})
+    except Exception as e:
+        return web.json_response({"status": "error", "message": str(e)}, status=500)
 
 class LLMProvider_S2V:
     """
