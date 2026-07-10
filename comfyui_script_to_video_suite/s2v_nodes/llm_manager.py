@@ -163,7 +163,7 @@ def call_grok_with_config(prompt: str, api_key: str, temperature: float, max_tok
     """Calls Grok API using custom configuration parameters."""
     if not api_key:
         return "Error: Grok API Key is missing/empty."
-    model = "grok-2-1212"
+    model = "grok-3"
     try:
         # Grok has an OpenAI-compatible API
         proxy = os.getenv("GROK_PROXY")
