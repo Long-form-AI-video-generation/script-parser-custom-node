@@ -36,7 +36,7 @@ def ask_gemini_via_proxy(prompt: str) -> str:
     if not GEMINI_API_KEY:
         return "Error: GEMINI_API_KEY not set."
     
-    model = "gemini-1.5-flash"
+    model = "gemini-3.5-flash"
     try:
         if GEMINI_PROXY:
             os.environ["HTTPS_PROXY"] = GEMINI_PROXY
@@ -94,7 +94,7 @@ def call_gemini_with_config(prompt: str, api_key: str, temperature: float, max_t
     """Calls Gemini directly via SDK using custom configuration parameters."""
     if not api_key:
         return "Error: Gemini API Key is missing/empty."
-    model = "gemini-1.5-flash"
+    model = "gemini-3.5-flash"
     try:
         proxy = os.getenv("GEMINI_PROXY")
         if proxy:
