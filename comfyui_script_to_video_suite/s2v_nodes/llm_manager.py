@@ -56,7 +56,7 @@ def set_active_config(config: dict):
     """Sets the active configuration globally in memory."""
     global _active_llm_config
     _active_llm_config = config
-    print(f" LLM Provider: Configured provider to '{config.get('provider')}' (model: '{config.get('model_name')}')")
+    print(f" LLM Provider: Configured provider to '{config.get('provider')}' ")
 
 def clear_active_config():
     """Clears the active configuration from memory."""
@@ -68,14 +68,15 @@ def query_llm_with_config(prompt: str, config: dict) -> str:
     Routes the LLM call using the provided in-memory config dict.
     Provides fallback defaults if certain options are empty.
     """
-    provider = config.get("provider", "Gemini Relay")
+    provider = config.get("provider", "OpenAI")
     api_key = config.get("api_key", "").strip()
 
     # Static parameters optimized for structured prompt generation tasks
     temperature = 0.2
     max_tokens = 4000
+    
 
-    if provider == "Gemini Relay":
+    if provider == "Gemini":
         return ask_gemini_via_relay(prompt)
 
     elif provider == "OpenAI":
@@ -98,14 +99,17 @@ def query_llm_with_config(prompt: str, config: dict) -> str:
             return content if content is not None else "Error: OpenAI returned empty content."
         except Exception as e:
             return f"Error: OpenAI call failed: {e}"
-
+    
     elif provider == "Anthropic":
         if not api_key:
             return "Error: Anthropic API Key is missing/empty."
         model = "claude-3-5-sonnet-20241022"
         try:
-            
-            client = anthropic.Anthropic(api_key=api_key)
+            proxy = os.getenv("ANTHROPIC_PROXY")
+            if proxy:
+                client = anthropic.Anthropic(api_key=api_key, http_client=httpx.Client(proxy=proxy, timeout=60.0))
+            else:
+                client = anthropic.Anthropic(api_key=api_key)
             response = client.messages.create(
                 model=model,
                 max_tokens=max_tokens,
@@ -123,7 +127,11 @@ def query_llm_with_config(prompt: str, config: dict) -> str:
         model = "grok-2-1212"
         try:
             # Grok has an OpenAI-compatible API
-            client = OpenAI(api_key=api_key, base_url="https://api.x.ai/v1")
+            proxy = os.getenv("GROK_PROXY")
+            if proxy:
+                client = OpenAI(api_key=api_key, base_url="https://api.x.ai/v1", http_client=httpx.Client(proxy=proxy, timeout=60.0))
+            else:
+                client = OpenAI(api_key=api_key, base_url="https://api.x.ai/v1")
             response = client.chat.completions.create(
                 model=model,
                 messages=[{"role": "user", "content": prompt}],

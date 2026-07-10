@@ -10,7 +10,7 @@ class LLMProvider_S2V:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "provider": (["Gemini Relay", "OpenAI", "Anthropic", "Grok"], {"default": "Gemini Relay"}),
+                "provider": (["Gemini", "OpenAI", "Anthropic", "Grok"], {"default": "OpenAI"}),
                 "api_key": ("STRING", {"default": "", "multiline": False}),
             }
         }
