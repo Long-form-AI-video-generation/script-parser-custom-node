@@ -3,6 +3,7 @@ import httpx
 from openai import OpenAI
 import requests
 from dotenv import load_dotenv
+import anthropic
 
 load_dotenv()
 
@@ -69,7 +70,6 @@ def query_llm_with_config(prompt: str, config: dict) -> str:
     """
     provider = config.get("provider", "Gemini Relay")
     api_key = config.get("api_key", "").strip()
-    model_name = config.get("model_name", "").strip()
 
     # Static parameters optimized for structured prompt generation tasks
     temperature = 0.2
@@ -81,7 +81,7 @@ def query_llm_with_config(prompt: str, config: dict) -> str:
     elif provider == "OpenAI":
         if not api_key:
             return "Error: OpenAI API Key is missing/empty."
-        model = model_name if model_name else "gpt-4o-mini"
+        model = "gpt-4o-mini"
         try:
             proxy = os.getenv("OPENAI_PROXY")
             if proxy:
@@ -102,9 +102,9 @@ def query_llm_with_config(prompt: str, config: dict) -> str:
     elif provider == "Anthropic":
         if not api_key:
             return "Error: Anthropic API Key is missing/empty."
-        model = model_name if model_name else "claude-3-5-sonnet-20241022"
+        model = "claude-3-5-sonnet-20241022"
         try:
-            import anthropic
+            
             client = anthropic.Anthropic(api_key=api_key)
             response = client.messages.create(
                 model=model,
@@ -120,7 +120,7 @@ def query_llm_with_config(prompt: str, config: dict) -> str:
     elif provider == "Grok":
         if not api_key:
             return "Error: Grok API Key is missing/empty."
-        model = model_name if model_name else "grok-2-1212"
+        model = "grok-2-1212"
         try:
             # Grok has an OpenAI-compatible API
             client = OpenAI(api_key=api_key, base_url="https://api.x.ai/v1")
