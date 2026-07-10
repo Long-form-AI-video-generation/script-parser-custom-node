@@ -12,6 +12,7 @@ USE_OPENAI = os.getenv("USE_OPENAI", "False").lower() == "true"
 GEMINI_RELAY_URL = os.getenv("RELAY_SERVER_URL")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_PROXY = os.getenv("OPENAI_PROXY")
+_active_llm_config = None
 
 def ask_gemini_via_relay(prompt: str) -> str:
     """Old functionality: Calls your Relay Server"""
@@ -48,13 +49,13 @@ def ask_openai_via_proxy(prompt: str) -> str:
     except Exception as e:
         return f"Error: {e}"
 
-_active_llm_config = None
+
 
 def set_active_config(config: dict):
     """Sets the active configuration globally in memory."""
     global _active_llm_config
     _active_llm_config = config
-    print(f"🔑 LLM Provider: Configured provider to '{config.get('provider')}' (model: '{config.get('model_name')}')")
+    print(f" LLM Provider: Configured provider to '{config.get('provider')}' (model: '{config.get('model_name')}')")
 
 def clear_active_config():
     """Clears the active configuration from memory."""
@@ -69,8 +70,10 @@ def query_llm_with_config(prompt: str, config: dict) -> str:
     provider = config.get("provider", "Gemini Relay")
     api_key = config.get("api_key", "").strip()
     model_name = config.get("model_name", "").strip()
-    temperature = config.get("temperature", 0.2)
-    max_tokens = config.get("max_tokens", 4000)
+
+    # Static parameters optimized for structured prompt generation tasks
+    temperature = 0.2
+    max_tokens = 4000
 
     if provider == "Gemini Relay":
         return ask_gemini_via_relay(prompt)
@@ -91,7 +94,8 @@ def query_llm_with_config(prompt: str, config: dict) -> str:
                 max_tokens=max_tokens,
                 temperature=temperature
             )
-            return response.choices[0].message.content
+            content = response.choices[0].message.content
+            return content if content is not None else "Error: OpenAI returned empty content."
         except Exception as e:
             return f"Error: OpenAI call failed: {e}"
 
@@ -108,7 +112,8 @@ def query_llm_with_config(prompt: str, config: dict) -> str:
                 temperature=temperature,
                 messages=[{"role": "user", "content": prompt}]
             )
-            return response.content[0].text
+            text = response.content[0].text
+            return text if text is not None else "Error: Anthropic returned empty content."
         except Exception as e:
             return f"Error: Anthropic call failed: {e}"
 
@@ -125,7 +130,8 @@ def query_llm_with_config(prompt: str, config: dict) -> str:
                 max_tokens=max_tokens,
                 temperature=temperature
             )
-            return response.choices[0].message.content
+            content = response.choices[0].message.content
+            return content if content is not None else "Error: Grok returned empty content."
         except Exception as e:
             return f"Error: Grok call failed: {e}"
 
@@ -146,4 +152,4 @@ def query_llm(prompt: str) -> str:
         return ask_openai_via_proxy(prompt)
     else:
         print("🧠 Using Gemini Relay Server (from .env)...")
-        return ask_gemini_via_relay(prompt)
+        return ask_gemini_via_relay(prompt)

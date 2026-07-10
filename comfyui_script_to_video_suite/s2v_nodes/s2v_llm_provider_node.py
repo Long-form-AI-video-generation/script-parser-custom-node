@@ -28,10 +28,7 @@ class LLMProvider_S2V:
         config = {
             "provider": provider,
             "api_key": api_key.strip(),
-            "model_name": model_name.strip(),
-            # Hardcoded values optimized for structured prompt generation tasks
-            "temperature": 0.2,
-            "max_tokens": 4000
+            "model_name": model_name.strip()
         }
         
         # Store in the global memory state of llm_manager
