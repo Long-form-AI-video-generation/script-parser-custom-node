@@ -13,21 +13,48 @@ USE_OPENAI = os.getenv("USE_OPENAI", "False").lower() == "true"
 GEMINI_RELAY_URL = os.getenv("RELAY_SERVER_URL")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_PROXY = os.getenv("OPENAI_PROXY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_PROXY = os.getenv("GEMINI_PROXY")
 _active_llm_config = None
 
-def ask_gemini_via_relay(prompt: str) -> str:
-    """Old functionality: Calls your Relay Server"""
-    if not GEMINI_RELAY_URL:
-        return "Error: RELAY_SERVER_URL not set."
+# def ask_gemini_via_relay(prompt: str) -> str:
+#     """Old functionality: Calls your Relay Server"""
+#     if not GEMINI_RELAY_URL:
+#         return "Error: RELAY_SERVER_URL not set."
+#     try:
+#         response = requests.post(
+#             GEMINI_RELAY_URL, 
+#             json={"prompt": prompt}, 
+#             timeout=(100, 600)
+#         )
+#         return response.json().get("response", "Error: Malformed JSON")
+#     except Exception as e:
+#         return f"Error: {e}"
+
+def ask_gemini_via_proxy(prompt: str) -> str:
+    """Calls Gemini directly via Proxy using environment variables"""
+    if not GEMINI_API_KEY:
+        return "Error: GEMINI_API_KEY not set."
+    
+    model = "gemini-1.5-flash"
     try:
-        response = requests.post(
-            GEMINI_RELAY_URL, 
-            json={"prompt": prompt}, 
-            timeout=(100, 600)
+        if GEMINI_PROXY:
+            os.environ["HTTPS_PROXY"] = GEMINI_PROXY
+            
+        import google.generativeai as genai
+        genai.configure(api_key=GEMINI_API_KEY, transport="rest")
+        
+        client = genai.GenerativeModel(model_name=model)
+        response = client.generate_content(
+            prompt,
+            generation_config={
+                "temperature": 0.2,
+                "max_output_tokens": 4000
+            }
         )
-        return response.json().get("response", "Error: Malformed JSON")
+        return response.text
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error: Gemini call failed: {e}"
 
 def ask_openai_via_proxy(prompt: str) -> str:
     """New functionality: Calls OpenAI via Proxy"""
@@ -77,7 +104,28 @@ def query_llm_with_config(prompt: str, config: dict) -> str:
     
 
     if provider == "Gemini":
-        return ask_gemini_via_relay(prompt)
+        if not api_key:
+            return "Error: Gemini API Key is missing/empty."
+        model = "gemini-1.5-flash"
+        try:
+            proxy = os.getenv("GEMINI_PROXY")
+            if proxy:
+                os.environ["HTTPS_PROXY"] = proxy
+                
+            import google.generativeai as genai
+            genai.configure(api_key=api_key, transport="rest")
+            
+            client = genai.GenerativeModel(model_name=model)
+            response = client.generate_content(
+                prompt,
+                generation_config={
+                    "temperature": temperature,
+                    "max_output_tokens": max_tokens
+                }
+            )
+            return response.text
+        except Exception as e:
+            return f"Error: Gemini call failed: {e}"
 
     elif provider == "OpenAI":
         if not api_key:
@@ -159,5 +207,7 @@ def query_llm(prompt: str) -> str:
         print("🚀 Using OpenAI via Proxy (from .env)...")
         return ask_openai_via_proxy(prompt)
     else:
-        print("🧠 Using Gemini Relay Server (from .env)...")
-        return ask_gemini_via_relay(prompt)
+        # print("🧠 Using Gemini Relay Server (from .env)...")
+        # return ask_gemini_via_relay(prompt)
+        print("🧠 Using Gemini Direct (from .env)...")
+        return ask_gemini_via_proxy(prompt)
