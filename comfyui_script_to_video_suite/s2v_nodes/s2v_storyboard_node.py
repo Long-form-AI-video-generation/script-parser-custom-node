@@ -63,9 +63,6 @@ class StoryboardGenerator:
                     "default": load_prompt_from_file(),
                     "multiline": True
                 }),
-            },
-            "optional": {
-                "llm_config": ("LLM_CONFIG",),
             }
         }
 
@@ -94,7 +91,7 @@ class StoryboardGenerator:
         print(f"✅ De-duplication complete. Kept {len(final_panels)} unique panels.")
         return f"\n\n{panel_delimiter}\n\n".join(final_panels)
 
-    def generate_storyboard(self, chunks: list[str], master_prompt: str, llm_config=None):
+    def generate_storyboard(self, chunks: list[str], master_prompt: str):
         print("Executing 'Storyboard Generator' node...")
         
         if not chunks:

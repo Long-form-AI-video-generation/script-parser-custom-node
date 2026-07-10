@@ -9,12 +9,8 @@ async def update_llm_config(request):
         provider = json_data.get("provider")
         api_key = json_data.get("api_key", "").strip()
         
-        config = {
-            "provider": provider,
-            "api_key": api_key
-        }
-        
-        llm_manager.set_active_config(config)
+        # Delegate configuration saving to the node's class method
+        LLMProvider_S2V().set_provider(provider, api_key)
         return web.json_response({"status": "success"})
     except Exception as e:
         return web.json_response({"status": "error", "message": str(e)}, status=500)
@@ -42,8 +38,8 @@ class LLMProvider_S2V:
             }
         }
 
-    RETURN_TYPES = ("LLM_CONFIG",)
-    RETURN_NAMES = ("llm_config",)
+    RETURN_TYPES = ()
+    RETURN_NAMES = ()
     FUNCTION = "set_provider"
     CATEGORY = "Script To Video Suite"
 
@@ -59,4 +55,4 @@ class LLMProvider_S2V:
         # Store in the global memory state of llm_manager
         llm_manager.set_active_config(config)
         
-        return (config,)
+        return ()
