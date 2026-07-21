@@ -1,15 +1,6 @@
-"""
-This node, "PDF Chunker (S2V)", is the starting point of the Script-to-Video pipeline.
-It takes the path to a PDF file, extracts all its text content, and then splits that
-text into smaller, manageable chunks. This is crucial for processing large scripts
-that would otherwise exceed the context limits of language models. each chunk will be processed separately by the llm
-"""
-
-
-
-
 import os
 import hashlib
+from importlib import metadata
 import fitz  # PyMuPDF
 from docling.document_converter import DocumentConverter
 
@@ -51,6 +42,25 @@ class PDFChunker:
     FUNCTION = "process_pdf"
     CATEGORY = "Script To Video Suite"
 
+    @staticmethod
+    def _accelerate_diagnostics() -> str:
+        try:
+            version = metadata.version("accelerate")
+        except metadata.PackageNotFoundError:
+            return "Detected accelerate: not installed"
+
+        try:
+            import accelerate
+            import accelerate.utils.memory as accelerate_memory
+
+            has_clear_device_cache = hasattr(accelerate_memory, "clear_device_cache")
+            return (
+                f"Detected accelerate {version} at {accelerate.__file__}; "
+                f"clear_device_cache available: {has_clear_device_cache}"
+            )
+        except Exception as exc:
+            return f"Detected accelerate {version}, but importing it failed: {exc}"
+
     def _extract_text_from_pdf(self, pdf_path: str) -> str:
         """Uses Docling to extract structured Markdown text."""
         if not os.path.exists(pdf_path):
@@ -69,7 +79,16 @@ class PDFChunker:
             return markdown_output
             
         except Exception as e:
-            raise IOError(f"Docling failed to process PDF. Reason: {e}")
+            error_text = str(e)
+            if "requires `accelerate`" in error_text or "requires accelerate" in error_text:
+                raise IOError(
+                    "Docling failed to process PDF because the 'accelerate' package is missing "
+                    "or too old for the installed Transformers/Docling stack. "
+                    "Upgrade it in the Python environment that runs ComfyUI with "
+                    "'python -m pip install --upgrade \"accelerate>=1.1.0\"'. "
+                    f"{self._accelerate_diagnostics()}. Original reason: {error_text}"
+                ) from e
+            raise IOError(f"Docling failed to process PDF. Reason: {e}") from e
 
     def _chunk_text(self, text: str, chunk_size: int, overlap_size: int) -> list[str]:
         """Helper function to split text into smaller, overlapping chunks."""
@@ -92,7 +111,7 @@ class PDFChunker:
         script_chunks = self._chunk_text(raw_text, chunk_size, overlap_size)
         chunk_count = len(script_chunks)
 
-        print(f"✅ PDF processed into {chunk_count} chunks.")
+        print(f"PDF processed into {chunk_count} chunks.")
 
         # Create the debug string for visual inspection in other nodes
         debug_text = f"Total Chunks: {chunk_count}\n\n"

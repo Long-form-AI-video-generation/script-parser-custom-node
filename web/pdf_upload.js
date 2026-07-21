@@ -80,6 +80,7 @@ function openPdfPicker(node, pdfWidget) {
             addComboValue(pdfWidget, uploadedPath);
             pdfWidget.value = uploadedPath;
             pdfWidget.callback?.(uploadedPath);
+            notify(`PDF uploaded and selected: ${uploadedPath}`);
         } catch (error) {
             pdfWidget.value = previousValue;
             alert(`PDF upload failed: ${error.message ?? error}`);
@@ -92,8 +93,77 @@ function openPdfPicker(node, pdfWidget) {
     fileInput.click();
 }
 
+function notify(text) {
+    try {
+        app.extensionManager.toast.add({
+            severity: "success",
+            summary: "PDF Upload",
+            detail: text,
+            life: 5000,
+        });
+    } catch (e) {
+        console.log("[S2V PDF Upload]", text);
+    }
+}
+
+function findChunkerNode() {
+    const nodes = app.graph?._nodes ?? [];
+    return nodes.find(
+        (n) => n.type === "PDFUploadChunker_S2V" || n.comfyClass === "PDFUploadChunker_S2V"
+    );
+}
+
+function ensureFloatingUploadButton() {
+    if (document.getElementById("s2v-pdf-upload-fab")) {
+        return;
+    }
+
+    const btn = document.createElement("button");
+    btn.id = "s2v-pdf-upload-fab";
+    btn.textContent = "Upload PDF";
+    Object.assign(btn.style, {
+        position: "fixed",
+        bottom: "76px",
+        right: "16px",
+        zIndex: "10000",
+        padding: "10px 16px",
+        borderRadius: "8px",
+        border: "1px solid #446",
+        background: "#2d5a70",
+        color: "#fff",
+        cursor: "pointer",
+        fontSize: "14px",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
+        display: "none",
+    });
+
+    btn.addEventListener("click", () => {
+        const node = findChunkerNode();
+        if (!node) {
+            alert("This workflow has no PDF Upload Chunker node.");
+            return;
+        }
+        const pdfWidget = node.widgets?.find((w) => w.name === "pdf_file");
+        if (!pdfWidget) {
+            alert("Could not find the pdf_file selector on the chunker node.");
+            return;
+        }
+        openPdfPicker(node, pdfWidget);
+    });
+
+    document.body.appendChild(btn);
+
+    // Only show the button while the loaded workflow contains the node.
+    setInterval(() => {
+        btn.style.display = findChunkerNode() ? "block" : "none";
+    }, 2000);
+}
+
 app.registerExtension({
     name: "S2V.PDFUpload",
+    setup() {
+        ensureFloatingUploadButton();
+    },
     beforeRegisterNodeDef(nodeType, nodeData) {
         const requiredInputs = nodeData?.input?.required;
         if (!requiredInputs) {
@@ -123,7 +193,7 @@ app.registerExtension({
                 "upload_pdf",
                 "pdf",
                 () => openPdfPicker(this, pdfWidget),
-                { serialize: false, canvasOnly: true }
+                { serialize: false }
             );
             uploadWidget.label = "choose PDF to upload";
 
