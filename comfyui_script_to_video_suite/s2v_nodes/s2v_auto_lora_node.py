@@ -3,7 +3,40 @@ import folder_paths
 import os
 import re
 import difflib
-from .gemini_relay_client import ask_gemini_via_relay
+from . import llm_cache
+from .llm_manager import query_llm
+
+
+CHARACTER_RESPONSE_FORMAT = {
+    "type": "json_schema",
+    "json_schema": {
+        "name": "s2v_character_lora_entities",
+        "strict": True,
+        "schema": {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": {
+                "characters": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                }
+            },
+            "required": ["characters"],
+        },
+    },
+}
+
+
+def _parse_character_response(response_text):
+    cleaned_json = response_text.replace("```json", "").replace("```", "").strip()
+    data = json.loads(cleaned_json)
+    if isinstance(data, list):
+        character_names = data
+    elif isinstance(data, dict):
+        character_names = data.get("characters", [])
+    else:
+        character_names = []
+    return [str(name).strip() for name in character_names if str(name).strip()]
 
 class AutoLoraLoader_S2V:
     """
@@ -108,9 +141,8 @@ class AutoLoraLoader_S2V:
         system_instruction = (
             "You are an entity extraction assistant. "
             "Identify the main character names in the text below. "
-            "Return ONLY a valid JSON list of strings. "
-            "Example output: [\"Isaac\", \"Neo\"]. "
-            "If no specific characters are found, return []. "
+            "Return ONLY JSON in this shape: {\"characters\": [\"Isaac\", \"Neo\"]}. "
+            "If no specific characters are found, return {\"characters\": []}. "
             "Ignore generic terms like 'man', 'woman', 'soldier', 'robot'. "
             "Only return Proper Nouns."
         )
@@ -120,28 +152,37 @@ class AutoLoraLoader_S2V:
 
         character_names = []
         try:
-            response_text = ask_gemini_via_relay(full_query)
-            
-            if response_text.startswith("Error:"):
-                print(f"❌ AutoLoRA: Relay Error - {response_text}")
-                return ([],)
+            cached = llm_cache.load("auto_lora_characters", image_prompt)
+            if cached is not None:
+                character_names = cached
+                print("♻️ AutoLoRA: Character detection loaded from disk cache.")
+            else:
+                response_text = query_llm(
+                    full_query,
+                    response_format=CHARACTER_RESPONSE_FORMAT,
+                    system_message=system_instruction,
+                )
 
-            cleaned_json = response_text.replace("```json", "").replace("```", "").strip()
-            character_names = json.loads(cleaned_json)
+                if response_text.startswith("Error:"):
+                    print(f"❌ AutoLoRA: LLM Error - {response_text}")
+                    return ([],)
 
-            if not isinstance(character_names, list):
-                print(f"⚠️ AutoLoRA: LLM returned valid JSON but not a list: {character_names}")
-                return ([],)
+                character_names = _parse_character_response(response_text)
+                llm_cache.save("auto_lora_characters", character_names, image_prompt)
 
         except Exception as e:
             print(f"⚠️ AutoLoRA: Extraction failed ({e}). Loading 0 LoRAs.")
+            return ([],)
+
+        if not isinstance(character_names, list):
+            print(f"⚠️ AutoLoRA: LLM returned JSON but not a list: {character_names}")
             return ([],)
 
         if not character_names:
             print("ℹ️ AutoLoRA: No characters found in text.")
             return ([],)
 
-        print(f"🤖 AutoLoRA: Gemini found entities: {character_names}")
+        print(f"🤖 AutoLoRA: Found entities: {character_names}")
 
         # Verify files exist on disk before adding to stack
         available_loras = folder_paths.get_filename_list("loras")
@@ -150,8 +191,8 @@ class AutoLoraLoader_S2V:
         for char_name in character_names:
             clean_name = char_name.lower().strip()
             target_key = None
-            
-            # exact match 
+
+            # exact match
             if clean_name in LORA_MAP:
                 target_key = clean_name
             else:
@@ -160,7 +201,7 @@ class AutoLoraLoader_S2V:
                 if matches:
                     target_key = matches[0]
                     print(f"🔍 AutoLoRA: Fuzzy match '{char_name}' -> '{target_key}'")
-                
+
             if target_key:
                 target_filename = LORA_MAP[target_key]
                 if target_filename in available_loras:
@@ -170,5 +211,5 @@ class AutoLoraLoader_S2V:
                     print(f"❌ AutoLoRA: Mapped '{char_name}' to '{target_filename}', but file is missing!")
             else:
                 print(f"ℹ️ AutoLoRA: Character '{char_name}' not found in mapping.")
-        
+
         return (lora_stack,)

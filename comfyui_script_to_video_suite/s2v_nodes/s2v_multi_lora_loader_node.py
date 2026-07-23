@@ -76,3 +76,51 @@ class MultiLoraLoader_S2V:
 
         print(f"✅ Prepared {len(loras_list)} LoRA configuration(s)")
         return (loras_list,)
+
+
+class MergeWanVideoLoras_S2V:
+    """
+    Combines optional WanVideoWrapper LoRA config lists.
+    Useful when one branch selects character LoRAs and another branch selects
+    a scene/action LoRA for the same prompt.
+    """
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "optional": {
+                "lora_a": ("WANVIDLORA", {"forceInput": True}),
+                "lora_b": ("WANVIDLORA", {"forceInput": True}),
+                "lora_c": ("WANVIDLORA", {"forceInput": True}),
+            }
+        }
+
+    RETURN_TYPES = ("WANVIDLORA",)
+    RETURN_NAMES = ("loras",)
+    FUNCTION = "merge_loras"
+    CATEGORY = "Script To Video Suite"
+
+    @staticmethod
+    def _extend_loras(merged, lora_value):
+        if not lora_value:
+            return
+        if isinstance(lora_value, list):
+            merged.extend(item for item in lora_value if item)
+            return
+        if isinstance(lora_value, dict):
+            merged.append(lora_value)
+            return
+        print(f"⚠️ MergeWanVideoLoras: Ignoring unsupported LoRA value: {type(lora_value).__name__}")
+
+    def merge_loras(self, lora_a=None, lora_b=None, lora_c=None):
+        merged = []
+        self._extend_loras(merged, lora_a)
+        self._extend_loras(merged, lora_b)
+        self._extend_loras(merged, lora_c)
+
+        if not merged:
+            print("ℹ️ MergeWanVideoLoras: No LoRAs selected.")
+            return (None,)
+
+        print(f"✅ MergeWanVideoLoras: Merged {len(merged)} LoRA config(s).")
+        return (merged,)

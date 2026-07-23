@@ -1,7 +1,8 @@
 import json
 import os
 import folder_paths
-from .gemini_relay_client import ask_gemini_via_relay
+from . import llm_cache
+from .llm_manager import query_llm
 
 
 
@@ -30,6 +31,31 @@ def load_prompt_from_file(filename: str) -> str:
         raise IOError(f"ERROR: Could not read prompt file. Reason: {e}") from e
 
 SYSTEM_PROMPT = load_prompt_from_file("fighting_scene_classifier_prompt.txt")
+
+
+FIGHT_RESPONSE_FORMAT = {
+    "type": "json_schema",
+    "json_schema": {
+        "name": "s2v_fighting_scene_detection",
+        "strict": True,
+        "schema": {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": {
+                "is_fighting": {"type": "boolean"}
+            },
+            "required": ["is_fighting"],
+        },
+    },
+}
+
+
+def _parse_fighting_response(response_text: str) -> bool:
+    cleaned = response_text.replace("```json", "").replace("```", "").strip()
+    data = json.loads(cleaned)
+    if not isinstance(data, dict):
+        raise ValueError(f"Expected JSON object, got {type(data).__name__}")
+    return bool(data.get("is_fighting", False))
 
 
 class FightingSceneDetector_S2V:
@@ -61,16 +87,24 @@ class FightingSceneDetector_S2V:
         print(f"ANALYZING: {input[:50]}...")
 
         try:
-            response = ask_gemini_via_relay(full_query)
+            cached = llm_cache.load("fight_scene", input)
+            if cached is not None:
+                print("♻️ Fighting Scene Detector: result loaded from disk cache.")
+                return (bool(cached),)
+
+            response = query_llm(
+                full_query,
+                response_format=FIGHT_RESPONSE_FORMAT,
+                system_message=SYSTEM_PROMPT,
+            )
 
             if response.startswith("Error:"):
-                print(f"❌ Gemini error: {response}")
+                print(f"❌ LLM error: {response}")
                 return (False,)
 
-            cleaned = response.replace("```json", "").replace("", "").strip()
-            data = json.loads(cleaned)
-
-            return (bool(data.get("is_fighting", False)),)
+            is_fighting = _parse_fighting_response(response)
+            llm_cache.save("fight_scene", is_fighting, input)
+            return (is_fighting,)
 
         except Exception as e:
             print(f"⚠️ Detection failed: {e}")
