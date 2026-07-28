@@ -1,19 +1,30 @@
+
 import os
 import hashlib
 from importlib import metadata
-import fitz  # PyMuPDF
-from docling.document_converter import DocumentConverter
+try:
+    import pymupdf as fitz
+except ImportError:
+    import fitz  
+try:
+    from docling.document_converter import DocumentConverter
+except ImportError:
+    DocumentConverter = None
 
 try:
     import folder_paths
 except ImportError:
     folder_paths = None
 
+class ScriptChunks(list):
+    """List of script chunks with source PDF metadata attached."""
+
+    def __init__(self, chunks, source_page_count: int = 0):
+        super().__init__(chunks)
+        self.source_page_count = source_page_count
+
 class PDFChunker:
-    """
-    A custom node that extracts text from a PDF and splits it into overlapping chunks.
-    This allows for processing of arbitrarily long scripts.
-    """
+    
     
     # Add documentation that will be visible in some ComfyUI frontends
     @classmethod
@@ -61,34 +72,36 @@ class PDFChunker:
         except Exception as exc:
             return f"Detected accelerate {version}, but importing it failed: {exc}"
 
+    @staticmethod
+    def _extract_with_pymupdf(pdf_path: str) -> str:
+        with fitz.open(pdf_path) as pdf:
+            pages = [page.get_text("text", sort=True).strip() for page in pdf]
+        text = "\n\n".join(page for page in pages if page)
+        if not text.strip():
+            raise IOError("PyMuPDF found no extractable text in the PDF.")
+        return text
+
     def _extract_text_from_pdf(self, pdf_path: str) -> str:
-        """Uses Docling to extract structured Markdown text."""
+        
         if not os.path.exists(pdf_path):
             raise FileNotFoundError(f"PDF file not found at '{pdf_path}'")
-        
+
+        if DocumentConverter is None:
+            print("PDF Chunker: Docling is not installed; using PyMuPDF text extraction.")
+            return self._extract_with_pymupdf(pdf_path)
+
         try:
-            
             converter = DocumentConverter()
-            
-            
             result = converter.convert(pdf_path)
-            
-            
             markdown_output = result.document.export_to_markdown()
-            
             return markdown_output
-            
         except Exception as e:
             error_text = str(e)
-            if "requires `accelerate`" in error_text or "requires accelerate" in error_text:
-                raise IOError(
-                    "Docling failed to process PDF because the 'accelerate' package is missing "
-                    "or too old for the installed Transformers/Docling stack. "
-                    "Upgrade it in the Python environment that runs ComfyUI with "
-                    "'python -m pip install --upgrade \"accelerate>=1.1.0\"'. "
-                    f"{self._accelerate_diagnostics()}. Original reason: {error_text}"
-                ) from e
-            raise IOError(f"Docling failed to process PDF. Reason: {e}") from e
+            print(
+                "PDF Chunker: Docling extraction failed; falling back to PyMuPDF. "
+                f"Reason: {error_text}"
+            )
+            return self._extract_with_pymupdf(pdf_path)
 
     def _chunk_text(self, text: str, chunk_size: int, overlap_size: int) -> list[str]:
         """Helper function to split text into smaller, overlapping chunks."""
@@ -104,14 +117,30 @@ class PDFChunker:
             start += chunk_size - overlap_size
         return chunks #lists of chunks 
 
+    @staticmethod
+    def _get_pdf_page_count(pdf_path: str) -> int:
+        try:
+            with fitz.open(pdf_path) as pdf:
+                return pdf.page_count
+        except Exception as exc:
+            print(f"Could not read PDF page count ({exc}); panel density will use text length.")
+            return 0
+
     def _process_pdf_path(self, pdf_path: str, chunk_size: int, overlap_size: int, node_name: str):
         print(f"Executing '{node_name}' node...")
 
         raw_text = self._extract_text_from_pdf(pdf_path)
-        script_chunks = self._chunk_text(raw_text, chunk_size, overlap_size)
+        page_count = self._get_pdf_page_count(pdf_path)
+        script_chunks = ScriptChunks(
+            self._chunk_text(raw_text, chunk_size, overlap_size),
+            source_page_count=page_count,
+        )
         chunk_count = len(script_chunks)
 
-        print(f"PDF processed into {chunk_count} chunks.")
+        if page_count > 0:
+            print(f"PDF processed into {chunk_count} chunks from {page_count} page(s).")
+        else:
+            print(f"PDF processed into {chunk_count} chunks.")
 
         # Create the debug string for visual inspection in other nodes
         debug_text = f"Total Chunks: {chunk_count}\n\n"
@@ -125,11 +154,7 @@ class PDFChunker:
 
 
 class PDFUploadChunker(PDFChunker):
-    """
-    A sibling chunker that lets users upload/select a PDF from ComfyUI's input
-    directory, then returns the same outputs as PDFChunker.
-    """
-
+ 
     @classmethod
     def _input_pdf_files(cls) -> list[str]:
         if folder_paths is None:

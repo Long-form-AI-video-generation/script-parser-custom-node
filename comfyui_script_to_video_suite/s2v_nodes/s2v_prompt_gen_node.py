@@ -5,17 +5,21 @@ import json.decoder
 from .gemini_relay_client import ask_gemini_via_relay
 from . import llm_cache
 from .s2v_progress_node import announce_to_ui
+from .s2v_shot_plan_node import normalize_transition
 
-PROMPT_CACHE_VERSION = "wan-video-prompts-v2"
+PROMPT_CACHE_VERSION = "wan-video-prompts-v4-painted-color"
 
 WAN_STYLE_ANCHOR = (
-    "strict 2D Japanese TV anime keyframe, hand-drawn cel animation, clean black ink lineart, "
-    "flat cel-shaded colors, stylized anime faces, simplified anime skin tones, painterly anime background, "
-    "cinematic anime composition, same anime character design"
+    "polished full-color hand-painted Japanese fantasy animation frame, classic Studio Ghibli-inspired storybook "
+    "anime aesthetic, rich opaque color coverage, lush gouache and watercolor backgrounds, soft "
+    "natural sunlight, atmospheric depth, expressive rounded character designs, delicate colored "
+    "contours, soft cel shading with subtle tonal variation, tactile organic textures, cinematic "
+    "composition, finished theatrical animation still, same anime character design"
 )
 
 WAN_VIDEO_ANCHOR = (
-    "single continuous 2D anime shot, same character design and outfit, no shot change"
+    "single continuous polished full-color hand-painted anime shot, same character design, "
+    "rich color palette and outfit, no shot change"
 )
 
 REALISM_TERMS = (
@@ -64,8 +68,9 @@ class PromptGenerator:
         "Do NOT return 'storyboard', 'shot_type', 'subject' or 'action_description' keys. "
         "Return EXACTLY this structure:\n"
         '{"meta_summary": "...", "panels": [{"panel_number": 1, '
-        '"image_prompt": "strict 2D Japanese TV anime keyframe, hand-drawn cel animation, ...", '
-        '"video_prompt": "single continuous 2D anime shot, ..."}]}\n'
+        '"scene_id": "scene_001", "transition_type": "cut", '
+        '"image_prompt": "polished full-color hand-painted Japanese fantasy animation frame, ...", '
+        '"video_prompt": "single continuous polished full-color hand-painted anime shot, ..."}]}\n'
         "Every panel MUST contain a non-empty image_prompt and video_prompt."
     )
 
@@ -103,10 +108,9 @@ class PromptGenerator:
         
         cleaned = re.sub(r'(:\s*)\'', r'\1"', cleaned)
         
-        
+       
         cleaned = re.sub(r'\'\s*([,\]\}])', r'"\1', cleaned)
 
-        
         start_indices = [m.start() for m in re.finditer(r'\{', cleaned)]
         decoder = json.JSONDecoder()
         
@@ -199,10 +203,18 @@ class PromptGenerator:
     def _normalize_image_prompt_for_wan(self, prompt):
         body = self._clean_prompt_for_wan(prompt)
         body = re.sub(
+            rf"(?i)^\s*{re.escape(WAN_STYLE_ANCHOR)}\s*,?\s*",
+            "",
+            body,
+        )
+        body = re.sub(
             r"(?i)\bstrict\s+2d\s+japanese\s+tv\s+anime\s+keyframe\b|\bstrict\s+2d\s+anime\b|"
             r"\bjapanese\s+tv\s+anime\s+screenshot\b|\bhand-drawn\s+cel\s+animation\b|"
             r"\bclean\s+black\s+ink\s+lineart\b|\bflat\s+cel-?shaded\s+colors\b|"
             r"\bstylized\s+anime\s+faces\b|\bpainterly\s+anime\s+background\b|"
+            r"\bpolished\s+full-color\s+hand-painted\s+japanese\s+fantasy\s+animation\s+frame\b|"
+            r"\b(?:classic\s+studio\s+ghibli-inspired|warm\s+whimsical)\s+storybook\s+anime\s+aesthetic\b|"
+            r"\brich\s+opaque\s+color\s+coverage\b|\bfinished\s+theatrical\s+animation\s+still\b|"
             r"\bsame\s+anime\s+character\s+design\b",
             "",
             body,
@@ -230,16 +242,39 @@ class PromptGenerator:
 
     def _normalize_panels_for_wan(self, panels):
         normalized = []
+        previous_scene = ""
         for idx, panel in enumerate(panels or []):
             if not isinstance(panel, dict):
                 continue
             image_prompt = self._normalize_image_prompt_for_wan(panel.get("image_prompt", ""))
             video_prompt = self._normalize_video_prompt_for_wan(panel.get("video_prompt", ""), image_prompt)
+            transition = normalize_transition(
+                panel.get("transition_type", panel.get("transition")),
+                default="cut",
+            )
+            scene_id = re.sub(
+                r"[^A-Za-z0-9_.-]+",
+                "_",
+                str(panel.get("scene_id") or "").strip(),
+            ).strip("_")
+            if idx == 0:
+                transition = "cut"
+                scene_id = scene_id or "scene_001"
+            elif transition == "continue":
+                scene_id = scene_id or previous_scene
+                if scene_id != previous_scene:
+                    transition = "cut"
+            else:
+                scene_id = scene_id or f"scene_{idx + 1:03d}"
+
             normalized.append({
                 "panel_number": idx + 1,
+                "scene_id": scene_id,
+                "transition_type": transition,
                 "image_prompt": image_prompt,
                 "video_prompt": video_prompt,
             })
+            previous_scene = scene_id
         return normalized
 
     def _synthesize_panels_from_storyboard(self, raw_panels):
@@ -259,6 +294,11 @@ class PromptGenerator:
                 video_prompt = f"{subject}: {video_prompt}"
             synthesized.append({
                 "panel_number": p.get("panel", p.get("panel_number", idx + 1)),
+                "scene_id": str(p.get("scene_id") or f"scene_{idx + 1:03d}"),
+                "transition_type": normalize_transition(
+                    p.get("transition_type", p.get("transition")),
+                    default="cut",
+                ),
                 "image_prompt": f"{WAN_STYLE_ANCHOR}, " + ", ".join(parts),
                 "video_prompt": video_prompt,
             })
@@ -274,11 +314,11 @@ class PromptGenerator:
     def generate_prompts_in_batches(self, storyboard_text: str, master_prompt: str, batch_size: int,
                                     bible_text: str = "", **kwargs):
         if not storyboard_text or not storyboard_text.strip():
-            raise ValueError(" Input 'storyboard_text' is empty!")
+            raise ValueError("❌ Input 'storyboard_text' is empty!")
 
         all_panels = self._split_storyboard_into_panels(storyboard_text)
         if not all_panels:
-            raise ValueError(" No valid panels found in input.")
+            raise ValueError("❌ No valid panels found in input.")
 
         if bible_text is None:
             bible_text = kwargs.get("character_bible_text", "")
@@ -295,7 +335,7 @@ class PromptGenerator:
                 f"{bible_text}\n"
                 "Always use these canonical names in image_prompt and video_prompt."
             )
-            print(f" Prompt Generator: cast sheet with {len(bible_text.splitlines())} character line(s) injected into every batch.")
+            print(f"📇 Prompt Generator: cast sheet with {len(bible_text.splitlines())} character line(s) injected into every batch.")
 
         merged_meta_summary = ""
         merged_panels_list = []
@@ -311,11 +351,13 @@ class PromptGenerator:
             syntax_enforcement = (
                 "\n\nIMPORTANT OUTPUT RULES:"
                 "\n- Return ONE JSON object with EXACTLY these top-level keys: \"meta_summary\" (string) and \"panels\" (array)."
-                "\n- Each panel MUST be: {\"panel_number\": 1, \"image_prompt\": \"strict 2D Japanese TV anime keyframe, ...\", \"video_prompt\": \"single continuous 2D anime shot, ...\"}."
+                "\n- Each panel MUST be: {\"panel_number\": 1, \"scene_id\": \"scene_001\", \"transition_type\": \"cut\", \"image_prompt\": \"polished full-color hand-painted Japanese fantasy animation frame, ...\", \"video_prompt\": \"single continuous polished full-color hand-painted anime shot, ...\"}."
+                "\n- transition_type MUST be exactly \"cut\" or \"continue\". Use \"continue\" only when this section must start from the previous final frame during uninterrupted action in the same scene; otherwise use \"cut\"."
+                "\n- Preserve SCENE_ID from the storyboard. A changed location, time, or lighting requires a new scene_id and transition_type \"cut\"."
                 "\n- Do NOT output 'storyboard', 'shot_type', 'subject' or 'action_description' keys; translate their content INTO the prompts."
                 "\n- If a panel has LOCATION, CHARACTER_APPEARANCE, KEYFRAME_DESCRIPTION, ACTION_DESCRIPTION, CAMERA_MOTION, MOTION_DESCRIPTION, or CONTINUITY_ANCHORS, merge those exact usable details into the prompts."
-                "\n- image_prompt is a drawable still frame: strict 2D anime style, one location, visible subject, appearance, key pose, action, props, lighting, and composition."
-                "\n- video_prompt is motion only: one continuous shot, one subject action, one camera movement, and what visibly changes from the prior shot."
+                "\n- image_prompt is a drawable finished full-color anime frame: one location, visible subject, appearance, key pose, action, props, lighting, and composition. Require rich opaque colors, softly painted surfaces, and a polished theatrical-animation finish."
+                "\n- video_prompt is motion only: one continuous shot, one subject action, speed/amplitude, one camera movement, and what visibly changes during this shot. Do not repeat the full environment description from image_prompt."
                 "\n- Preserve named characters exactly in both image_prompt and video_prompt; include the name even when appearance descriptors are added."
                 "\n- video_prompt MUST name every character in the panel by canonical name AND include 2-3 of their signature visual descriptors (hair, outfit, colors) from CHARACTER_APPEARANCE or the cast sheet."
                 "\n- When a named character is the subject, state that the character is visibly on screen, with clear face/body presence."
@@ -326,7 +368,7 @@ class PromptGenerator:
                 "\n- Use ONLY double-quotes (\") for JSON keys and values. A single quote (') as a delimiter will crash the system."
             )
 
-            print(f"--- Processing Batch {batch_num}/{total_batches} ---")
+            print(f"---  Processing Batch {batch_num}/{total_batches} ---")
             announce_to_ui(f"Generating prompts: batch {batch_num}/{total_batches}")
 
             batch_panels = None
@@ -340,7 +382,7 @@ class PromptGenerator:
                 response_text = ask_gemini_via_relay(full_prompt)
 
                 if response_text.startswith("Error:"):
-                    raise Exception(f"RELAY FAILURE: {response_text}")
+                    raise Exception(f" RELAY FAILURE: {response_text}")
 
                 last_response = response_text
                 data = self._extract_json_robustly(response_text)
@@ -355,7 +397,7 @@ class PromptGenerator:
                         valid_candidate = [p for p in candidate if self._panel_has_prompts(p)]
                         if valid_candidate:
                             print(
-                                f"Batch {batch_num}: salvaged {len(valid_candidate)}/"
+                                f"🛠️ Batch {batch_num}: salvaged {len(valid_candidate)}/"
                                 f"{len(candidate)} complete panel(s) from a partial response."
                             )
                             batch_panels = valid_candidate

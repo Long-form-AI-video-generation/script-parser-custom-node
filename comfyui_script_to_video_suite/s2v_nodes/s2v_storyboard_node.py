@@ -7,7 +7,7 @@ from .s2v_progress_node import announce_to_ui
 
 # One script "page" for panel-density purposes (matches the chunker's default chunk_size).
 PAGE_CHARS = 4000
-STORYBOARD_CACHE_VERSION = "wan-video-storyboard-v1"
+STORYBOARD_CACHE_VERSION = "wan-video-storyboard-v3-painted-color"
 
 # This ensures the node functions even if the external .txt file is missing.
 DEFAULT_STORYBOARD_PROMPT = (
@@ -19,8 +19,11 @@ DEFAULT_STORYBOARD_PROMPT = (
     "and one motion idea. Do not write literary summaries, motivations, or dialogue logic as "
     "the action.\n\n"
     "STYLE TARGET FOR EVERY PANEL:\n"
-    "- Strict 2D Japanese TV anime, hand-drawn cel animation, clean ink lineart, flat "
-    "cel-shaded colors, stylized anime faces, painterly anime background.\n"
+    "- Polished full-color hand-painted Japanese fantasy animation, classic Studio Ghibli-inspired "
+    "storybook anime, rich opaque colors, lush gouache and watercolor backgrounds, "
+    "soft natural light, expressive rounded characters, and delicate colored contours.\n"
+    "- Every image is a finished theatrical-animation frame, never a sketch, monochrome "
+    "drawing, line-art sheet, storyboard panel, or unfinished concept image.\n"
     "- Use positive anime descriptors only. Do not write realistic, live action, photo, "
     "cosplay, CGI, or 3D terms in the positive descriptions.\n\n"
     "PANEL RULES:\n"
@@ -35,7 +38,11 @@ DEFAULT_STORYBOARD_PROMPT = (
     "markers are HARD CUTS. Start a new panel at every hard cut.\n"
     "6. Never blend locations across a hard cut. The new panel must describe only the new "
     "location unless the script explicitly says the previous location is visible.\n\n"
+    "7. Mark TRANSITION as CONTINUE only when the next section should literally begin from the "
+    "previous section's final frame in the same location. Otherwise use CUT.\n\n"
     "For EACH panel, use exactly these labels:\n"
+    "- SCENE_ID: stable short ID reused only while location, time, and lighting remain the same.\n"
+    "- TRANSITION: CUT or CONTINUE.\n"
     "- SHOT_TYPE: camera framing, e.g. ESTABLISHING SHOT, WIDE SHOT, MEDIUM SHOT, CLOSE UP, POV SHOT.\n"
     "- LOCATION: exact visible place for this one shot.\n"
     "- SUBJECT: main visible focus using canonical names.\n"
@@ -165,7 +172,9 @@ class StoryboardGenerator:
             "- Preserve every major hard location cut if possible. Do not blend exterior and interior locations into one image.\n"
             "- If a panel combines several beats, write a single clear visual frame that implies those beats without overlays.\n"
             "- Keep named characters by canonical name.\n"
-            "- Output ONLY storyboard panels in this exact format with SHOT_TYPE, SUBJECT, ACTION_DESCRIPTION, and DIALOGUE.\n"
+            "- Output ONLY storyboard panels using the full master format, including SCENE_ID, "
+            "TRANSITION, LOCATION, SHOT_TYPE, SUBJECT, KEYFRAME_DESCRIPTION, "
+            "ACTION_DESCRIPTION, MOTION_DESCRIPTION, CAMERA_MOTION, CONTINUITY_ANCHORS, and DIALOGUE.\n"
             "- Separate panels with --- PANEL BREAK ---.\n\n"
             f"Draft storyboard:\n{source_storyboard}"
         )
@@ -244,7 +253,7 @@ class StoryboardGenerator:
         bible_text = (bible_text or "").strip()
         cached = llm_cache.load("storyboard", STORYBOARD_CACHE_VERSION, master_prompt, shots_per_page, bible_text, *chunks)
         if cached is not None:
-            print("Storyboard loaded from disk cache (same script + prompt). Delete the llm_cache folder or set S2V_DISABLE_LLM_CACHE=1 to regenerate.")
+            print("♻️ Storyboard loaded from disk cache (same script + prompt). Delete the llm_cache folder or set S2V_DISABLE_LLM_CACHE=1 to regenerate.")
             return (cached,)
 
         cast_sheet = ""
@@ -272,13 +281,14 @@ class StoryboardGenerator:
                 for c in chunks
             ]
             total_budget = sum(chunk_budgets)
-            print(f"🎯 Panel density: {shots_per_page} shots/page -> budgets per chunk {chunk_budgets} (total {total_budget}).")
+            print(f"Panel density: {shots_per_page} shots/page -> budgets per chunk {chunk_budgets} (total {total_budget}).")
 
         all_responses = []
         chunk_count = len(chunks)
 
         # Track the panel offset globally for this run
         total_panels_so_far = 0
+        previous_tail = ""
 
         for i, chunk_content in enumerate(chunks):
             chunk_content = self._annotate_scene_boundaries(chunk_content)
@@ -293,7 +303,9 @@ class StoryboardGenerator:
                 "\n- Write concrete visible objects, body motion, facial expression, prop interaction, and camera movement."
                 "\n- Avoid abstract words like realizes, understands, thinks, remembers, decides, feels, or knows unless they are shown through visible expression or action."
                 "\n- Include KEYFRAME_DESCRIPTION, MOTION_DESCRIPTION, CAMERA_MOTION, and CONTINUITY_ANCHORS labels whenever the master prompt format allows them."
-                "\n- Keep positive visual descriptions strictly 2D anime/cel animation; do not include photo, live action, realistic, CGI, or 3D terms."
+                "\n- Include SCENE_ID and TRANSITION on every panel. Reuse SCENE_ID only for the same place, time, and lighting."
+                "\n- TRANSITION must be CONTINUE only for an uninterrupted action that should reuse the previous final frame. Use CUT for a new framing, location, time, subject, or independent story beat."
+                "\n- Keep positive visual descriptions polished, fully colored, hand-painted 2D anime; require rich opaque color and softly painted surfaces, and do not include photo, live action, realistic, CGI, or 3D terms."
             )
             budget_instruction = ""
             if chunk_budgets is not None:
@@ -317,7 +329,20 @@ class StoryboardGenerator:
             offset_instruction = f"\n\nCONTINUITY RULE: You are currently processing from chunk {i+1} of {chunk_count}. " \
                                  f"Start your panel numbering at 'PANEL {total_panels_so_far + 1:03}'."
 
-            full_prompt = f"{master_prompt}{cast_sheet}{scene_boundary_instruction}\n{offset_instruction}{budget_instruction}\n\n{chunk_content}"
+            prior_shot_context = ""
+            if previous_tail:
+                prior_shot_context = (
+                    "\n\nPREVIOUS APPROVED STORYBOARD TAIL (context only; do not repeat these panels):\n"
+                    f"{previous_tail}\n"
+                    "The first new panel must advance beyond this tail. Preserve the same SCENE_ID only "
+                    "if the script continues in the same location, time, and lighting; otherwise start a new "
+                    "SCENE_ID and mark TRANSITION: CUT."
+                )
+
+            full_prompt = (
+                f"{master_prompt}{cast_sheet}{scene_boundary_instruction}\n{offset_instruction}"
+                f"{budget_instruction}{prior_shot_context}\n\n{chunk_content}"
+            )
             
             response_text = ""
             max_retries = 3
@@ -332,6 +357,9 @@ class StoryboardGenerator:
                 raise RuntimeError(f" FATAL ERROR on chunk {i+1}: {response_text}")
             
             all_responses.append(response_text)
+            response_panels = self._split_unique_panels(response_text)
+            if response_panels:
+                previous_tail = "\n\n--- PANEL BREAK ---\n\n".join(response_panels[-2:])[-5000:]
             
             new_panels = re.findall(r'PANEL\s+\d+', response_text, re.IGNORECASE)
             total_panels_so_far += len(new_panels)

@@ -1,3 +1,4 @@
+
 import os
 import re
 import difflib
@@ -153,11 +154,11 @@ class CharacterLoraSelect_S2V:
                 continue
             path = resolve_lora_path(lora_file)
             if not os.path.isfile(path):
-                print(f"Character LoRA: '{names[0]}' matched but file not found: {lora_file}")
+                print(f" Character LoRA: '{names[0]}' matched but file not found: {lora_file}")
                 continue
             header_error = _safetensors_header_error(path)
             if header_error:
-                print(f"Character LoRA: '{names[0]}' matched but invalid safetensors file '{lora_file}': {header_error}")
+                print(f" Character LoRA: '{names[0]}' matched but invalid safetensors file '{lora_file}': {header_error}")
                 continue
             if any(l.get("path") == path for l in loras):
                 continue
@@ -185,3 +186,58 @@ class CharacterLoraSelect_S2V:
         print(f"🎭 Character LoRA: {info}")
         prompt_with_trigger = inject_triggers(prompt, triggers)
         return (loras, info, prompt_with_trigger)
+
+
+class OptionalWanLora_S2V:
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "lora_file": ("STRING", {
+                    "default": "",
+                    "tooltip": "Wan-compatible global style LoRA filename. Blank or missing is a safe no-op.",
+                }),
+                "strength": ("FLOAT", {"default": 0.85, "min": -2.0, "max": 2.0, "step": 0.05}),
+            },
+            "optional": {
+                "prev_lora": ("WANVIDLORA",),
+            },
+        }
+
+    RETURN_TYPES = ("WANVIDLORA", "STRING")
+    RETURN_NAMES = ("lora", "status")
+    FUNCTION = "select"
+    CATEGORY = "Script To Video Suite"
+
+    def select(self, lora_file, strength, prev_lora=None):
+        loras = list(prev_lora) if prev_lora else []
+        lora_file = str(lora_file or "").strip()
+        if not lora_file:
+            return (loras, "global style LoRA disabled")
+
+        path = resolve_lora_path(lora_file)
+        if not os.path.isfile(path):
+            status = f"global style LoRA not found; continuing without it: {lora_file}"
+            print(f"Optional Wan LoRA: {status}")
+            return (loras, status)
+
+        header_error = _safetensors_header_error(path)
+        if header_error:
+            status = f"global style LoRA is invalid; continuing without it: {header_error}"
+            print(f"Optional Wan LoRA: {status}")
+            return (loras, status)
+
+        if not any(item.get("path") == path for item in loras):
+            loras.append({
+                "path": path,
+                "strength": float(strength),
+                "name": os.path.splitext(os.path.basename(lora_file))[0],
+                "blocks": {},
+                "layer_filter": "",
+                "low_mem_load": False,
+                "merge_loras": False,
+            })
+        status = f"global style LoRA enabled: {lora_file} @ {float(strength):.2f}"
+        print(f" Optional Wan LoRA: {status}")
+        return (loras, status)

@@ -1,6 +1,17 @@
 import json
 import hashlib
 
+
+def _compose_video_conditioning_prompt(image_prompt: str, video_prompt: str) -> str:
+    video_prompt = " ".join(str(video_prompt or "").split())
+    if not video_prompt:
+        image_prompt = " ".join(str(image_prompt or "").split())
+        video_prompt = f"The visible subject holds the depicted pose with subtle natural motion. {image_prompt}"
+    return (
+        f"Generate a single continuous shot. {video_prompt}. "
+        "Preserve the visible subject's exact design, outfit, colors, and finished painted rendering from the start image."
+    )
+
 class PromptUnpacker:
     """
     Node #4a: Parses the JSON output from PromptGenerator into clean, 
@@ -18,8 +29,14 @@ class PromptUnpacker:
             } 
         }
 
-    RETURN_TYPES = ("PROMPTS_LIST", "PROMPTS_LIST", "STRING",)
-    RETURN_NAMES = ("image_prompts", "video_prompts", "meta_summary",)
+    RETURN_TYPES = ("PROMPTS_LIST", "PROMPTS_LIST", "STRING", "PROMPTS_LIST", "PROMPTS_LIST")
+    RETURN_NAMES = (
+        "image_prompts",
+        "video_prompts",
+        "meta_summary",
+        "transition_modes",
+        "scene_ids",
+    )
     FUNCTION = "unpack_prompts"
     CATEGORY = "Script To Video Suite/Execution"
 
@@ -46,6 +63,8 @@ class PromptUnpacker:
 
             image_prompts = []
             video_prompts = []
+            transition_modes = []
+            scene_ids = []
 
             for i, p in enumerate(panels):
                 i_p = p.get("image_prompt", "")
@@ -58,18 +77,25 @@ class PromptUnpacker:
 
                 image_prompts.append(i_p)
                 video_prompts.append(v_p)
+                transition = str(p.get("transition_type") or p.get("transition") or "cut").strip().lower()
+                if transition not in {"cut", "continue", "match_cut"}:
+                    transition = "continue" if "continu" in transition else "cut"
+                if i == 0:
+                    transition = "cut"
+                transition_modes.append(transition)
+                scene_ids.append(str(p.get("scene_id") or f"scene_{i + 1:03d}").strip())
 
             print(f"✅ Unpacked {len(image_prompts)} image prompts and {len(video_prompts)} video prompts.")
             
-            return (image_prompts, video_prompts, meta_summary)
+            return (image_prompts, video_prompts, meta_summary, transition_modes, scene_ids)
 
         except json.JSONDecodeError as e:
-            error_msg = f"❌ FATAL ERROR: The LLM output was not valid JSON.\nParse Error: {e}\n\nSnippet: {cleaned_text[:200]}..."
+            error_msg = f" FATAL ERROR: The LLM output was not valid JSON.\nParse Error: {e}\n\nSnippet: {cleaned_text[:200]}..."
             print(error_msg)
             raise ValueError(error_msg)
 
         except Exception as e:
-            error_msg = f"❌ UNEXPECTED ERROR during unpacking: {e}"
+            error_msg = f"UNEXPECTED ERROR during unpacking: {e}"
             print(error_msg)
             raise ValueError(error_msg)
 
@@ -92,21 +118,32 @@ class PromptLoopBuilder_S2V:
                 "image_prompts": ("PROMPTS_LIST",),
                 "video_prompts": ("PROMPTS_LIST",),
                 "start_index": ("INT", {"default": 0, "min": 0, "max": 100000, "step": 1}),
-            }
+            },
+            "optional": {
+                "transition_modes": ("PROMPTS_LIST",),
+                "scene_ids": ("PROMPTS_LIST",),
+            },
         }
 
-    RETURN_TYPES = ("STRING", "STRING", "PROMPTS_LIST", "INT", "INT",)
+    RETURN_TYPES = (
+        "STRING", "STRING", "PROMPTS_LIST", "INT", "INT",
+        "PROMPTS_LIST", "PROMPTS_LIST", "PROMPTS_LIST",
+    )
     RETURN_NAMES = (
         "first_image_prompt",
         "first_video_prompt",
         "all_video_prompts",
         "first_index",
         "total_panels",
+        "all_image_prompts",
+        "all_transition_modes",
+        "all_scene_ids",
     )
     FUNCTION = "build_prompt_loop"
     CATEGORY = "Script To Video Suite/Execution"
 
-    def build_prompt_loop(self, image_prompts: list, video_prompts: list, start_index: int):
+    def build_prompt_loop(self, image_prompts: list, video_prompts: list, start_index: int,
+                          transition_modes=None, scene_ids=None):
         if not image_prompts or not video_prompts:
             raise ValueError("Prompt Loop Builder: image_prompts and video_prompts must not be empty.")
 
@@ -123,7 +160,17 @@ class PromptLoopBuilder_S2V:
             )
 
         first_image_prompt = image_prompts[start_index]
-        first_video_prompt = video_prompts[start_index]
+        transition_modes = list(transition_modes or ["cut"] * len(image_prompts))
+        scene_ids = list(scene_ids or [f"scene_{i + 1:03d}" for i in range(len(image_prompts))])
+        if len(transition_modes) != len(image_prompts):
+            raise ValueError("Prompt Loop Builder: transition_modes length must match prompt count.")
+        if len(scene_ids) != len(image_prompts):
+            raise ValueError("Prompt Loop Builder: scene_ids length must match prompt count.")
+        conditioning_prompts = [
+            _compose_video_conditioning_prompt(image_prompt, video_prompt)
+            for image_prompt, video_prompt in zip(image_prompts, video_prompts)
+        ]
+        first_video_prompt = conditioning_prompts[start_index]
 
         if not isinstance(first_image_prompt, str) or not first_image_prompt.strip():
             raise ValueError(f"Prompt Loop Builder: image prompt at index {start_index} is empty.")
@@ -131,10 +178,20 @@ class PromptLoopBuilder_S2V:
             raise ValueError(f"Prompt Loop Builder: video prompt at index {start_index} is empty.")
 
         print(
-            f"✅ Prompt Loop Builder: Prepared {len(video_prompts)} prompts, "
+            f"✅ Prompt Loop Builder: Prepared {len(conditioning_prompts)} visual video prompts, "
             f"starting at index {start_index}."
         )
-        return (first_image_prompt, first_video_prompt, video_prompts, start_index, len(video_prompts))
+        print(f" First visual video prompt: {first_video_prompt[:240]}")
+        return (
+            first_image_prompt,
+            first_video_prompt,
+            conditioning_prompts,
+            start_index,
+            len(conditioning_prompts),
+            list(image_prompts),
+            transition_modes,
+            scene_ids,
+        )
 
 
 class SmartSequencer_S2V:

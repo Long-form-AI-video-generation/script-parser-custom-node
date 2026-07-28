@@ -4,9 +4,19 @@ Merges video clips with smooth transitions
 
 import os
 import uuid
+import re
 from pathlib import Path
 from typing import List, Tuple
-from natsort import natsorted
+try:
+    from natsort import natsorted
+except ImportError:
+    def natsorted(values):
+        def key(value):
+            return [
+                int(part) if part.isdigit() else part.lower()
+                for part in re.split(r"(\d+)", str(value))
+            ]
+        return sorted(values, key=key)
 
 try:
     from moviepy import VideoFileClip, concatenate_videoclips
@@ -14,7 +24,8 @@ except ImportError:
     try:
         from moviepy.editor import VideoFileClip, concatenate_videoclips
     except ImportError:
-        raise ImportError("MoviePy not found. Please run 'pip install moviepy'")
+        VideoFileClip = None
+        concatenate_videoclips = None
 
 import folder_paths
 
@@ -161,6 +172,11 @@ class VideoMergerNode:
         Returns:
             Tuple containing path to merged video
         """
+        if VideoFileClip is None or concatenate_videoclips is None:
+            raise ImportError(
+                "MoviePy is required only when Video Merger runs. Install it in the ComfyUI environment."
+            )
+
         print(f"\n{'='*60}")
         print(f"Video Merger Node - Starting")
         print(f"{'='*60}")

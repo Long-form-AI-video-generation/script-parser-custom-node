@@ -1,8 +1,12 @@
 import os
 import httpx
-from openai import OpenAI
 import requests
 from dotenv import load_dotenv
+
+try:
+    from openai import OpenAI
+except ImportError:
+    OpenAI = None
 
 load_dotenv()
 
@@ -31,6 +35,8 @@ def ask_openai_via_proxy(prompt: str) -> str:
     """New functionality: Calls OpenAI via Proxy"""
     if not OPENAI_API_KEY:
         return "Error: OPENAI_API_KEY not set."
+    if OpenAI is None:
+        return "Error: openai package is not installed in the ComfyUI environment."
     
     client = OpenAI(
         api_key=OPENAI_API_KEY,
