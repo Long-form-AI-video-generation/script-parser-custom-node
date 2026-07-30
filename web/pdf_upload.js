@@ -1,8 +1,34 @@
 import { app } from "../../scripts/app.js";
 import { api } from "../../scripts/api.js";
 
+const PDF_UPLOAD_WIDGET_NAME = "upload_pdf";
+const PDF_UPLOAD_NODE_NAME = "PDFUploadChunker_S2V";
+const PDF_UPLOAD_FALLBACK_INPUT = "pdf_file";
+
 function isPdfUploadInput(inputData) {
     return Boolean(inputData?.[1]?.pdf_upload);
+}
+
+function findPdfInputName(nodeData) {
+    const requiredInputs = nodeData?.input?.required;
+    if (requiredInputs) {
+        const pdfUploadEntry = Object.entries(requiredInputs).find(([, inputData]) =>
+            isPdfUploadInput(inputData)
+        );
+
+        if (pdfUploadEntry) {
+            return pdfUploadEntry[0];
+        }
+    }
+
+    if (
+        nodeData?.name === PDF_UPLOAD_NODE_NAME ||
+        nodeData?.display_name?.includes("PDF Upload Chunker")
+    ) {
+        return PDF_UPLOAD_FALLBACK_INPUT;
+    }
+
+    return null;
 }
 
 function getUploadedPath(uploadResponse) {
@@ -159,45 +185,89 @@ function ensureFloatingUploadButton() {
     }, 2000);
 }
 
+function resizeNodeForWidget(node) {
+    if (!node.computeSize || !node.setSize) {
+        return;
+    }
+
+    const computedSize = node.computeSize();
+    node.setSize([
+        Math.max(node.size?.[0] ?? 0, computedSize[0]),
+        Math.max(node.size?.[1] ?? 0, computedSize[1]),
+    ]);
+}
+
+function ensurePdfUploadWidget(node, pdfInputName) {
+    const pdfWidget = node.widgets?.find((widget) => widget.name === pdfInputName);
+    if (!pdfWidget || node.widgets?.some((widget) => widget.name === PDF_UPLOAD_WIDGET_NAME)) {
+        return;
+    }
+
+    const uploadWidget = node.addWidget(
+        "button",
+        PDF_UPLOAD_WIDGET_NAME,
+        "Choose PDF",
+        () => openPdfPicker(node, pdfWidget),
+        { serialize: false }
+    );
+    uploadWidget.label = "choose PDF to upload";
+    uploadWidget.serialize = false;
+
+    resizeNodeForWidget(node);
+    node.graph?.setDirtyCanvas(true, true);
+}
+
+function schedulePdfUploadWidget(node, pdfInputName) {
+    ensurePdfUploadWidget(node, pdfInputName);
+    requestAnimationFrame(() => ensurePdfUploadWidget(node, pdfInputName));
+    setTimeout(() => ensurePdfUploadWidget(node, pdfInputName), 0);
+}
+
 app.registerExtension({
     name: "S2V.PDFUpload",
     setup() {
         ensureFloatingUploadButton();
     },
     beforeRegisterNodeDef(nodeType, nodeData) {
-        const requiredInputs = nodeData?.input?.required;
-        if (!requiredInputs) {
+        const pdfInputName = findPdfInputName(nodeData);
+        if (!pdfInputName) {
             return;
         }
 
-        const pdfUploadEntry = Object.entries(requiredInputs).find(([, inputData]) =>
-            isPdfUploadInput(inputData)
-        );
-        if (!pdfUploadEntry) {
-            return;
-        }
-
-        const [pdfInputName] = pdfUploadEntry;
         const originalOnNodeCreated = nodeType.prototype.onNodeCreated;
+        const originalOnConfigure = nodeType.prototype.onConfigure;
+        const originalOnAdded = nodeType.prototype.onAdded;
+        const originalGetExtraMenuOptions = nodeType.prototype.getExtraMenuOptions;
 
         nodeType.prototype.onNodeCreated = function () {
             const result = originalOnNodeCreated?.apply(this, arguments);
-            const pdfWidget = this.widgets?.find((widget) => widget.name === pdfInputName);
+            schedulePdfUploadWidget(this, pdfInputName);
+            return result;
+        };
 
-            if (!pdfWidget || this.widgets?.some((widget) => widget.name === "upload_pdf")) {
-                return result;
+        nodeType.prototype.onConfigure = function () {
+            const result = originalOnConfigure?.apply(this, arguments);
+            schedulePdfUploadWidget(this, pdfInputName);
+            return result;
+        };
+
+        nodeType.prototype.onAdded = function () {
+            const result = originalOnAdded?.apply(this, arguments);
+            schedulePdfUploadWidget(this, pdfInputName);
+            return result;
+        };
+
+        nodeType.prototype.getExtraMenuOptions = function (_, options) {
+            originalGetExtraMenuOptions?.apply(this, arguments);
+            const pdfWidget = this.widgets?.find((widget) => widget.name === pdfInputName);
+            if (!pdfWidget) {
+                return;
             }
 
-            const uploadWidget = this.addWidget(
-                "button",
-                "upload_pdf",
-                "pdf",
-                () => openPdfPicker(this, pdfWidget),
-                { serialize: false }
-            );
-            uploadWidget.label = "choose PDF to upload";
-
-            return result;
+            options.push({
+                content: "Upload PDF...",
+                callback: () => openPdfPicker(this, pdfWidget),
+            });
         };
     },
 });
