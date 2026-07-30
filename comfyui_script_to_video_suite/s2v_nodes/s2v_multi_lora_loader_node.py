@@ -76,3 +76,71 @@ class MultiLoraLoader_S2V:
 
         print(f"✅ Prepared {len(loras_list)} LoRA configuration(s)")
         return (loras_list,)
+
+
+class MergeWanVideoLoras_S2V:
+    """Combine optional WanVideoWrapper LoRA configuration lists."""
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "optional": {
+                "lora_a": ("WANVIDLORA", {"forceInput": True}),
+                "lora_b": ("WANVIDLORA", {"forceInput": True}),
+                "lora_c": ("WANVIDLORA", {"forceInput": True}),
+            }
+        }
+
+    RETURN_TYPES = ("WANVIDLORA",)
+    RETURN_NAMES = ("loras",)
+    FUNCTION = "merge_loras"
+    CATEGORY = "Script To Video Suite"
+
+    @staticmethod
+    def _append_unique(merged, item):
+        if not item:
+            return
+        if not isinstance(item, dict):
+            print(
+                "Warning: MergeWanVideoLoras ignored unsupported item "
+                f"of type {type(item).__name__}."
+            )
+            return
+
+        item_key = item.get("path") or item.get("name")
+        if item_key and any(
+            (existing.get("path") or existing.get("name")) == item_key
+            for existing in merged
+            if isinstance(existing, dict)
+        ):
+            return
+        merged.append(item)
+
+    @classmethod
+    def _extend_loras(cls, merged, lora_value):
+        if not lora_value:
+            return
+        if isinstance(lora_value, list):
+            for item in lora_value:
+                cls._append_unique(merged, item)
+            return
+        if isinstance(lora_value, dict):
+            cls._append_unique(merged, lora_value)
+            return
+        print(
+            "Warning: MergeWanVideoLoras ignored unsupported value "
+            f"of type {type(lora_value).__name__}."
+        )
+
+    def merge_loras(self, lora_a=None, lora_b=None, lora_c=None):
+        merged = []
+        self._extend_loras(merged, lora_a)
+        self._extend_loras(merged, lora_b)
+        self._extend_loras(merged, lora_c)
+
+        if not merged:
+            print("MergeWanVideoLoras: no LoRAs selected.")
+            return (None,)
+
+        print(f"MergeWanVideoLoras: merged {len(merged)} LoRA config(s).")
+        return (merged,)
