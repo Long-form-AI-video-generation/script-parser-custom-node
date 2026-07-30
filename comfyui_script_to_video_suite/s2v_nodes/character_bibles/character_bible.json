@@ -1,0 +1,23 @@
+{
+  "characters": [
+    {
+      "name": "Isaac",
+      "aliases": [
+        "Issac",
+        "Isaac Paulson"
+      ],
+      "appearance": "",
+      "canonical_appearance": "A young Ethiopian anime boy with warm medium-dark brown skin, a slim lanky build, expressive dark brown eyes, and medium-length black freeform dreadlocks that fan outward in a slightly messy style. He wears a loose cream V-neck T-shirt with traditional Ethiopian-inspired geometric trim on the collar and sleeves, dark gray straight-leg pants, and simple black shoes.",
+      "lora_trigger": "#issac",
+      "lora_file": "isaac_15.safetensors",
+      "lora_strength": 1.0
+    },
+    {
+      "name": "Gertie",
+      "aliases": [
+        "Gertie"
+      ],
+      "appearance": "Young adult female, average build, long straight auburn hair, green eyes, often seen in colorful, eclectic clothing with a signature red scarf."
+    }
+  ]
+}
