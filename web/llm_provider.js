@@ -8,12 +8,8 @@ app.registerExtension({
             if (apiKeyWidget) {
                 // Ensure key is never serialized or saved to the workflow JSON
                 apiKeyWidget.serialize = false;
-
-                // Mask the input box on creation if it already has DOM input element
-                if (apiKeyWidget.inputEl) {
-                    apiKeyWidget.inputEl.type = "password";
-                }
             }
         }
     }
 });
+
