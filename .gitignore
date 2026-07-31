@@ -207,3 +207,4 @@ marimo/_lsp/
 __marimo__/
 data/
 rag_system/
+llm_cache/
