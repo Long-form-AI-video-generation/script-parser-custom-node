@@ -55,6 +55,7 @@ class StoryboardGenerator:
         Defines the input widgets for the node.
         - chunks: The list of text chunks from the PDFChunker.
         - master_prompt: A multi-line text field pre-filled with the lazy-loaded prompt.
+        - llm_config: Optional connection from LLM Provider to enforce execution order.
         """
         return {
             "required": {
@@ -63,6 +64,9 @@ class StoryboardGenerator:
                     "default": load_prompt_from_file(),
                     "multiline": True
                 }),
+            },
+            "optional": {
+                "llm_config": ("LLM_CONFIG",),
             }
         }
 
@@ -91,7 +95,7 @@ class StoryboardGenerator:
         print(f"✅ De-duplication complete. Kept {len(final_panels)} unique panels.")
         return f"\n\n{panel_delimiter}\n\n".join(final_panels)
 
-    def generate_storyboard(self, chunks: list[str], master_prompt: str):
+    def generate_storyboard(self, chunks: list[str], master_prompt: str, llm_config=None):
         print("Executing 'Storyboard Generator' node...")
         
         if not chunks:
