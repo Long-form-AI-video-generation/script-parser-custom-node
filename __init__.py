@@ -10,6 +10,7 @@ from .comfyui_script_to_video_suite.s2v_nodes.s2v_fighting_detector_node import 
 from .comfyui_script_to_video_suite.s2v_nodes.s2v_video_merger_node import VideoMergerNode
 from .comfyui_script_to_video_suite.s2v_nodes.s2v_llm_provider_node import LLMProvider_S2V
 from .comfyui_script_to_video_suite.s2v_nodes.s2v_rag_node import RagConsistencyNode_S2V
+from .comfyui_script_to_video_suite.s2v_nodes.s2v_dynamic_negative_node import DynamicNegativePrompt_S2V
 NODE_CLASS_MAPPINGS = {
     "LLMProvider_S2V": LLMProvider_S2V,
     "PDFChunker_S2V": PDFChunker,
@@ -24,6 +25,7 @@ NODE_CLASS_MAPPINGS = {
     "MultiLoraLoader_S2V": MultiLoraLoader_S2V,
     "FightingSceneDetector_S2V": FightingSceneDetector_S2V,
     "DragonBallLoRAConditional_S2V": DragonBallLoRAConditional_S2V,
+    "DynamicNegativePrompt_S2V": DynamicNegativePrompt_S2V,
     "VideoMerger_S2V": VideoMergerNode
 }
 
@@ -41,6 +43,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "MultiLoraLoader_S2V": "7. Multi LoRA Loader (S2V)",
     "FightingSceneDetector_S2V": "Fighting Scene Detector (S2V)",
     "DragonBallLoRAConditional_S2V": "Dragon Ball LoRA Conditional (S2V)",
+    "DynamicNegativePrompt_S2V": "Dynamic Negative Prompt (S2V)",
     "VideoMerger_S2V": "Video Merger (S2V)"
 }
 
