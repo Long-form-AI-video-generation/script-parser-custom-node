@@ -20,6 +20,7 @@ from .comfyui_script_to_video_suite.s2v_nodes.s2v_shot_plan_node import ShotPlan
 from .comfyui_script_to_video_suite.s2v_nodes.s2v_dual_memory_node import DualMemorySelector_S2V
 from .comfyui_script_to_video_suite.s2v_nodes.s2v_llm_provider_node import LLMProvider_S2V
 from .comfyui_script_to_video_suite.s2v_nodes.s2v_rag_node import RagConsistencyNode_S2V
+from .comfyui_script_to_video_suite.s2v_nodes.s2v_dynamic_negative_node import DynamicNegativePrompt_S2V
 NODE_CLASS_MAPPINGS = {
     "LLMProvider_S2V": LLMProvider_S2V,
     "PDFChunker_S2V": PDFChunker,
@@ -44,7 +45,8 @@ NODE_CLASS_MAPPINGS = {
     "GPUCleanup_S2V": GPUCleanup_S2V,
     "ShotPlanValidator_S2V": ShotPlanValidator_S2V,
     "ShotStartRouter_S2V": ShotStartRouter_S2V,
-    "DualMemorySelector_S2V": DualMemorySelector_S2V
+    "DualMemorySelector_S2V": DualMemorySelector_S2V,
+    "DynamicNegativePrompt_S2V": DynamicNegativePrompt_S2V,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -71,7 +73,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "GPUCleanup_S2V": "GPU Cleanup (S2V)",
     "ShotPlanValidator_S2V": "Shot Plan Validator (S2V)",
     "ShotStartRouter_S2V": "Shot Start Router (S2V)",
-    "DualMemorySelector_S2V": "Dual Memory Selector (S2V)"
+    "DualMemorySelector_S2V": "Dual Memory Selector (S2V)",
+    "DynamicNegativePrompt_S2V": "Dynamic Negative Prompt (S2V)",
 }
 
 WEB_DIRECTORY = "./web"
