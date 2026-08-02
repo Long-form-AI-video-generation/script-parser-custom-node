@@ -1,0 +1,256 @@
+{
+  "characters": [
+    {
+      "name": "Isaac Paulson",
+      "aliases": [
+        "Isaac",
+        "Paulson"
+      ],
+      "appearance": "Thin silhouette, dark skin, stylish casual wear with a futuristic twist, short curly hair, expressive face, often illuminated by neon lights, holds a sleek gaming controller, has a Bitcoin logo tattoo on his wrist."
+    },
+    {
+      "name": "Five Masked Operatives",
+      "aliases": [
+        "masked operatives",
+        "covert team",
+        "infiltration team",
+        "the team"
+      ],
+      "appearance": "five slim athletic anime figures in matte black tactical bodysuits, angular dark masks with narrow cyan visor slits, compact harnesses, no exposed skin",
+      "canonical_appearance": "five slim athletic 2D anime operatives in identical matte black tactical bodysuits, angular dark masks, narrow cyan visor slits, compact harnesses, no exposed skin, clean cel-shaded lineart"
+    },
+    {
+      "name": "Masked Operative 1",
+      "aliases": [
+        "Operative 1",
+        "sharpshooter"
+      ],
+      "appearance": "masked anime operative in matte black bodysuit with a cyan left shoulder stripe, angular mask, narrow visor, compact suppressed weapon",
+      "canonical_appearance": "masked 2D anime operative in matte black bodysuit, cyan left shoulder stripe, angular dark mask, narrow cyan visor slit, compact suppressed weapon, no exposed skin"
+    },
+    {
+      "name": "Masked Operative 2",
+      "aliases": [
+        "Operative 2",
+        "leader"
+      ],
+      "appearance": "masked anime team leader in matte black bodysuit with a thin red chest stripe, angular dark mask, narrow cyan visor, calm command posture",
+      "canonical_appearance": "masked 2D anime team leader in matte black bodysuit, thin red chest stripe, angular dark mask, narrow cyan visor slit, compact harness, no exposed skin"
+    },
+    {
+      "name": "Masked Operative 3",
+      "aliases": [
+        "Operative 3",
+        "technician",
+        "demolition operative"
+      ],
+      "appearance": "masked anime technician in matte black bodysuit with green wrist terminal, compact scanner, utility pouches, angular dark mask and cyan visor",
+      "canonical_appearance": "masked 2D anime technician in matte black bodysuit, green wrist terminal, compact scanner, utility pouches, angular dark mask, narrow cyan visor slit"
+    },
+    {
+      "name": "Masked Operative 4",
+      "aliases": [
+        "Operative 4",
+        "bag carrier",
+        "guard"
+      ],
+      "appearance": "masked anime operative in matte black bodysuit with amber shoulder tab, heavier tactical belt, dark duffel bag, angular mask and cyan visor",
+      "canonical_appearance": "masked 2D anime operative in matte black bodysuit, amber shoulder tab, heavier tactical belt, dark duffel bag, angular dark mask, narrow cyan visor slit"
+    },
+    {
+      "name": "Masked Operative 5",
+      "aliases": [
+        "Operative 5",
+        "driver",
+        "cover operative"
+      ],
+      "appearance": "masked anime operative in matte black bodysuit with blue forearm stripe, high-tech rifle, angular dark mask, narrow cyan visor, driver posture",
+      "canonical_appearance": "masked 2D anime operative in matte black bodysuit, blue forearm stripe, high-tech rifle, angular dark mask, narrow cyan visor slit, compact harness"
+    },
+    {
+      "name": "Allied Quadruped Robot",
+      "aliases": [
+        "quadruped bot",
+        "quadruped robot",
+        "operatives' quadruped robot",
+        "canine-like quadruped robot",
+        "combat robot"
+      ],
+      "appearance": "low-slung gunmetal canine quadruped robot with cyan optic bar, four reverse-jointed legs, reinforced claws, compact shoulder camera",
+      "canonical_appearance": "low-slung gunmetal 2D anime canine quadruped robot, single cyan optic bar, four reverse-jointed legs, reinforced claw feet, compact shoulder camera, blue-white accent lights"
+    },
+    {
+      "name": "Security Quadruped Robot",
+      "aliases": [
+        "security bot",
+        "enemy quadruped",
+        "larger quadruped robot",
+        "hostile robot"
+      ],
+      "appearance": "larger bulky charcoal quadruped security robot with red optics, heavy armor plates, flank weapon pods, reinforced front claws",
+      "canonical_appearance": "larger bulky charcoal 2D anime quadruped security robot, glowing red optics, heavy armor plates, flank weapon pods, reinforced front claws, broad hostile silhouette"
+    },
+    {
+      "name": "Stealth Drone",
+      "aliases": [
+        "small drone",
+        "dark drone",
+        "surveillance drone",
+        "Futuristic Stealth Drone",
+        "Flying Drone",
+        "Recon Drone"
+      ],
+      "appearance": "small matte black wedge-shaped stealth drone with single cyan underside light, folded rotor fins, tiny suction pads",
+      "canonical_appearance": "small matte black 2D anime wedge-shaped stealth drone, single cyan underside light, folded rotor fins, tiny suction pads, silent compact silhouette"
+    },
+    {
+      "name": "Black Armored Van",
+      "aliases": [
+        "black van",
+        "armored van",
+        "unmarked van",
+        "dark van",
+        "Phantom Van",
+        "Tactical Van",
+        "Stealth Vehicle"
+      ],
+      "appearance": "boxy unmarked matte black armored van with narrow slit windows, sliding side door, reinforced rear doors, dim blue dashboard glow",
+      "canonical_appearance": "boxy unmarked matte black 2D anime armored van, narrow slit windows, sliding side door, reinforced rear doors, dim blue dashboard glow, same vehicle throughout"
+    },
+    {
+      "name": "Electrical Power Facility",
+      "aliases": [
+        "power facility",
+        "electrical facility",
+        "industrial facility",
+        "grimy facility",
+        "The Electrical Power Facility"
+      ],
+      "appearance": "colossal grimy cyberpunk power plant with patchwork metal panels, pipes, conduits, chain-link fence, sparks and sickly industrial lights",
+      "canonical_appearance": "colossal grimy 2D anime cyberpunk power plant, patchwork metal panels, tangled pipes and conduits, chain-link fence, sparks, sickly green-yellow industrial lights"
+    },
+    {
+      "name": "Explosive Device",
+      "aliases": [
+        "bomb",
+        "time bomb",
+        "timed explosive",
+        "black bomb"
+      ],
+      "appearance": "compact black rectangular explosive charge with red digital countdown timer, magnetic clamps, bundled wires and small blinking indicator lights",
+      "canonical_appearance": "compact black 2D anime rectangular explosive charge, red digital countdown timer, magnetic clamps, bundled wires, small blinking indicator lights"
+    },
+    {
+      "name": "Security Guards",
+      "aliases": [
+        "guards",
+        "facility guards",
+        "security guard"
+      ],
+      "appearance": "tired anime facility guards in dark gray uniforms, hard hats, utility belts, simple clean cel-shaded faces",
+      "canonical_appearance": "tired 2D anime facility guards in dark gray uniforms, hard hats, utility belts, simple clean cel-shaded faces, non-photorealistic"
+    },
+    {
+      "name": "The Operatives",
+      "aliases": [
+        "Operatives",
+        "Tactical Operatives",
+        "The Squad",
+        "Infiltration Team"
+      ],
+      "appearance": "Sleek black tactical bodysuits, tactical masks with glowing visors, detailed futuristic backpacks, uniform silhouette, dark color scheme with subtle reflective accents."
+    },
+    {
+      "name": "The Operative Robot",
+      "aliases": [
+        "Canine Combat Robot",
+        "Mecha Canine",
+        "Mecha Hound",
+        "Combat Dog",
+        "Robotic Dog"
+      ],
+      "appearance": "Stylized black quadruped design, glowing optical camera, sharp reinforced metal claw, compact and agile silhouette, dark metallic colors with glowing blue accents."
+    },
+    {
+      "name": "The Security Robot",
+      "aliases": [
+        "Security Quadruped",
+        "Armored Security Robot"
+      ],
+      "appearance": "Massive heavily armored quadruped design, glowing blood-red eyes, exaggerated side-weapons, intimidating silhouette, dark metallic colors with red highlights and heavy plating."
+    },
+    {
+      "name": "The Tactical Van",
+      "aliases": [
+        "Unmarked Black Tactical Van"
+      ],
+      "appearance": "Sleek, unmarked black exterior, low-profile silhouette, dark windows, subtle futuristic design elements, blends into shadows."
+    },
+    {
+      "name": "The Stealth Drone",
+      "aliases": [
+        "Cel-Shaded Drone",
+        "Stealth Surveillance Drone"
+      ],
+      "appearance": "Small, compact design, glowing body, streamlined silhouette, vibrant colors with a cel-shaded finish, equipped with surveillance technology."
+    },
+    {
+      "name": "The Silenced Pistol",
+      "aliases": [
+        "Futuristic Silenced Pistol"
+      ],
+      "appearance": "Sleek, compact design, matte black finish, glowing optic sight, ergonomic grip, futuristic aesthetic."
+    },
+    {
+      "name": "The Sci-Fi Rifle",
+      "aliases": [
+        "Futuristic Rifle"
+      ],
+      "appearance": "Long, streamlined design, dark metallic colors with glowing accents, ergonomic stock, high-tech appearance, suitable for tactical use."
+    },
+    {
+      "name": "The Barbed-Wire Perimeter Fence",
+      "aliases": [
+        "Perimeter Fence",
+        "Security Fence"
+      ],
+      "appearance": "Tall, intimidating design, sharp barbed wire, dark metallic colors, heavily detailed, serves as a security barrier."
+    },
+    {
+      "name": "Cyberpunk Power Plant",
+      "aliases": [
+        "The Facility",
+        "Power Plant",
+        "Cyber Facility"
+      ],
+      "appearance": "massive silhouette, dark metallic gray with bright blue electricity accents, industrial design with towering structures, no face, glowing blue lights, none, distinctive orange sparks floating in the air."
+    },
+    {
+      "name": "Masked Operative",
+      "aliases": [
+        "Stealth Operative",
+        "Anime Operative",
+        "Agent"
+      ],
+      "appearance": "tall and agile silhouette, dark tactical outfit with shades of gray and black, full-face mask with a reflective visor, no visible facial features, equipped with a glowing green pistol, stealthy posture, subtle high-tech markings on the outfit."
+    },
+    {
+      "name": "Futuristic Pistol",
+      "aliases": [
+        "High-Tech Pistol",
+        "Neon Pistol",
+        "Laser Pistol"
+      ],
+      "appearance": "compact and angular silhouette, metallic body with glowing green optical sight, sleek grip, no additional markings, emits a faint neon glow, designed for high-tech combat."
+    },
+    {
+      "name": "Cyberpunk City",
+      "aliases": [
+        "Neon City",
+        "Futuristic City",
+        "Urban Environment"
+      ],
+      "appearance": "dense urban silhouette with towering skyscrapers, vibrant neon colors (pinks, blues, greens), high-tech billboards and holograms, dark foggy atmosphere, dynamic lighting effects, bustling with futuristic elements."
+    }
+  ]
+}

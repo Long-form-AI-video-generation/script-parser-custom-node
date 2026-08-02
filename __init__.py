@@ -2,12 +2,22 @@
 from .comfyui_script_to_video_suite.s2v_nodes.s2v_chunker_node import PDFChunker, PDFUploadChunker
 from .comfyui_script_to_video_suite.s2v_nodes.s2v_storyboard_node import StoryboardGenerator
 from .comfyui_script_to_video_suite.s2v_nodes.s2v_prompt_gen_node import PromptGenerator
-from .comfyui_script_to_video_suite.s2v_nodes.s2v_executor_nodes import PromptUnpacker,SmartSequencer_S2V
+from .comfyui_script_to_video_suite.s2v_nodes.s2v_executor_nodes import PromptUnpacker, SmartSequencer_S2V, PromptLoopBuilder_S2V
 from .comfyui_script_to_video_suite.s2v_nodes.s2v_utility_nodes import StringSwitch_S2V
 from .comfyui_script_to_video_suite.s2v_nodes.s2v_auto_lora_node import AutoLoraLoader_S2V
 from .comfyui_script_to_video_suite.s2v_nodes.s2v_multi_lora_loader_node import MultiLoraLoader_S2V
 from .comfyui_script_to_video_suite.s2v_nodes.s2v_fighting_detector_node import FightingSceneDetector_S2V, DragonBallLoRAConditional_S2V
 from .comfyui_script_to_video_suite.s2v_nodes.s2v_video_merger_node import VideoMergerNode
+
+
+from .comfyui_script_to_video_suite.s2v_nodes.s2v_progress_node import ProgressMessage_S2V
+from .comfyui_script_to_video_suite.s2v_nodes.s2v_character_bible_node import CharacterBibleInjector_S2V
+from .comfyui_script_to_video_suite.s2v_nodes.s2v_character_extractor_node import CharacterExtractor_S2V
+from .comfyui_script_to_video_suite.s2v_nodes.s2v_character_lora_node import CharacterLoraSelect_S2V, OptionalWanLora_S2V
+from .comfyui_script_to_video_suite.s2v_nodes.s2v_anime_prompt_guard_node import AnimePromptGuard_S2V
+from .comfyui_script_to_video_suite.s2v_nodes.s2v_gpu_cleanup_node import GPUCleanup_S2V
+from .comfyui_script_to_video_suite.s2v_nodes.s2v_shot_plan_node import ShotPlanValidator_S2V, ShotStartRouter_S2V
+from .comfyui_script_to_video_suite.s2v_nodes.s2v_dual_memory_node import DualMemorySelector_S2V
 from .comfyui_script_to_video_suite.s2v_nodes.s2v_llm_provider_node import LLMProvider_S2V
 from .comfyui_script_to_video_suite.s2v_nodes.s2v_rag_node import RagConsistencyNode_S2V
 NODE_CLASS_MAPPINGS = {
@@ -17,14 +27,24 @@ NODE_CLASS_MAPPINGS = {
     "StoryboardGenerator_S2V": StoryboardGenerator,
     "PromptGenerator_S2V": PromptGenerator,
     "PromptUnpacker_S2V": PromptUnpacker,
+    "PromptLoopBuilder_S2V": PromptLoopBuilder_S2V,
     "StringSwitch_S2V": StringSwitch_S2V,
     "AutoLoraLoader_S2V": AutoLoraLoader_S2V,
-    "RagConsistencyNode_S2V": RagConsistencyNode_S2V,
     "SmartSequencer_S2V": SmartSequencer_S2V,
     "MultiLoraLoader_S2V": MultiLoraLoader_S2V,
     "FightingSceneDetector_S2V": FightingSceneDetector_S2V,
     "DragonBallLoRAConditional_S2V": DragonBallLoRAConditional_S2V,
-    "VideoMerger_S2V": VideoMergerNode
+    "VideoMerger_S2V": VideoMergerNode,
+    "ProgressMessage_S2V": ProgressMessage_S2V,
+    "CharacterBibleInjector_S2V": CharacterBibleInjector_S2V,
+    "CharacterExtractor_S2V": CharacterExtractor_S2V,
+    "CharacterLoraSelect_S2V": CharacterLoraSelect_S2V,
+    "OptionalWanLora_S2V": OptionalWanLora_S2V,
+    "AnimePromptGuard_S2V": AnimePromptGuard_S2V,
+    "GPUCleanup_S2V": GPUCleanup_S2V,
+    "ShotPlanValidator_S2V": ShotPlanValidator_S2V,
+    "ShotStartRouter_S2V": ShotStartRouter_S2V,
+    "DualMemorySelector_S2V": DualMemorySelector_S2V
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -34,14 +54,24 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "StoryboardGenerator_S2V": "2. Storyboard Generator (S2V)",
     "PromptGenerator_S2V": "3. Prompt Generator (S2V)",
     "PromptUnpacker_S2V": "4. Prompt Unpacker (S2V)",
+    "PromptLoopBuilder_S2V": "5. Prompt Loop Builder (S2V)",
     "StringSwitch_S2V": "Debug String Switch (S2V)",
     "AutoLoraLoader_S2V": "6. Gemini Auto LoRA Loader (S2V)",
-    "RagConsistencyNode_S2V": "RAG Consistency Engine (S2V)",
-    "SmartSequencer_S2V": "5. Smart Sequencer (Auto-Loop)",
+    "SmartSequencer_S2V": "5b. Smart Sequencer (Auto-Loop)",
     "MultiLoraLoader_S2V": "7. Multi LoRA Loader (S2V)",
     "FightingSceneDetector_S2V": "Fighting Scene Detector (S2V)",
     "DragonBallLoRAConditional_S2V": "Dragon Ball LoRA Conditional (S2V)",
-    "VideoMerger_S2V": "Video Merger (S2V)"
+    "VideoMerger_S2V": "Video Merger (S2V)",
+    "ProgressMessage_S2V": "Progress Message (S2V)",
+    "CharacterBibleInjector_S2V": "Character Bible Injector (S2V)",
+    "CharacterExtractor_S2V": "Character Extractor (S2V)",
+    "CharacterLoraSelect_S2V": "Character LoRA Select (S2V)",
+    "OptionalWanLora_S2V": "Optional Global Wan LoRA (S2V)",
+    "AnimePromptGuard_S2V": "Anime Prompt Guard (S2V)",
+    "GPUCleanup_S2V": "GPU Cleanup (S2V)",
+    "ShotPlanValidator_S2V": "Shot Plan Validator (S2V)",
+    "ShotStartRouter_S2V": "Shot Start Router (S2V)",
+    "DualMemorySelector_S2V": "Dual Memory Selector (S2V)"
 }
 
 WEB_DIRECTORY = "./web"

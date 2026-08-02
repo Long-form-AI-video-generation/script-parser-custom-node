@@ -1,0 +1,170 @@
+{
+  "characters": [
+    {
+      "name": "Isaac Paulson",
+      "aliases": [
+        "Isaac",
+        "ISAAC"
+      ],
+      "appearance": "25-year-old Ethiopian man, slim build, handsome stylized anime face, short dark hair, warm brown cel-shaded skin, thoughtful expressive eyes",
+      "canonical_appearance": "25-year-old Ethiopian man in strict 2D Japanese anime style, slim build, handsome stylized anime face, short dark hair, warm brown simplified cel-shaded skin, thoughtful expressive eyes, same face and build in every shot"
+    },
+    {
+      "name": "Isaac's Skyscraper Apartment",
+      "aliases": [
+        "Isaac's room",
+        "bedroom",
+        "bathroom",
+        "office",
+        "apartment"
+      ],
+      "appearance": "optimistic cyberpunk high-rise apartment with soft blue neon, polished dark metal, floating monitors, warm dawn light, New York skyline",
+      "canonical_appearance": "optimistic 2D anime cyberpunk high-rise apartment, soft blue neon accents, polished dark metal, floating holographic monitors, warm dawn light, New York skyline visible through large windows"
+    },
+    {
+      "name": "Bitcoin Logo Light",
+      "aliases": [
+        "Bitcoin logo",
+        "neon glow",
+        "blue glow"
+      ],
+      "appearance": "round blue glowing Bitcoin hologram or neon sign, flickering softly, clean cel-shaded symbol",
+      "canonical_appearance": "round blue glowing Bitcoin hologram, soft flicker, clean cel-shaded symbol, same saturated blue color every time"
+    },
+    {
+      "name": "Floating Game Monitor",
+      "aliases": [
+        "floating monitor",
+        "game monitor",
+        "video game"
+      ],
+      "appearance": "translucent floating anime game screen with blue and green holographic UI, simple readable action-game shapes",
+      "canonical_appearance": "translucent floating anime game monitor, blue and green holographic UI, stylized action-game graphics, no photorealistic screen imagery"
+    },
+    {
+      "name": "Isaac's Office",
+      "aliases": [
+        "office",
+        "quantum computer room"
+      ],
+      "appearance": "organized chaos of floating monitors, glass quantum computer, blue and green cooling tubes, antique books, futuristic gadgets, slatted window light",
+      "canonical_appearance": "organized-chaos 2D anime office with floating monitors, glass-cased quantum computer, blue and green liquid cooling tubes, antique books, futuristic gadgets, slatted window light"
+    },
+    {
+      "name": "Isaac's Phone",
+      "aliases": [
+        "phone",
+        "smartphone",
+        "text box"
+      ],
+      "appearance": "sleek black smartphone with glowing anime UI and readable text-message interface",
+      "canonical_appearance": "sleek black anime smartphone, glowing minimal UI, readable text-message box, same device design in all close-ups"
+    },
+    {
+      "name": "Red Scarf",
+      "aliases": [
+        "Gertie's red scarf",
+        "scarf"
+      ],
+      "appearance": "soft saturated red scarf, folded or draped naturally, warm fabric texture in cel-shaded anime style",
+      "canonical_appearance": "soft saturated red scarf, folded or draped naturally, warm fabric texture, clear recurring prop in 2D anime style"
+    },
+    {
+      "name": "Gertie",
+      "aliases": [
+        "Gertie",
+        "Gertie's message"
+      ],
+      "appearance": "off-screen friend represented only by phone messages unless the script later shows her",
+      "canonical_appearance": "off-screen friend represented only by phone messages in this sequence; do not invent Gertie's face or body unless a later script explicitly shows Gertie"
+    },
+    {
+      "name": "Masked Operative 1",
+      "aliases": [
+        "Operative 1",
+        "First Operative"
+      ],
+      "appearance": "slim silhouette, black bodysuit with tactical gear, full face mask, dark visor, no lights, carries a pistol, distinctive black gloves."
+    },
+    {
+      "name": "Masked Operative 2",
+      "aliases": [
+        "Operative 2",
+        "Second Operative"
+      ],
+      "appearance": "slim silhouette, black bodysuit with tactical gear, full face mask, dark visor, no lights, carries a duffel bag, distinctive black gloves."
+    },
+    {
+      "name": "Masked Operative 3",
+      "aliases": [
+        "Operative 3",
+        "Third Operative"
+      ],
+      "appearance": "slim silhouette, black bodysuit with tactical gear, full face mask, dark visor, no lights, carries a handheld scanner, distinctive black gloves."
+    },
+    {
+      "name": "Masked Operative 4",
+      "aliases": [
+        "Operative 4",
+        "Fourth Operative"
+      ],
+      "appearance": "slim silhouette, black bodysuit with tactical gear, full face mask, dark visor, no lights, carries a compact laser cutter, distinctive black gloves."
+    },
+    {
+      "name": "Masked Operative 5",
+      "aliases": [
+        "Operative 5",
+        "Fifth Operative"
+      ],
+      "appearance": "slim silhouette, black bodysuit with tactical gear, full face mask, dark visor, no lights, carries a weapon, distinctive black gloves."
+    },
+    {
+      "name": "Canine-Like Quadruped Robot",
+      "aliases": [
+        "Combat Robot",
+        "Quadruped Bot"
+      ],
+      "appearance": "quadrupedal silhouette, metallic gray with black accents, reinforced body, mounted surveillance camera on back, glowing blue eyes, claws for heavy lifting, distinctive markings of a tech company logo."
+    },
+    {
+      "name": "Security Quadruped Robot",
+      "aliases": [
+        "Security Bot",
+        "Defensive Robot"
+      ],
+      "appearance": "quadrupedal silhouette, dark metallic with red accents, reinforced frame, glowing red eyes, equipped with stun laser weapons, distinctive markings of a security corporation logo."
+    },
+    {
+      "name": "Unmarked Black Van",
+      "aliases": [
+        "Black Van",
+        "Operative Van"
+      ],
+      "appearance": "boxy silhouette, matte black exterior, no visible markings, tinted windows, low-profile design."
+    },
+    {
+      "name": "Small Drone",
+      "aliases": [
+        "Surveillance Drone",
+        "Recon Drone"
+      ],
+      "appearance": "compact silhouette, sleek black with blue lights, propellers on top, small camera mounted underneath."
+    },
+    {
+      "name": "Electrical Power Facility",
+      "aliases": [
+        "Facility",
+        "Power Plant"
+      ],
+      "appearance": "massive silhouette, grimy metal exterior, riveted sheets, network of pipes, dimly lit with sporadic sparks, industrial design."
+    },
+    {
+      "name": "Bomb",
+      "aliases": [
+        "Explosive Device",
+        "Timer Bomb"
+      ],
+      "appearance": "compact rectangular shape, metallic casing, blinking red timer display, distinctive wires protruding."
+    }
+  ]
+}
