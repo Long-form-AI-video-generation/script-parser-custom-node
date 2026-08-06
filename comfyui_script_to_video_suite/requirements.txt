@@ -8,3 +8,5 @@ natsort>=8.0.0
 openai
 httpx
 anthropic
+python-docx
+

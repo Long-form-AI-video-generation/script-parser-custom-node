@@ -60,8 +60,10 @@ function addComboValue(widget, value) {
 
 async function uploadPdf(file) {
     const filename = file?.name ?? "";
-    if (!filename.toLowerCase().endsWith(".pdf")) {
-        throw new Error("Please select a PDF file.");
+    const allowedExts = [".pdf", ".docx", ".txt"];
+    const hasValidExt = allowedExts.some(ext => filename.toLowerCase().endsWith(ext));
+    if (!hasValidExt) {
+        throw new Error("Please select a PDF, DOCX, or TXT file.");
     }
 
     const body = new FormData();
@@ -88,7 +90,7 @@ function openPdfPicker(node, pdfWidget) {
 
     const fileInput = document.createElement("input");
     fileInput.type = "file";
-    fileInput.accept = ".pdf,application/pdf";
+    fileInput.accept = ".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain";
 
     fileInput.addEventListener("change", async () => {
         const file = fileInput.files?.[0];

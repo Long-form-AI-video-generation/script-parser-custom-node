@@ -12,6 +12,11 @@ except ImportError:
     DocumentConverter = None
 
 try:
+    from docx import Document as DocxDocument
+except ImportError:
+    DocxDocument = None
+
+try:
     import folder_paths
 except ImportError:
     folder_paths = None
@@ -84,24 +89,46 @@ class PDFChunker:
     def _extract_text_from_pdf(self, pdf_path: str) -> str:
         
         if not os.path.exists(pdf_path):
-            raise FileNotFoundError(f"PDF file not found at '{pdf_path}'")
+            raise FileNotFoundError(f"File not found at '{pdf_path}'")
 
-        if DocumentConverter is None:
+        ext = os.path.splitext(pdf_path)[1].lower()
+
+        # Handle plain text files directly — no library needed
+        if ext == ".txt":
+            with open(pdf_path, "r", encoding="utf-8") as f:
+                text = f.read()
+            if not text.strip():
+                raise IOError("Text file is empty.")
+            return text
+
+        # For PDF and DOCX: try Docling first (supports both)
+        if DocumentConverter is not None:
+            try:
+                converter = DocumentConverter()
+                result = converter.convert(pdf_path)
+                return result.document.export_to_markdown()
+            except Exception as e:
+                print(f"PDF Chunker: Docling extraction failed: {e}")
+                if ext == ".pdf":
+                    print("PDF Chunker: Falling back to PyMuPDF.")
+                    return self._extract_with_pymupdf(pdf_path)
+                if ext == ".docx" and DocxDocument is not None:
+                    print("PDF Chunker: Falling back to python-docx.")
+                    doc = DocxDocument(pdf_path)
+                    return "\n\n".join(p.text for p in doc.paragraphs if p.text.strip())
+                raise
+
+        # No Docling installed — use fallbacks
+        if ext == ".pdf":
             print("PDF Chunker: Docling is not installed; using PyMuPDF text extraction.")
             return self._extract_with_pymupdf(pdf_path)
 
-        try:
-            converter = DocumentConverter()
-            result = converter.convert(pdf_path)
-            markdown_output = result.document.export_to_markdown()
-            return markdown_output
-        except Exception as e:
-            error_text = str(e)
-            print(
-                "PDF Chunker: Docling extraction failed; falling back to PyMuPDF. "
-                f"Reason: {error_text}"
-            )
-            return self._extract_with_pymupdf(pdf_path)
+        if ext == ".docx" and DocxDocument is not None:
+            print("PDF Chunker: Docling is not installed; using python-docx text extraction.")
+            doc = DocxDocument(pdf_path)
+            return "\n\n".join(p.text for p in doc.paragraphs if p.text.strip())
+
+        raise ValueError(f"Cannot process '{ext}' files. Install docling or python-docx: pip install docling python-docx")
 
     def _chunk_text(self, text: str, chunk_size: int, overlap_size: int) -> list[str]:
         """Helper function to split text into smaller, overlapping chunks."""
@@ -167,7 +194,7 @@ class PDFUploadChunker(PDFChunker):
         pdf_files = []
         for root, _, files in os.walk(input_dir):
             for filename in files:
-                if not filename.lower().endswith(".pdf"):
+                if not filename.lower().endswith((".pdf", ".docx", ".txt")):
                     continue
                 rel_path = os.path.relpath(os.path.join(root, filename), input_dir)
                 pdf_files.append(rel_path.replace(os.sep, "/"))
@@ -219,8 +246,8 @@ class PDFUploadChunker(PDFChunker):
             except ValueError as exc:
                 raise ValueError("Uploaded PDF must be inside the ComfyUI input folder.") from exc
 
-        if not pdf_path.lower().endswith(".pdf"):
-            raise ValueError(f"Selected file is not a PDF: {pdf_file}")
+        if not pdf_path.lower().endswith((".pdf", ".docx", ".txt")):
+            raise ValueError(f"Selected file is not a supported type (PDF, DOCX, TXT): {pdf_file}")
 
         if not os.path.isfile(pdf_path):
             raise FileNotFoundError(f"PDF file not found at '{pdf_path}'")
