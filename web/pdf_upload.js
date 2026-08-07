@@ -212,7 +212,7 @@ function ensurePdfUploadWidget(node, pdfInputName) {
         () => openPdfPicker(node, pdfWidget),
         { serialize: false }
     );
-    uploadWidget.label = "choose PDF to upload";
+    uploadWidget.label = "choose file to upload";
     uploadWidget.serialize = false;
 
     resizeNodeForWidget(node);
