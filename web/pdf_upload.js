@@ -108,7 +108,7 @@ function openPdfPicker(node, pdfWidget) {
             addComboValue(pdfWidget, uploadedPath);
             pdfWidget.value = uploadedPath;
             pdfWidget.callback?.(uploadedPath);
-            notify(`PDF uploaded and selected: ${uploadedPath}`);
+            notify(`File uploaded and selected: ${uploadedPath}`);
         } catch (error) {
             pdfWidget.value = previousValue;
             alert(`PDF upload failed: ${error.message ?? error}`);
@@ -125,7 +125,7 @@ function notify(text) {
     try {
         app.extensionManager.toast.add({
             severity: "success",
-            summary: "PDF Upload",
+            summary: "File Upload",
             detail: text,
             life: 5000,
         });
@@ -148,7 +148,7 @@ function ensureFloatingUploadButton() {
 
     const btn = document.createElement("button");
     btn.id = "s2v-pdf-upload-fab";
-    btn.textContent = "Upload PDF";
+    btn.textContent = "Upload File";
     Object.assign(btn.style, {
         position: "fixed",
         bottom: "76px",

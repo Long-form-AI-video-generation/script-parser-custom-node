@@ -50,7 +50,7 @@ NODE_CLASS_MAPPINGS = {
 NODE_DISPLAY_NAME_MAPPINGS = {
     "LLMProvider_S2V": "0. LLM Provider (S2V)",
     "PDFChunker_S2V": "1. PDF Chunker (S2V)",
-    "PDFUploadChunker_S2V": "1a. PDF Upload Chunker (S2V)",
+    "PDFUploadChunker_S2V": "1a. File Upload Chunker (S2V)",
     "StoryboardGenerator_S2V": "2. Storyboard Generator (S2V)",
     "PromptGenerator_S2V": "3. Prompt Generator (S2V)",
     "PromptUnpacker_S2V": "4. Prompt Unpacker (S2V)",
