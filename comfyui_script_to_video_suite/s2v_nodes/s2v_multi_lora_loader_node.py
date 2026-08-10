@@ -61,7 +61,9 @@ class MultiLoraLoader_S2V:
                 "path": resolved_path,
                 "strength": strength_model,  
                 "name": os.path.splitext(os.path.basename(lora_name))[0],
-                "merge_loras": True,
+                # Per-prompt LoRAs are applied through WanVideoSetLoRAs. Merging
+                # materializes another 14B model and defeats model reuse.
+                "merge_loras": False,
                 "low_mem_load": False,
                 "blocks": {},
                 "layer_filter": ""

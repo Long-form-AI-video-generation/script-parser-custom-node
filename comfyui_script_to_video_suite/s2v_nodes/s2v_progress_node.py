@@ -48,6 +48,43 @@ class ProgressMessage_S2V:
         return (value,)
 
 
+class PromptExecutionStatus_S2V:
+    """Publish the prompt currently entering a generation stage."""
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "value": (any_type,),
+                "prompt": ("STRING", {"forceInput": True}),
+                "index": ("INT", {"forceInput": True}),
+                "total": ("INT", {"forceInput": True}),
+                "stage": ("STRING", {"default": "Generating video"}),
+            },
+            "hidden": {"unique_id": "UNIQUE_ID"},
+        }
+
+    RETURN_TYPES = (any_type, "STRING", "STRING")
+    RETURN_NAMES = ("value", "current_prompt", "status")
+    FUNCTION = "show"
+    CATEGORY = "Script To Video Suite"
+
+    def show(self, value, prompt, index, total, stage="Generating video", unique_id=None):
+        prompt = " ".join(str(prompt or "").split())
+        total = max(1, int(total))
+        shown_index = max(1, min(int(index) + 1, total))
+        stage = " ".join(str(stage or "Generating video").split())
+        status = f"{stage}: prompt {shown_index}/{total}"
+        display = f"{status}\n{prompt[:600]}"
+
+        print(f"\n{'=' * 80}\n{display}\n{'=' * 80}\n", flush=True)
+        announce_to_ui(display, unique_id)
+        return {
+            "ui": {"text": [status, prompt]},
+            "result": (value, prompt, status),
+        }
+
+
 def announce_to_ui(text, unique_id=None):
     """Best-effort UI announcements: a toast event (works in app mode via
     web/s2v_progress.js) and node progress text (graph view)."""

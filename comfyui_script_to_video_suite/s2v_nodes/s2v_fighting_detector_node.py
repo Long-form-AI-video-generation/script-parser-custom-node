@@ -117,7 +117,9 @@ class DragonBallLoRAConditional_S2V:
             "path": lora_path,
             "strength": strength, 
             "name": os.path.splitext(lora_name)[0],
-            "merge_loras": True,         
+            # This configuration is consumed by WanVideoSetLoRAs, which applies
+            # prompt-specific patches to a cloned patcher without merging a model.
+            "merge_loras": False,
             "low_mem_load": False,
             "blocks": {},               
             "layer_filter": ""          
