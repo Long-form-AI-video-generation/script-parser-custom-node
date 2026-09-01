@@ -60,8 +60,10 @@ function addComboValue(widget, value) {
 
 async function uploadPdf(file) {
     const filename = file?.name ?? "";
-    if (!filename.toLowerCase().endsWith(".pdf")) {
-        throw new Error("Please select a PDF file.");
+    const allowedExts = [".pdf", ".docx", ".txt"];
+    const hasValidExt = allowedExts.some(ext => filename.toLowerCase().endsWith(ext));
+    if (!hasValidExt) {
+        throw new Error("Please select a PDF, DOCX, or TXT file.");
     }
 
     const body = new FormData();
@@ -88,7 +90,7 @@ function openPdfPicker(node, pdfWidget) {
 
     const fileInput = document.createElement("input");
     fileInput.type = "file";
-    fileInput.accept = ".pdf,application/pdf";
+    fileInput.accept = ".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain";
 
     fileInput.addEventListener("change", async () => {
         const file = fileInput.files?.[0];
@@ -106,7 +108,7 @@ function openPdfPicker(node, pdfWidget) {
             addComboValue(pdfWidget, uploadedPath);
             pdfWidget.value = uploadedPath;
             pdfWidget.callback?.(uploadedPath);
-            notify(`PDF uploaded and selected: ${uploadedPath}`);
+            notify(`File uploaded and selected: ${uploadedPath}`);
         } catch (error) {
             pdfWidget.value = previousValue;
             alert(`PDF upload failed: ${error.message ?? error}`);
@@ -123,7 +125,7 @@ function notify(text) {
     try {
         app.extensionManager.toast.add({
             severity: "success",
-            summary: "PDF Upload",
+            summary: "File Upload",
             detail: text,
             life: 5000,
         });
@@ -146,7 +148,7 @@ function ensureFloatingUploadButton() {
 
     const btn = document.createElement("button");
     btn.id = "s2v-pdf-upload-fab";
-    btn.textContent = "Upload PDF";
+    btn.textContent = "Upload File";
     Object.assign(btn.style, {
         position: "fixed",
         bottom: "76px",
@@ -210,7 +212,7 @@ function ensurePdfUploadWidget(node, pdfInputName) {
         () => openPdfPicker(node, pdfWidget),
         { serialize: false }
     );
-    uploadWidget.label = "choose PDF to upload";
+    uploadWidget.label = "choose file to upload";
     uploadWidget.serialize = false;
 
     resizeNodeForWidget(node);

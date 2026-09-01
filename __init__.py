@@ -19,7 +19,10 @@ from .comfyui_script_to_video_suite.s2v_nodes.s2v_anime_prompt_guard_node import
 from .comfyui_script_to_video_suite.s2v_nodes.s2v_gpu_cleanup_node import GPUCleanup_S2V
 from .comfyui_script_to_video_suite.s2v_nodes.s2v_shot_plan_node import ShotPlanValidator_S2V, ShotStartRouter_S2V
 from .comfyui_script_to_video_suite.s2v_nodes.s2v_dual_memory_node import DualMemorySelector_S2V
+from .comfyui_script_to_video_suite.s2v_nodes.s2v_llm_provider_node import LLMProvider_S2V
+from .comfyui_script_to_video_suite.s2v_nodes.s2v_rag_node import RagConsistencyNode_S2V
 NODE_CLASS_MAPPINGS = {
+    "LLMProvider_S2V": LLMProvider_S2V,
     "PDFChunker_S2V": PDFChunker,
     "PDFUploadChunker_S2V": PDFUploadChunker,
     "StoryboardGenerator_S2V": StoryboardGenerator,
@@ -49,8 +52,9 @@ NODE_CLASS_MAPPINGS = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
+    "LLMProvider_S2V": "0. LLM Provider (S2V)",
     "PDFChunker_S2V": "1. PDF Chunker (S2V)",
-    "PDFUploadChunker_S2V": "1a. PDF Upload Chunker (S2V)",
+    "PDFUploadChunker_S2V": "1a. File Upload Chunker (S2V)",
     "StoryboardGenerator_S2V": "2. Storyboard Generator (S2V)",
     "PromptGenerator_S2V": "3. Prompt Generator (S2V)",
     "PromptUnpacker_S2V": "4. Prompt Unpacker (S2V)",
