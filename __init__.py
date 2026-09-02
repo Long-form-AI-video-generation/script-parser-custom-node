@@ -12,6 +12,7 @@ from .comfyui_script_to_video_suite.s2v_nodes.s2v_video_merger_node import Video
 
 from .comfyui_script_to_video_suite.s2v_nodes.s2v_progress_node import ProgressMessage_S2V, PromptExecutionStatus_S2V
 from .comfyui_script_to_video_suite.s2v_nodes.s2v_generation_control_node import GenerationFolder_S2V
+from .comfyui_script_to_video_suite.s2v_nodes.s2v_generation_metrics_node import GenerationMetricsStart_S2V, GenerationMetricsReport_S2V
 from .comfyui_script_to_video_suite.s2v_nodes.s2v_character_bible_node import CharacterBibleInjector_S2V
 from .comfyui_script_to_video_suite.s2v_nodes.s2v_character_extractor_node import CharacterExtractor_S2V
 from .comfyui_script_to_video_suite.s2v_nodes.s2v_character_lora_node import CharacterLoraSelect_S2V, OptionalWanLora_S2V
@@ -40,6 +41,8 @@ NODE_CLASS_MAPPINGS = {
     "ProgressMessage_S2V": ProgressMessage_S2V,
     "PromptExecutionStatus_S2V": PromptExecutionStatus_S2V,
     "GenerationFolder_S2V": GenerationFolder_S2V,
+    "GenerationMetricsStart_S2V": GenerationMetricsStart_S2V,
+    "GenerationMetricsReport_S2V": GenerationMetricsReport_S2V,
     "CharacterBibleInjector_S2V": CharacterBibleInjector_S2V,
     "CharacterExtractor_S2V": CharacterExtractor_S2V,
     "CharacterLoraSelect_S2V": CharacterLoraSelect_S2V,
@@ -70,6 +73,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "ProgressMessage_S2V": "Progress Message (S2V)",
     "PromptExecutionStatus_S2V": "Current Prompt and Progress (S2V)",
     "GenerationFolder_S2V": "Generation Output Folder (S2V)",
+    "GenerationMetricsStart_S2V": "Metrics: Start Measurement (S2V)",
+    "GenerationMetricsReport_S2V": "Metrics: Analyze and Save Report (S2V)",
     "CharacterBibleInjector_S2V": "Character Bible Injector (S2V)",
     "CharacterExtractor_S2V": "Character Extractor (S2V)",
     "CharacterLoraSelect_S2V": "Character LoRA Select (S2V)",
